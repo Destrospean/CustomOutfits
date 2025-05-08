@@ -809,7 +809,7 @@ namespace Destrospean
         static ListenerAction OnSimSelected(Event e)
         {
             try
-            {    
+            {
                 if (kShowSimMenu)
                 {
                     AddInteractions(Sim.ActiveActor);

@@ -90,8 +90,8 @@ namespace Destrospean
             }
         }
 
-		public class GraduateInCityHall : School.GraduateInCityHall
-		{
+        public class GraduateInCityHall : School.GraduateInCityHall
+        {
             public class DefinitionModified : InteractionDefinition<Sim, RabbitHole, GraduateInCityHall>
             {
                 public override bool Test(Sim actor, RabbitHole target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
@@ -111,134 +111,134 @@ namespace Destrospean
                 }
             }
 
-			public override bool RouteNearEntranceAndIntoBuilding(bool canUseCar, Route.RouteMetaType routeMetaType)
-			{
-				School.sGraduatingSims[Actor.SimDescription].State = School.GraduationState.EnRoute;
-				if (Actor.CurrentOutfit.Key == Actor.GraduationOutfitKey)
-				{
-					while (mLeader != null)
-					{
-						if (Actor.WaitForExitReason(Sim.kWaitForExitReasonDefaultTime, ExitReason.Default))
-						{
-							return false;
-						}
-					}
-					if (mWasFollower)
-					{
-						mPriority.Value = mOldPriority;
-						return Target.RouteNearEntranceAndEnterRabbitHole(Actor, this, BeforeEnteringRabbitHole, canUseCar, routeMetaType, true);
+            public override bool RouteNearEntranceAndIntoBuilding(bool canUseCar, Route.RouteMetaType routeMetaType)
+            {
+                School.sGraduatingSims[Actor.SimDescription].State = School.GraduationState.EnRoute;
+                if (Actor.CurrentOutfit.Key == Actor.GraduationOutfitKey)
+                {
+                    while (mLeader != null)
+                    {
+                        if (Actor.WaitForExitReason(Sim.kWaitForExitReasonDefaultTime, ExitReason.Default))
+                        {
+                            return false;
+                        }
                     }
-				}
-				else if (Autonomous)
-				{
-					Actor.ShowTNSIfSelectable(TNSNames.PushedToAttendGraduationTNS, Actor, null, Actor);
-				}
-				Actor.BuffManager.RemoveElement(BuffNames.OnFire);
-				Actor.BuffManager.RemoveElement(BuffNames.Singed);
-				Actor.BuffManager.RemoveElement(BuffNames.SingedElectricity);
-				List<Sim> graduates = new List<Sim>();
-				mOtherPossibleFollowingGraduates = new List<Sim>();
-				if (mLeader == null && !Actor.Household.IsSpecialHousehold)
-				{
-					foreach (Sim sim in Actor.Household.Sims)
-					{
-						if (sim == Actor)
-						{
-							continue;
-						}
-						if (sim.LotCurrent == Actor.LotCurrent)
-						{
-							graduates.Add(sim);
-							if (School.IsSimGraduating(sim.SimDescription))
-							{
-								mOtherPossibleFollowingGraduates.Add(sim);
-								if (!(sim.InteractionQueue.HasInteractionOfType(Singleton) || sim.InteractionQueue.HasInteractionOfType(GraduateInPlace.Singleton)))
-								{
-									GraduateInCityHall graduateInCityHall = Singleton.CreateInstance(Target, sim, GetPriority(), false, true) as GraduateInCityHall;
-									graduateInCityHall.MustRun = true;
-									sim.InteractionQueue.AddNext(graduateInCityHall);
-								}
-							}
-							else if (sim.SimDescription.ToddlerOrAbove)
-							{
-								sim.PushSwitchToOutfitInteraction(Sim.ClothesChangeReason.Force, OutfitCategories.Formalwear, GetPriority());
-							}
-						}
-						else if (School.IsSimGraduating(sim.SimDescription))
-						{
-							if (!sim.InteractionQueue.HasInteractionOfType(Singleton) && !sim.InteractionQueue.HasInteractionOfType(GraduateInPlace.Singleton))
-							{
-								InteractionInstance interactionInstance = Singleton.CreateInstance(Target, sim, GetPriority(), false, true);
-								interactionInstance.MustRun = true;
-								sim.InteractionQueue.Add(interactionInstance);
-							}
-						}
-						else
-						{
-							InteractionInstance entry = School.AttendGraduation.Singleton.CreateInstance(Target, sim, GetPriority(), false, true);
-							sim.InteractionQueue.Add(entry);
-						}
-					}
-				}
-				if (Actor.CurrentOutfit.Key != Actor.GraduationOutfitKey && GetHighSchoolGraduationOutfitEnabled(Actor.SimDescription))
-				{
-					ResourceKey highSchoolGraduationUniformKey = GetHighSchoolGraduationUniformKey(Actor.SimDescription);
-					if (highSchoolGraduationUniformKey != ResourceKey.kInvalidResourceKey)
-					{
-						Actor.GraduationOutfitKey = highSchoolGraduationUniformKey;
-						Sim.SwitchOutfitHelper switchOutfitHelper = new Sim.SwitchOutfitHelper(Actor, highSchoolGraduationUniformKey);
-						switchOutfitHelper.OverrideProductVersion = ProductVersion.EP4;
-						switchOutfitHelper.OverrideAnimation = "a_graduation_changeClothes_x";
-						Actor.SwitchToOutfitWithSpin(switchOutfitHelper);
-					}
-				}
-				AddCarryingPosturePrecondition(this);
-				if (!Actor.HasExitReason() && mLeader == null)
-				{
-					foreach (Sim mOtherPossibleFollowingGraduate in mOtherPossibleFollowingGraduates)
-					{
-						foreach (InteractionInstance interaction in mOtherPossibleFollowingGraduate.InteractionQueue.InteractionList)
-						{
-							if (interaction is GraduateInCityHall graduateInCityHall)
-							{
-								graduateInCityHall.mReaddOnClean = true;
-								graduateInCityHall.mLeader = Actor;
-								graduateInCityHall.mWasFollower = true;
-								break;
-							}
-						}
-					}
-					Target.RouteOutside(Actor, graduates);
-					Lot.ValidateFollowers(graduates);
-					foreach (Sim otherPossibleFollowingGraduate in mOtherPossibleFollowingGraduates)
-					{
-						foreach (InteractionInstance interaction in otherPossibleFollowingGraduate.InteractionQueue.InteractionList)
-						{
-							if (interaction is GraduateInCityHall graduateInCityHall)
-							{
-								graduateInCityHall.mReaddOnClean = false;
-								graduateInCityHall.mLeader = null;
-								break;
-							}
-						}
-					}
-					if (!Actor.HasExitReason())
-					{
-						foreach (Sim sim in graduates)
-						{
-							if (!School.IsSimGraduating(sim.SimDescription))
-							{
-								sim.InteractionQueue.Add(School.AttendGraduation.Singleton.CreateInstance(Target, sim, GetPriority(), false, true));
-							}
-						}
-						return Target.RouteNearEntranceAndEnterRabbitHole(Actor, this, BeforeEnteringRabbitHole, canUseCar, routeMetaType, true);
+                    if (mWasFollower)
+                    {
+                        mPriority.Value = mOldPriority;
+                        return Target.RouteNearEntranceAndEnterRabbitHole(Actor, this, BeforeEnteringRabbitHole, canUseCar, routeMetaType, true);
                     }
-				}
-				return false;
-			}
-		}
+                }
+                else if (Autonomous)
+                {
+                    Actor.ShowTNSIfSelectable(TNSNames.PushedToAttendGraduationTNS, Actor, null, Actor);
+                }
+                Actor.BuffManager.RemoveElement(BuffNames.OnFire);
+                Actor.BuffManager.RemoveElement(BuffNames.Singed);
+                Actor.BuffManager.RemoveElement(BuffNames.SingedElectricity);
+                List<Sim> graduates = new List<Sim>();
+                mOtherPossibleFollowingGraduates = new List<Sim>();
+                if (mLeader == null && !Actor.Household.IsSpecialHousehold)
+                {
+                    foreach (Sim sim in Actor.Household.Sims)
+                    {
+                        if (sim == Actor)
+                        {
+                            continue;
+                        }
+                        if (sim.LotCurrent == Actor.LotCurrent)
+                        {
+                            graduates.Add(sim);
+                            if (School.IsSimGraduating(sim.SimDescription))
+                            {
+                                mOtherPossibleFollowingGraduates.Add(sim);
+                                if (!(sim.InteractionQueue.HasInteractionOfType(Singleton) || sim.InteractionQueue.HasInteractionOfType(GraduateInPlace.Singleton)))
+                                {
+                                    GraduateInCityHall graduateInCityHall = Singleton.CreateInstance(Target, sim, GetPriority(), false, true) as GraduateInCityHall;
+                                    graduateInCityHall.MustRun = true;
+                                    sim.InteractionQueue.AddNext(graduateInCityHall);
+                                }
+                            }
+                            else if (sim.SimDescription.ToddlerOrAbove)
+                            {
+                                sim.PushSwitchToOutfitInteraction(Sim.ClothesChangeReason.Force, OutfitCategories.Formalwear, GetPriority());
+                            }
+                        }
+                        else if (School.IsSimGraduating(sim.SimDescription))
+                        {
+                            if (!sim.InteractionQueue.HasInteractionOfType(Singleton) && !sim.InteractionQueue.HasInteractionOfType(GraduateInPlace.Singleton))
+                            {
+                                InteractionInstance interactionInstance = Singleton.CreateInstance(Target, sim, GetPriority(), false, true);
+                                interactionInstance.MustRun = true;
+                                sim.InteractionQueue.Add(interactionInstance);
+                            }
+                        }
+                        else
+                        {
+                            InteractionInstance entry = School.AttendGraduation.Singleton.CreateInstance(Target, sim, GetPriority(), false, true);
+                            sim.InteractionQueue.Add(entry);
+                        }
+                    }
+                }
+                if (Actor.CurrentOutfit.Key != Actor.GraduationOutfitKey && GetHighSchoolGraduationOutfitEnabled(Actor.SimDescription))
+                {
+                    ResourceKey highSchoolGraduationUniformKey = GetHighSchoolGraduationUniformKey(Actor.SimDescription);
+                    if (highSchoolGraduationUniformKey != ResourceKey.kInvalidResourceKey)
+                    {
+                        Actor.GraduationOutfitKey = highSchoolGraduationUniformKey;
+                        Sim.SwitchOutfitHelper switchOutfitHelper = new Sim.SwitchOutfitHelper(Actor, highSchoolGraduationUniformKey);
+                        switchOutfitHelper.OverrideProductVersion = ProductVersion.EP4;
+                        switchOutfitHelper.OverrideAnimation = "a_graduation_changeClothes_x";
+                        Actor.SwitchToOutfitWithSpin(switchOutfitHelper);
+                    }
+                }
+                AddCarryingPosturePrecondition(this);
+                if (!Actor.HasExitReason() && mLeader == null)
+                {
+                    foreach (Sim mOtherPossibleFollowingGraduate in mOtherPossibleFollowingGraduates)
+                    {
+                        foreach (InteractionInstance interaction in mOtherPossibleFollowingGraduate.InteractionQueue.InteractionList)
+                        {
+                            if (interaction is GraduateInCityHall graduateInCityHall)
+                            {
+                                graduateInCityHall.mReaddOnClean = true;
+                                graduateInCityHall.mLeader = Actor;
+                                graduateInCityHall.mWasFollower = true;
+                                break;
+                            }
+                        }
+                    }
+                    Target.RouteOutside(Actor, graduates);
+                    Lot.ValidateFollowers(graduates);
+                    foreach (Sim otherPossibleFollowingGraduate in mOtherPossibleFollowingGraduates)
+                    {
+                        foreach (InteractionInstance interaction in otherPossibleFollowingGraduate.InteractionQueue.InteractionList)
+                        {
+                            if (interaction is GraduateInCityHall graduateInCityHall)
+                            {
+                                graduateInCityHall.mReaddOnClean = false;
+                                graduateInCityHall.mLeader = null;
+                                break;
+                            }
+                        }
+                    }
+                    if (!Actor.HasExitReason())
+                    {
+                        foreach (Sim sim in graduates)
+                        {
+                            if (!School.IsSimGraduating(sim.SimDescription))
+                            {
+                                sim.InteractionQueue.Add(School.AttendGraduation.Singleton.CreateInstance(Target, sim, GetPriority(), false, true));
+                            }
+                        }
+                        return Target.RouteNearEntranceAndEnterRabbitHole(Actor, this, BeforeEnteringRabbitHole, canUseCar, routeMetaType, true);
+                    }
+                }
+                return false;
+            }
+        }
 
-		public class GraduateInPlace : School.GraduateInPlace
+        public class GraduateInPlace : School.GraduateInPlace
         {
             [DoesntRequireTuning]
             public class DefinitionModified : InteractionDefinition<Sim, IGameObject, GraduateInPlace>

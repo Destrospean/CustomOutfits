@@ -213,35 +213,35 @@ namespace Destrospean
             }
         }
 
-		public class Skate : SkatingRink.Skate
-		{
-			public class DefinitionModified : InteractionDefinition<Sim, ISkatableObject, Skate>, Sim.IAskToJoinCustomIOP, Sim.IAskToJoinCustomTest
-			{
-				public override bool Test(Sim actor, ISkatableObject target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
-				{
-					return SharedCanSkateOnObjectTest(actor, target, true, ref greyedOutTooltipCallback);
-				}
+        public class Skate : SkatingRink.Skate
+        {
+            public class DefinitionModified : InteractionDefinition<Sim, ISkatableObject, Skate>, Sim.IAskToJoinCustomIOP, Sim.IAskToJoinCustomTest
+            {
+                public override bool Test(Sim actor, ISkatableObject target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
+                {
+                    return SharedCanSkateOnObjectTest(actor, target, true, ref greyedOutTooltipCallback);
+                }
 
-				public override string GetInteractionName(Sim actor, ISkatableObject target, InteractionObjectPair interaction)
-				{
-					return SkatingRink.LocalizeString(actor.IsFemale, "Skate");
-				}
+                public override string GetInteractionName(Sim actor, ISkatableObject target, InteractionObjectPair interaction)
+                {
+                    return SkatingRink.LocalizeString(actor.IsFemale, "Skate");
+                }
 
-				public InteractionObjectPair GetInteractionForJoin(IActor actor, Sim target, InteractionObjectPair interactionToJoin, bool isAskToJoin)
-				{
-					if (interactionToJoin.Target is ISkatableObject skatableObject)
-					{
-						ISkatableObject skatableObjectForAskToJoin = skatableObject.GetSkatableObjectForAskToJoin(target);
-						return new InteractionObjectPair(Singleton, skatableObjectForAskToJoin);
-					}
-					return null;
-				}
+                public InteractionObjectPair GetInteractionForJoin(IActor actor, Sim target, InteractionObjectPair interactionToJoin, bool isAskToJoin)
+                {
+                    if (interactionToJoin.Target is ISkatableObject skatableObject)
+                    {
+                        ISkatableObject skatableObjectForAskToJoin = skatableObject.GetSkatableObjectForAskToJoin(target);
+                        return new InteractionObjectPair(Singleton, skatableObjectForAskToJoin);
+                    }
+                    return null;
+                }
 
-				public bool AskToJoinTest(Sim actor, Sim target, InteractionObjectPair interaction, bool isAskToJoin)
-				{
-					return SkatingRink.IsSimValidToSkateWithActor(actor, target);
-				}
-			}
+                public bool AskToJoinTest(Sim actor, Sim target, InteractionObjectPair interaction, bool isAskToJoin)
+                {
+                    return SkatingRink.IsSimValidToSkateWithActor(actor, target);
+                }
+            }
 
             public new bool ApproachRink()
             {
@@ -263,61 +263,61 @@ namespace Destrospean
             }
 
             public override bool Run()
-			{
-				mIsOccultSkater = CalculateIfActorIsOccultSkater();
-				mShouldChangeOutfit = CalculateIfActorShouldChangeOutfit();
+            {
+                mIsOccultSkater = CalculateIfActorIsOccultSkater();
+                mShouldChangeOutfit = CalculateIfActorShouldChangeOutfit();
                 if (!ApproachRink())
-				{
-					return false;
-				}
-				if (!PutOnSkatesAndEnterRink())
-				{
-					return false;
-				}
-				if (!WaitForSpot())
-				{
-					return false;
-				}
-				if (!DoSkate())
-				{
-					return false;
-				}
-				ExitRink();
-				return true;
-			}
+                {
+                    return false;
+                }
+                if (!PutOnSkatesAndEnterRink())
+                {
+                    return false;
+                }
+                if (!WaitForSpot())
+                {
+                    return false;
+                }
+                if (!DoSkate())
+                {
+                    return false;
+                }
+                ExitRink();
+                return true;
+            }
 
-			public override void Cleanup()
-			{
-				if (mSkateState != 0)
-				{
-					if (Target != null)
-					{
-						Target.FinishedWaitingAtEntrance(mEntranceUsed, Actor);
-						Target.UnregisterSkater(Actor);
-						Target.FinishedWaitingAtExit(mExitUsed, Actor, this);
-					}
-					if (mAddedExtraInteractions)
-					{
-						RemoveExtraInteractions();
-					}
-					Actor.OnExitReasonsAdded -= RouteExitReasonsAddedCallback;
-					Actor.RoutingComponent.RemoveTravellingEventCallback(SkatingRouteCallback);
-					Actor.LookAtManager.EnableLookAts();
-					if (mPutOnSkateOutfit)
-					{
-						TakeOffSkatesEvent(null, null);
-					}
-					if (mSkateOutfitIndex != -1)
-					{
-						Actor.SimDescription.RemoveSpecialOutfit("SkatingOutfit");
-						mSkateOutfitIndex = -1;
-					}
-					DestroySingleSpinJig();
-					DestroyCouplesSpinJig();
-				}
-				base.Cleanup();
-			}
-		}
+            public override void Cleanup()
+            {
+                if (mSkateState != 0)
+                {
+                    if (Target != null)
+                    {
+                        Target.FinishedWaitingAtEntrance(mEntranceUsed, Actor);
+                        Target.UnregisterSkater(Actor);
+                        Target.FinishedWaitingAtExit(mExitUsed, Actor, this);
+                    }
+                    if (mAddedExtraInteractions)
+                    {
+                        RemoveExtraInteractions();
+                    }
+                    Actor.OnExitReasonsAdded -= RouteExitReasonsAddedCallback;
+                    Actor.RoutingComponent.RemoveTravellingEventCallback(SkatingRouteCallback);
+                    Actor.LookAtManager.EnableLookAts();
+                    if (mPutOnSkateOutfit)
+                    {
+                        TakeOffSkatesEvent(null, null);
+                    }
+                    if (mSkateOutfitIndex != -1)
+                    {
+                        Actor.SimDescription.RemoveSpecialOutfit("SkatingOutfit");
+                        mSkateOutfitIndex = -1;
+                    }
+                    DestroySingleSpinJig();
+                    DestroyCouplesSpinJig();
+                }
+                base.Cleanup();
+            }
+        }
 
         static void AddInteractions(GameObject gameObject)
         {

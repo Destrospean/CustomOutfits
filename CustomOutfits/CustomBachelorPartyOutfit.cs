@@ -629,7 +629,7 @@ namespace Destrospean
                 {
                     BachelorPartyOutfitTypes.Underwear,
                     "Underwear1"
-                }                
+                }
             }[outfitType]);
         }
 
