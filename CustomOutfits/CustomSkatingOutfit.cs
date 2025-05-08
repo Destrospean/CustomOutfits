@@ -256,8 +256,7 @@ namespace Destrospean
                         mSkateOutfitIndex = skateOutfitIndex;
                     }
                 }
-                int entranceUsed;
-                bool result = Target.RouteUpToSkatingLocation(Actor, this, out entranceUsed);
+                bool result = Target.RouteUpToSkatingLocation(Actor, this, out var entranceUsed);
                 mEntranceUsed = entranceUsed;
                 return result;
             }
@@ -352,14 +351,10 @@ namespace Destrospean
             {
                 simOutfit = GetSkatingOutfitShoesOnly(actor, isIceRink ? SkatingTypes.Ice : SkatingTypes.Roller);
             }
-            if (simOutfit != null || OutfitUtils.TryGenerateSimOutfit(outfitName, ProductVersion.EP8, out simOutfit))
+            if ((simOutfit != null || OutfitUtils.TryGenerateSimOutfit(outfitName, ProductVersion.EP8, out simOutfit)) && OutfitUtils.TryApplyUniformToOutfit(GetOutfitWithoutShoes(actor, actor.CurrentOutfit), simOutfit, simDescription, "CreateSkatingOutfit", out var resultOutfit))
             {
-                SimOutfit currentOutfit = actor.CurrentOutfit;
-                if (OutfitUtils.TryApplyUniformToOutfit(GetOutfitWithoutShoes(actor, currentOutfit), simOutfit, simDescription, "CreateSkatingOutfit", out var resultOutfit))
-                {
-                    skateOutfitIndex = simDescription.AddSpecialOutfit(resultOutfit, "SkatingOutfit");
-                    return true;
-                }
+                skateOutfitIndex = simDescription.AddSpecialOutfit(resultOutfit, specialOutfitKey);
+                return true;
             }
             return false;
         }
