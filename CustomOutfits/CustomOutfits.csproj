@@ -42,67 +42,67 @@
     <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="CustomAfterschoolActivityOutfit.cs" />
-    <Compile Include="CustomSkatingOutfit.cs" />
-    <Compile Include="CustomMassageTableOutfit.cs" />
-    <Compile Include="CustomHighSchoolGraduationOutfit.cs" />
-    <Compile Include="CustomGraduationOutfit.cs" />
+    <Compile Include="CustomOutfits\CustomAfterschoolActivityOutfit.cs" />
+    <Compile Include="CustomOutfits\CustomSkatingOutfit.cs" />
+    <Compile Include="CustomOutfits\CustomMassageTableOutfit.cs" />
+    <Compile Include="CustomOutfits\CustomHighSchoolGraduationOutfit.cs" />
+    <Compile Include="CustomOutfits\CustomGraduationOutfit.cs" />
     <Compile Include="Tuning.cs" />
-    <Compile Include="CustomBachelorPartyOutfit.cs" />
-    <Compile Include="CustomMechanicalBullOutfit.cs" />
+    <Compile Include="CustomOutfits\CustomBachelorPartyOutfit.cs" />
+    <Compile Include="CustomOutfits\CustomMechanicalBullOutfit.cs" />
     <Compile Include="Common.cs" />
-    <Compile Include="CustomTowelOutfit.cs" />
-    <Compile Include="CustomSingedOutfit.cs" />
-    <Compile Include="CustomBeekeeperOutfit.cs" />
-    <Compile Include="CustomChemistryLabOutfit.cs" />
-    <Compile Include="CustomTeppanyakiChefOutfit.cs" />
+    <Compile Include="CustomOutfits\CustomTowelOutfit.cs" />
+    <Compile Include="CustomOutfits\CustomSingedOutfit.cs" />
+    <Compile Include="CustomOutfits\CustomBeekeeperOutfit.cs" />
+    <Compile Include="CustomOutfits\CustomChemistryLabOutfit.cs" />
+    <Compile Include="CustomOutfits\CustomTeppanyakiChefOutfit.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib">
-      <HintPath>..\..\..\..\..\..\The Sims 3 Dependencies\mscorlib.dll</HintPath>
+      <HintPath>..\libs\mscorlib.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="ScriptCore">
-      <HintPath>..\..\..\..\..\..\The Sims 3 Dependencies\ScriptCore.dll</HintPath>
+      <HintPath>..\libs\ScriptCore.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="SimIFace">
-      <HintPath>..\..\..\..\..\..\The Sims 3 Dependencies\SimIFace.dll</HintPath>
+      <HintPath>..\libs\SimIFace.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Sims3GameplayObjects">
-      <HintPath>..\..\..\..\..\..\The Sims 3 Dependencies\Sims3GameplayObjects.dll</HintPath>
+      <HintPath>..\libs\Sims3GameplayObjects.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Sims3GameplaySystems">
-      <HintPath>..\..\..\..\..\..\The Sims 3 Dependencies\Sims3GameplaySystems.dll</HintPath>
+      <HintPath>..\libs\Sims3GameplaySystems.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Sims3MetaData">
-      <HintPath>..\..\..\..\..\..\The Sims 3 Dependencies\Sims3MetaData.dll</HintPath>
+      <HintPath>..\libs\Sims3MetaData.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Sims3StoreObjects">
-      <HintPath>..\..\..\..\..\..\The Sims 3 Dependencies\Sims3StoreObjects.dll</HintPath>
+      <HintPath>..\libs\Sims3StoreObjects.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System">
-      <HintPath>..\..\..\..\..\..\The Sims 3 Dependencies\System.dll</HintPath>
+      <HintPath>..\libs\System.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System.Xml">
-      <HintPath>..\..\..\..\..\..\The Sims 3 Dependencies\System.Xml.dll</HintPath>
+      <HintPath>..\libs\System.Xml.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UI">
-      <HintPath>..\..\..\..\..\..\The Sims 3 Dependencies\UI.dll</HintPath>
+      <HintPath>..\libs\UI.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\MonoPatcher-main\MonoPatcher\MonoPatcher.csproj">
+    <ProjectReference Include="..\..\MonoPatcher\MonoPatcher\MonoPatcher.csproj">
       <Project>{91460f7b-9c23-4a43-ab52-95eac8d52d93}</Project>
       <Name>MonoPatcher</Name>
       <Private>False</Private>
