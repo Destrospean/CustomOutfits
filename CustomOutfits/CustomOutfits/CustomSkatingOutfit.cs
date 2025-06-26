@@ -2,11 +2,12 @@
 using Sims3.Gameplay.Actors;
 using Sims3.Gameplay.Autonomy;
 using Sims3.Gameplay.CAS;
+using Sims3.Gameplay.Core;
 using Sims3.Gameplay.EventSystem;
 using Sims3.Gameplay.Interactions;
 using Sims3.Gameplay.Interfaces;
 using Sims3.Gameplay.Objects;
-using Sims3.Gameplay.Objects.ShelvesStorage;
+using Sims3.Gameplay.Pools;
 using Sims3.SimIFace;
 using Sims3.SimIFace.CAS;
 using Sims3.UI;
@@ -23,9 +24,6 @@ namespace Destrospean
         protected static bool kInstantiator;
 
         [PersistableStatic]
-        static EventListener sObjectBoughtListener;
-
-        [PersistableStatic]
         static EventListener sSimSelectedListener;
 
         public enum SkatingTypes
@@ -37,9 +35,9 @@ namespace Destrospean
         static CustomSkatingOutfit()
         {
             kInstantiator = false;
-            sObjectBoughtListener = null;
             sSimSelectedListener = null;
             LoadSaveManager.ObjectGroupsPreLoad += OnPreLoad;
+            World.sOnObjectPlacedInLotEventHandler += OnObjectPlacedInLot;
             World.sOnWorldLoadFinishedEventHandler += OnWorldLoadFinished;
             World.sOnWorldQuitEventHandler += OnWorldQuit;
         }
@@ -47,6 +45,8 @@ namespace Destrospean
         public class EditSkatingOutfit : ImmediateInteraction<Sim, GameObject>
         {
             public static InteractionDefinition Singleton = new Definition();
+
+            public GameObjectHit mHit = GameObjectHit.NoHit;
 
             public SkatingTypes mSkatingType;
 
@@ -95,8 +95,18 @@ namespace Destrospean
 
                 public override bool Test(Sim actor, GameObject target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
                 {
-                    return !((target is Sim && actor != target) || actor.SimDescription.ToddlerOrBelow || !actor.SimDescription.IsHuman || actor.SimDescription.IsRobot || isAutonomous);
+                    return true;
                 }
+
+                public override InteractionTestResult Test(ref InteractionInstanceParameters parameters, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
+                {
+                    return InteractionDefinitionUtilities.FromBool(!(!((SkatableTerrain.GetPondSkatingAreaAtPoint(parameters.Hit.mPoint) != null && mSkatingType == SkatingTypes.Ice && PondManager.ArePondsFrozen()) || (parameters.Target is ISkatableObject skatableObject && !((skatableObject.IsIceRink && mSkatingType != SkatingTypes.Ice) || (!skatableObject.IsIceRink && mSkatingType == SkatingTypes.Ice))) || parameters.Target is Sim) || (parameters.Target is Sim && parameters.Actor != parameters.Target) || parameters.Actor.SimDescription.ToddlerOrBelow || !parameters.Actor.SimDescription.IsHuman || parameters.Actor.SimDescription.IsRobot || parameters.Autonomous));
+                }
+            }
+
+            public override InteractionInstanceParameters GetInteractionParameters()
+            {
+                return new InteractionInstanceParameters(InteractionObjectPair, InstanceActor, GetPriority(), false, false, mHit);
             }
 
             public static string GetLocalizationKey(SkatingTypes skatingType)
@@ -112,6 +122,15 @@ namespace Destrospean
                         "EditRollerSkatingOutfit/"
                     }
                 }[skatingType];
+            }
+
+            public override void Init(ref InteractionInstanceParameters parameters)
+            {
+                base.Init(ref parameters);
+                if (mHit == GameObjectHit.NoHit)
+                {
+                    mHit = parameters.Hit;
+                }
             }
 
             public override bool Run()
@@ -133,6 +152,8 @@ namespace Destrospean
         public class ResetSkatingOutfit : ImmediateInteraction<Sim, GameObject>
         {
             public static InteractionDefinition Singleton = new Definition();
+
+            public GameObjectHit mHit = GameObjectHit.NoHit;
 
             public SkatingTypes mSkatingType;
 
@@ -181,8 +202,18 @@ namespace Destrospean
 
                 public override bool Test(Sim actor, GameObject target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
                 {
-                    return !(!actor.SimDescription.HasSpecialOutfit(GetSkatingOutfitName(actor, mSkatingType)) || (target is Sim && actor != target) || actor.SimDescription.ToddlerOrBelow || !actor.SimDescription.IsHuman || actor.SimDescription.IsRobot || isAutonomous);
+                    return true;
                 }
+
+                public override InteractionTestResult Test(ref InteractionInstanceParameters parameters, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
+                {
+                    return InteractionDefinitionUtilities.FromBool(!(!parameters.Actor.SimDescription.HasSpecialOutfit(GetSkatingOutfitName((Sim)parameters.Actor, mSkatingType)) || !((SkatableTerrain.GetPondSkatingAreaAtPoint(parameters.Hit.mPoint) != null && mSkatingType == SkatingTypes.Ice && PondManager.ArePondsFrozen()) || (parameters.Target is ISkatableObject skatableObject && !((skatableObject.IsIceRink && mSkatingType != SkatingTypes.Ice) || (!skatableObject.IsIceRink && mSkatingType == SkatingTypes.Ice))) || parameters.Target is Sim) || (parameters.Target is Sim && parameters.Actor != parameters.Target) || parameters.Actor.SimDescription.ToddlerOrBelow || !parameters.Actor.SimDescription.IsHuman || parameters.Actor.SimDescription.IsRobot || parameters.Autonomous));
+                }
+            }
+
+            public override InteractionInstanceParameters GetInteractionParameters()
+            {
+                return new InteractionInstanceParameters(InteractionObjectPair, InstanceActor, GetPriority(), false, false, mHit);
             }
 
             public static string GetLocalizationKey(SkatingTypes skatingType)
@@ -198,6 +229,15 @@ namespace Destrospean
                         "ResetRollerSkatingOutfit/"
                     }
                 }[skatingType];
+            }
+
+            public override void Init(ref InteractionInstanceParameters parameters)
+            {
+                base.Init(ref parameters);
+                if (mHit == GameObjectHit.NoHit)
+                {
+                    mHit = parameters.Hit;
+                }
             }
 
             public override bool Run()
@@ -410,20 +450,16 @@ namespace Destrospean
             UpdateListeners();
         }
 
-        static ListenerAction OnObjectBought(Event e)
+        static void OnObjectPlacedInLot(object sender, EventArgs e)
         {
-            try
+            if (kShowObjectMenu && e is World.OnObjectPlacedInLotEventArgs onObjectPlacedInLotEventArgs)
             {
-                if (kShowObjectMenu && e.TargetObject is Dresser dresser)
+                GameObject gameObject = GameObject.GetObject(onObjectPlacedInLotEventArgs.ObjectId);
+                if (gameObject is ISkatableObject)
                 {
-                    AddInteractions(dresser);
+                    AddInteractions(gameObject);
                 }
             }
-            catch (Exception ex)
-            {
-                ((IScriptErrorWindow)AppDomain.CurrentDomain.GetData("ScriptErrorWindow")).DisplayScriptError(null, ex);
-            }
-            return ListenerAction.Keep;
         }
 
         static void OnPreLoad()
@@ -453,9 +489,12 @@ namespace Destrospean
             Init();
             if (kShowObjectMenu)
             {
-                foreach (Dresser dresser in Sims3.Gameplay.Queries.GetObjects<Dresser>())
+                foreach (GameObject gameObject in Sims3.Gameplay.Queries.GetObjects<GameObject>())
                 {
-                    AddInteractions(dresser);
+                    if (gameObject is ISkatableObject || gameObject is Terrain)
+                    {
+                        AddInteractions(gameObject);
+                    }
                 }
             }
             if (kShowSimMenu && Household.ActiveHousehold != null)
@@ -469,25 +508,17 @@ namespace Destrospean
 
         static void OnWorldQuit(object sender, EventArgs e)
         {
-            EventTracker.RemoveListener(sObjectBoughtListener);
             EventTracker.RemoveListener(sSimSelectedListener);
-            sObjectBoughtListener = null;
             sSimSelectedListener = null;
         }
 
         static void UpdateListeners()
         {
-            if (sObjectBoughtListener != null)
-            {
-                EventTracker.RemoveListener(sObjectBoughtListener);
-                sObjectBoughtListener = null;
-            }
             if (sSimSelectedListener != null)
             {
                 EventTracker.RemoveListener(sSimSelectedListener);
                 sSimSelectedListener = null;
             }
-            sObjectBoughtListener = EventTracker.AddListener(EventTypeId.kBoughtObject, OnObjectBought);
             sSimSelectedListener = EventTracker.AddListener(EventTypeId.kEventSimSelected, OnSimSelected);
         }
     }

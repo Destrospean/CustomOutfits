@@ -7,7 +7,7 @@ using Sims3.Gameplay.CAS;
 using Sims3.Gameplay.Core;
 using Sims3.Gameplay.EventSystem;
 using Sims3.Gameplay.Interactions;
-using Sims3.Gameplay.Objects.ShelvesStorage;
+using Sims3.Gameplay.Objects.Plumbing;
 using Sims3.Gameplay.Pools;
 using Sims3.Gameplay.Utilities;
 using Sims3.SimIFace;
@@ -28,16 +28,13 @@ namespace Destrospean
         public static readonly string kTowelSpecialOutfitKey = "SkinnyDipTowel";
 
         [PersistableStatic]
-        static EventListener sObjectBoughtListener;
-
-        [PersistableStatic]
         static EventListener sSimSelectedListener;
 
         static CustomTowelOutfit()
         {
             kInstantiator = false;
-            sObjectBoughtListener = null;
             sSimSelectedListener = null;
+            World.sOnObjectPlacedInLotEventHandler += OnObjectPlacedInLot;
             World.sOnWorldLoadFinishedEventHandler += OnWorldLoadFinished;
             World.sOnWorldQuitEventHandler += OnWorldQuit;
         }
@@ -45,6 +42,8 @@ namespace Destrospean
         public class EditTowelOutfit : ImmediateInteraction<Sim, GameObject>
         {
             public static InteractionDefinition Singleton = new Definition();
+
+            public GameObjectHit mHit = GameObjectHit.NoHit;
 
             public const string sLocalizationKey = "CustomTowelOutfit/EditTowelOutfit/";
 
@@ -65,7 +64,26 @@ namespace Destrospean
 
                 public override bool Test(Sim actor, GameObject target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
                 {
-                    return !((target is Sim && actor != target) || actor.SimDescription.TeenOrBelow || !actor.SimDescription.IsHuman || actor.SimDescription.IsRobot || isAutonomous);
+                    return true;
+                }
+
+                public override InteractionTestResult Test(ref InteractionInstanceParameters parameters, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
+                {
+                    return InteractionDefinitionUtilities.FromBool(!(!((Pool.GetPoolNearestPoint(parameters.Hit.mPoint) != null && parameters.Hit.mType != GameObjectHitType.WaterFountain) || parameters.Target is HotTubBase || parameters.Target is Sim) || (parameters.Target is Sim && parameters.Actor != parameters.Target) || parameters.Actor.SimDescription.TeenOrBelow || !parameters.Actor.SimDescription.IsHuman || parameters.Actor.SimDescription.IsRobot || parameters.Autonomous));
+                }
+            }
+
+            public override InteractionInstanceParameters GetInteractionParameters()
+            {
+                return new InteractionInstanceParameters(InteractionObjectPair, InstanceActor, GetPriority(), false, false, mHit);
+            }
+
+            public override void Init(ref InteractionInstanceParameters parameters)
+            {
+                base.Init(ref parameters);
+                if (mHit == GameObjectHit.NoHit)
+                {
+                    mHit = parameters.Hit;
                 }
             }
 
@@ -78,6 +96,8 @@ namespace Destrospean
         public class ResetTowelOutfit : ImmediateInteraction<Sim, GameObject>
         {
             public static InteractionDefinition Singleton = new Definition();
+
+            public GameObjectHit mHit = GameObjectHit.NoHit;
 
             public const string sLocalizationKey = "CustomTowelOutfit/ResetTowelOutfit/";
 
@@ -98,7 +118,26 @@ namespace Destrospean
 
                 public override bool Test(Sim actor, GameObject target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
                 {
-                    return !(!actor.SimDescription.HasSpecialOutfit(kTowelSpecialOutfitKey) || (target is Sim && actor != target) || actor.SimDescription.TeenOrBelow || !actor.SimDescription.IsHuman || actor.SimDescription.IsRobot || isAutonomous);
+                    return true;
+                }
+
+                public override InteractionTestResult Test(ref InteractionInstanceParameters parameters, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
+                {
+                    return InteractionDefinitionUtilities.FromBool(!(!parameters.Actor.SimDescription.HasSpecialOutfit(kTowelSpecialOutfitKey) || !((Pool.GetPoolNearestPoint(parameters.Hit.mPoint) != null && parameters.Hit.mType != GameObjectHitType.WaterFountain) || parameters.Target is HotTubBase || parameters.Target is Sim) || (parameters.Target is Sim && parameters.Actor != parameters.Target) || parameters.Actor.SimDescription.TeenOrBelow || !parameters.Actor.SimDescription.IsHuman || parameters.Actor.SimDescription.IsRobot || parameters.Autonomous));
+                }
+            }
+
+            public override InteractionInstanceParameters GetInteractionParameters()
+            {
+                return new InteractionInstanceParameters(InteractionObjectPair, InstanceActor, GetPriority(), false, false, mHit);
+            }
+
+            public override void Init(ref InteractionInstanceParameters parameters)
+            {
+                base.Init(ref parameters);
+                if (mHit == GameObjectHit.NoHit)
+                {
+                    mHit = parameters.Hit;
                 }
             }
 
@@ -191,20 +230,16 @@ namespace Destrospean
             UpdateListeners();
         }
 
-        static ListenerAction OnObjectBought(Event e)
+        static void OnObjectPlacedInLot(object sender, EventArgs e)
         {
-            try
+            if (kShowObjectMenu && e is World.OnObjectPlacedInLotEventArgs onObjectPlacedInLotEventArgs)
             {
-                if (kShowObjectMenu && e.TargetObject is Dresser dresser)
+                GameObject gameObject = GameObject.GetObject(onObjectPlacedInLotEventArgs.ObjectId);
+                if (gameObject is HotTubBase)
                 {
-                    AddInteractions(dresser);
+                    AddInteractions(gameObject);
                 }
             }
-            catch (Exception ex)
-            {
-                ((IScriptErrorWindow)AppDomain.CurrentDomain.GetData("ScriptErrorWindow")).DisplayScriptError(null, ex);
-            }
-            return ListenerAction.Keep;
         }
 
         static ListenerAction OnSimSelected(Event e)
@@ -228,9 +263,12 @@ namespace Destrospean
             Init();
             if (kShowObjectMenu)
             {
-                foreach (Dresser dresser in Sims3.Gameplay.Queries.GetObjects<Dresser>())
+                foreach (GameObject gameObject in Sims3.Gameplay.Queries.GetObjects<GameObject>())
                 {
-                    AddInteractions(dresser);
+                    if (gameObject is HotTubBase || gameObject is Terrain)
+                    {
+                        AddInteractions(gameObject);
+                    }
                 }
             }
             if (kShowSimMenu && Household.ActiveHousehold != null)
@@ -244,25 +282,17 @@ namespace Destrospean
 
         static void OnWorldQuit(object sender, EventArgs e)
         {
-            EventTracker.RemoveListener(sObjectBoughtListener);
             EventTracker.RemoveListener(sSimSelectedListener);
-            sObjectBoughtListener = null;
             sSimSelectedListener = null;
         }
 
         static void UpdateListeners()
         {
-            if (sObjectBoughtListener != null)
-            {
-                EventTracker.RemoveListener(sObjectBoughtListener);
-                sObjectBoughtListener = null;
-            }
             if (sSimSelectedListener != null)
             {
                 EventTracker.RemoveListener(sSimSelectedListener);
                 sSimSelectedListener = null;
             }
-            sObjectBoughtListener = EventTracker.AddListener(EventTypeId.kBoughtObject, OnObjectBought);
             sSimSelectedListener = EventTracker.AddListener(EventTypeId.kEventSimSelected, OnSimSelected);
         }
     }

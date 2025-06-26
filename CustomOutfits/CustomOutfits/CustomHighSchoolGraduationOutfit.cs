@@ -32,9 +32,6 @@ namespace Destrospean
         static List<ulong> sHighSchoolGraduationOutfitDisabledList;
 
         [PersistableStatic]
-        static EventListener sObjectBoughtListener;
-
-        [PersistableStatic]
         static EventListener sSimDestroyedListener;
 
         [PersistableStatic]
@@ -44,10 +41,10 @@ namespace Destrospean
         {
             kInstantiator = false;
             sHighSchoolGraduationOutfitDisabledList = new List<ulong>();
-            sObjectBoughtListener = null;
             sSimDestroyedListener = null;
             sSimSelectedListener = null;
             LoadSaveManager.ObjectGroupsPreLoad += OnPreLoad;
+            World.sOnObjectPlacedInLotEventHandler += OnObjectPlacedInLot;
             World.sOnWorldLoadFinishedEventHandler += OnWorldLoadFinished;
             World.sOnWorldQuitEventHandler += OnWorldQuit;
         }
@@ -574,20 +571,12 @@ namespace Destrospean
             UpdateListeners();
         }
 
-        static ListenerAction OnObjectBought(Event e)
+        static void OnObjectPlacedInLot(object sender, EventArgs e)
         {
-            try
+            if (kShowObjectMenu && e is World.OnObjectPlacedInLotEventArgs onObjectPlacedInLotEventArgs && GameObject.GetObject(onObjectPlacedInLotEventArgs.ObjectId) is Dresser dresser)
             {
-                if (kShowObjectMenu && e.TargetObject is Dresser dresser)
-                {
-                    AddInteractions(dresser);
-                }
+                AddInteractions(dresser);
             }
-            catch (Exception ex)
-            {
-                ((IScriptErrorWindow)AppDomain.CurrentDomain.GetData("ScriptErrorWindow")).DisplayScriptError(null, ex);
-            }
-            return ListenerAction.Keep;
         }
 
         static void OnPreLoad()
@@ -655,21 +644,14 @@ namespace Destrospean
 
         static void OnWorldQuit(object sender, EventArgs e)
         {
-            EventTracker.RemoveListener(sObjectBoughtListener);
             EventTracker.RemoveListener(sSimDestroyedListener);
             EventTracker.RemoveListener(sSimSelectedListener);
-            sObjectBoughtListener = null;
             sSimDestroyedListener = null;
             sSimSelectedListener = null;
         }
 
         static void UpdateListeners()
         {
-            if (sObjectBoughtListener != null)
-            {
-                EventTracker.RemoveListener(sObjectBoughtListener);
-                sObjectBoughtListener = null;
-            }
             if (sSimDestroyedListener != null)
             {
                 EventTracker.RemoveListener(sSimDestroyedListener);
@@ -680,7 +662,6 @@ namespace Destrospean
                 EventTracker.RemoveListener(sSimSelectedListener);
                 sSimSelectedListener = null;
             }
-            sObjectBoughtListener = EventTracker.AddListener(EventTypeId.kBoughtObject, OnObjectBought);
             sSimDestroyedListener = EventTracker.AddListener(EventTypeId.kSimDescriptionDisposed, OnSimDestroyed);
             sSimSelectedListener = EventTracker.AddListener(EventTypeId.kEventSimSelected, OnSimSelected);
         }
