@@ -14,9 +14,7 @@ using Sims3.SimIFace;
 using Sims3.SimIFace.CAS;
 using Sims3.UI;
 using System;
-using static Destrospean.Common;
-using static Sims3.Gameplay.Destrospean.CustomOutfits;
-using static Sims3.Gameplay.Pools.SkinnyDipClothingPile;
+using Tuning = Sims3.Gameplay.Destrospean.CustomOutfits;
 
 namespace Destrospean
 {
@@ -51,14 +49,14 @@ namespace Destrospean
             {
                 public override string GetInteractionName(Sim actor, GameObject target, InteractionObjectPair interaction)
                 {
-                    return Localize(actor.IsFemale, sLocalizationKey + "InteractionName");
+                    return Common.Localize(actor.IsFemale, sLocalizationKey + "InteractionName");
                 }
 
                 public override string[] GetPath(bool isFemale)
                 {
                     return new string[]
                     {
-                        Localize(isFemale, sLocalizationKey + "Path")
+                        Common.Localize(isFemale, sLocalizationKey + "Path")
                     };
                 }
 
@@ -89,7 +87,7 @@ namespace Destrospean
 
             public override bool Run()
             {
-                return EditSpecialOutfit(Actor, sLocalizationKey, kTowelSpecialOutfitKey, GetTowelOutfitName(Actor), ProductVersion.EP3, Actor.SimDescription.GetOutfit(OutfitCategories.Swimwear, 0));
+                return Common.EditSpecialOutfit(Actor, sLocalizationKey, kTowelSpecialOutfitKey, GetTowelOutfitName(Actor), ProductVersion.EP3, Actor.SimDescription.GetOutfit(OutfitCategories.Swimwear, 0));
             }
         }
 
@@ -105,14 +103,14 @@ namespace Destrospean
             {
                 public override string GetInteractionName(Sim actor, GameObject target, InteractionObjectPair interaction)
                 {
-                    return Localize(actor.IsFemale, sLocalizationKey + "InteractionName");
+                    return Common.Localize(actor.IsFemale, sLocalizationKey + "InteractionName");
                 }
 
                 public override string[] GetPath(bool isFemale)
                 {
                     return new string[]
                     {
-                        Localize(isFemale, sLocalizationKey + "Path")
+                        Common.Localize(isFemale, sLocalizationKey + "Path")
                     };
                 }
 
@@ -144,7 +142,7 @@ namespace Destrospean
             public override bool Run()
             {
                 Actor.SimDescription.RemoveSpecialOutfit(kTowelSpecialOutfitKey);
-                Notify(Localize(Actor.IsFemale, sLocalizationKey + "Feedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
+                Common.Notify(Common.Localize(Actor.IsFemale, sLocalizationKey + "Feedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
                 return true;
             }
         }
@@ -166,7 +164,7 @@ namespace Destrospean
             gameObject.AddInteraction(ResetTowelOutfit.Singleton);
         }
 
-        [ReplaceMethod(typeof(SkinnyDipClothingPile), nameof(SkinnyDipClothingPile.ChangeSimToTowelOutfit))]
+        [ReplaceMethod(typeof(SkinnyDipClothingPile), "ChangeSimToTowelOutfit")]
         public static void ChangeSimToTowelOutfit(Sim actor)
         {
             SimDescription simDescription = actor.SimDescription;
@@ -188,13 +186,13 @@ namespace Destrospean
             actor.BuffManager.AddElement(BuffNames.EmbarrassedClothesHidden, Origin.FromClothingHidden);
             if (actor.IsInActiveHousehold)
             {
-                if (sSimsShownClothingStolenTNS == null)
+                if (SkinnyDipClothingPile.sSimsShownClothingStolenTNS == null)
                 {
-                    sSimsShownClothingStolenTNS = new PairedListDictionary<ulong, bool>();
+                    SkinnyDipClothingPile.sSimsShownClothingStolenTNS = new PairedListDictionary<ulong, bool>();
                 }
-                if (!sSimsShownClothingStolenTNS.ContainsKey(simDescription.SimDescriptionId))
+                if (!SkinnyDipClothingPile.sSimsShownClothingStolenTNS.ContainsKey(simDescription.SimDescriptionId))
                 {
-                    sSimsShownClothingStolenTNS.Add(simDescription.SimDescriptionId, true);
+                    SkinnyDipClothingPile.sSimsShownClothingStolenTNS.Add(simDescription.SimDescriptionId, true);
                     NotificationSystem.Show(TNSNames.SkinnyDippingClothesHidden, null, actor, null, null, new bool[]
                     {
                         actor.IsFemale
@@ -232,9 +230,9 @@ namespace Destrospean
 
         static void OnObjectPlacedInLot(object sender, EventArgs e)
         {
-            if (kShowObjectMenu && e is World.OnObjectPlacedInLotEventArgs onObjectPlacedInLotEventArgs)
+            if (Tuning.kShowObjectMenu && e is World.OnObjectPlacedInLotEventArgs)
             {
-                GameObject gameObject = GameObject.GetObject(onObjectPlacedInLotEventArgs.ObjectId);
+                GameObject gameObject = GameObject.GetObject(((World.OnObjectPlacedInLotEventArgs)e).ObjectId);
                 if (gameObject is HotTubBase)
                 {
                     AddInteractions(gameObject);
@@ -246,7 +244,7 @@ namespace Destrospean
         {
             try
             {
-                if (kShowSimMenu)
+                if (Tuning.kShowSimMenu)
                 {
                     AddInteractions(Sim.ActiveActor);
                 }
@@ -261,7 +259,7 @@ namespace Destrospean
         static void OnWorldLoadFinished(object sender, EventArgs e)
         {
             Init();
-            if (kShowObjectMenu)
+            if (Tuning.kShowObjectMenu)
             {
                 foreach (GameObject gameObject in Sims3.Gameplay.Queries.GetObjects<GameObject>())
                 {
@@ -271,7 +269,7 @@ namespace Destrospean
                     }
                 }
             }
-            if (kShowSimMenu && Household.ActiveHousehold != null)
+            if (Tuning.kShowSimMenu && Household.ActiveHousehold != null)
             {
                 foreach (Sim sim in Household.ActiveHousehold.Sims)
                 {

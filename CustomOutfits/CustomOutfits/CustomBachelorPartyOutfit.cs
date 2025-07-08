@@ -16,8 +16,7 @@ using Sims3.SimIFace.CAS;
 using Sims3.UI;
 using System;
 using System.Collections.Generic;
-using static Destrospean.Common;
-using static Sims3.Gameplay.Destrospean.CustomOutfits;
+using Tuning = Sims3.Gameplay.Destrospean.CustomOutfits;
 
 namespace Destrospean
 {
@@ -156,15 +155,15 @@ namespace Destrospean
 
                 public override string GetInteractionName(Sim actor, GameObject target, InteractionObjectPair interaction)
                 {
-                    return Localize(actor.IsFemale, GetLocalizationKey(mOutfitType) + "InteractionName");
+                    return Common.Localize(actor.IsFemale, GetLocalizationKey(mOutfitType) + "InteractionName");
                 }
 
                 public override string[] GetPath(bool isFemale)
                 {
                     return new string[]
                     {
-                        Localize(isFemale, GetLocalizationKey(mOutfitType) + "Path0"),
-                        Localize(isFemale, GetLocalizationKey(mOutfitType) + "Path1")
+                        Common.Localize(isFemale, GetLocalizationKey(mOutfitType) + "Path0"),
+                        Common.Localize(isFemale, GetLocalizationKey(mOutfitType) + "Path1")
                     };
                 }
 
@@ -200,7 +199,7 @@ namespace Destrospean
                 {
                     Actor.SimDescription.AddSpecialOutfit(CreateBachelorPartyOutfit(Actor, mOutfitType), outfitName);
                 }
-                return EditSpecialOutfit(Actor, GetLocalizationKey(mOutfitType), outfitName);
+                return Common.EditSpecialOutfit(Actor, GetLocalizationKey(mOutfitType), outfitName);
             }
 
             public void SetOutfitType(BachelorPartyOutfitTypes outfitType)
@@ -246,15 +245,15 @@ namespace Destrospean
 
                 public override string GetInteractionName(Sim actor, GameObject target, InteractionObjectPair interaction)
                 {
-                    return Localize(actor.IsFemale, GetLocalizationKey(mOutfitType) + "InteractionName");
+                    return Common.Localize(actor.IsFemale, GetLocalizationKey(mOutfitType) + "InteractionName");
                 }
 
                 public override string[] GetPath(bool isFemale)
                 {
                     return new string[]
                     {
-                        Localize(isFemale, GetLocalizationKey(mOutfitType) + "Path0"),
-                        Localize(isFemale, GetLocalizationKey(mOutfitType) + "Path1")
+                        Common.Localize(isFemale, GetLocalizationKey(mOutfitType) + "Path0"),
+                        Common.Localize(isFemale, GetLocalizationKey(mOutfitType) + "Path1")
                     };
                 }
 
@@ -286,7 +285,7 @@ namespace Destrospean
             public override bool Run()
             {
                 Actor.SimDescription.RemoveSpecialOutfit(GetBachelorPartyOutfitName(Actor, mOutfitType));
-                Notify(Localize(Actor.IsFemale, GetLocalizationKey(mOutfitType) + "Feedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
+                Common.Notify(Common.Localize(Actor.IsFemale, GetLocalizationKey(mOutfitType) + "Feedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
                 return true;
             }
 
@@ -387,17 +386,17 @@ namespace Destrospean
                 {
                     if (GetBachelorPartyOutfitEnabled(actor.SimDescription, mOutfitType))
                     {
-                        return Localize(actor.IsFemale, GetLocalizationKey(mOutfitType) + "DisableInteractionName");
+                        return Common.Localize(actor.IsFemale, GetLocalizationKey(mOutfitType) + "DisableInteractionName");
                     }
-                    return Localize(actor.IsFemale, GetLocalizationKey(mOutfitType) + "EnableInteractionName");
+                    return Common.Localize(actor.IsFemale, GetLocalizationKey(mOutfitType) + "EnableInteractionName");
                 }
 
                 public override string[] GetPath(bool isFemale)
                 {
                     return new string[]
                     {
-                        Localize(isFemale, GetLocalizationKey(mOutfitType) + "Path0"),
-                        Localize(isFemale, GetLocalizationKey(mOutfitType) + "Path1")
+                        Common.Localize(isFemale, GetLocalizationKey(mOutfitType) + "Path0"),
+                        Common.Localize(isFemale, GetLocalizationKey(mOutfitType) + "Path1")
                     };
                 }
 
@@ -431,12 +430,12 @@ namespace Destrospean
                 if (GetBachelorPartyOutfitEnabled(Actor.SimDescription, mOutfitType))
                 {
                     DisableBachelorPartyOutfit(Actor.SimDescription, mOutfitType);
-                    Notify(Localize(Actor.IsFemale, GetLocalizationKey(mOutfitType) + "DisabledFeedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
+                    Common.Notify(Common.Localize(Actor.IsFemale, GetLocalizationKey(mOutfitType) + "DisabledFeedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
                 }
                 else
                 {
                     EnableBachelorPartyOutfit(Actor.SimDescription, mOutfitType);
-                    Notify(Localize(Actor.IsFemale, GetLocalizationKey(mOutfitType) + "EnabledFeedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
+                    Common.Notify(Common.Localize(Actor.IsFemale, GetLocalizationKey(mOutfitType) + "EnabledFeedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
                 }
                 return true;
             }
@@ -472,7 +471,8 @@ namespace Destrospean
                 UseCompression = true
             };
             SimDescription simDescription = actor.SimDescription;
-            if (!OutfitUtils.TryApplyUniformToOutfit(simDescription.GetOutfit(outfitType == BachelorPartyOutfitTypes.Underwear ? OutfitCategories.Naked : OutfitCategories.Formalwear, 0), new SimOutfit(ResourceKey.CreateOutfitKeyFromProductVersion(GetBachelorPartyOutfitName(actor, outfitType), ProductVersion.EP4)), simDescription, "CreateBachelorPartyOutfit", out var resultOutfit))
+            SimOutfit resultOutfit;
+            if (!OutfitUtils.TryApplyUniformToOutfit(simDescription.GetOutfit(outfitType == BachelorPartyOutfitTypes.Underwear ? OutfitCategories.Naked : OutfitCategories.Formalwear, 0), new SimOutfit(ResourceKey.CreateOutfitKeyFromProductVersion(GetBachelorPartyOutfitName(actor, outfitType), ProductVersion.EP4)), simDescription, "CreateBachelorPartyOutfit", out resultOutfit))
             {
                 return null;
             }
@@ -637,9 +637,13 @@ namespace Destrospean
 
         static void OnObjectPlacedInLot(object sender, EventArgs e)
         {
-            if (kShowObjectMenu && e is World.OnObjectPlacedInLotEventArgs onObjectPlacedInLotEventArgs && GameObject.GetObject(onObjectPlacedInLotEventArgs.ObjectId) is Dresser dresser)
+            if (Tuning.kShowObjectMenu && e is World.OnObjectPlacedInLotEventArgs)
             {
-                AddInteractions(dresser);
+                GameObject gameObject = GameObject.GetObject(((World.OnObjectPlacedInLotEventArgs)e).ObjectId);
+                if (gameObject is Dresser)
+                {
+                    AddInteractions(gameObject);
+                }
             }
         }
 
@@ -647,11 +651,11 @@ namespace Destrospean
         {
             try
             {
-                if (e.Actor is Sim sim)
+                if (e.Actor is Sim)
                 {
                     foreach (BachelorPartyOutfitTypes outfitType in Enum.GetValues(typeof(BachelorPartyOutfitTypes)))
                     {
-                        EnableBachelorPartyOutfit(sim.SimDescription, outfitType);
+                        EnableBachelorPartyOutfit(e.Actor.SimDescription, outfitType);
                     }
                 }
             }
@@ -666,7 +670,7 @@ namespace Destrospean
         {
             try
             {
-                if (kShowSimMenu)
+                if (Tuning.kShowSimMenu)
                 {
                     AddInteractions(Sim.ActiveActor);
                 }
@@ -681,14 +685,14 @@ namespace Destrospean
         static void OnWorldLoadFinished(object sender, EventArgs e)
         {
             Init();
-            if (kShowObjectMenu)
+            if (Tuning.kShowObjectMenu)
             {
                 foreach (Dresser dresser in Sims3.Gameplay.Queries.GetObjects<Dresser>())
                 {
                     AddInteractions(dresser);
                 }
             }
-            if (kShowSimMenu && Household.ActiveHousehold != null)
+            if (Tuning.kShowSimMenu && Household.ActiveHousehold != null)
             {
                 foreach (Sim sim in Household.ActiveHousehold.Sims)
                 {

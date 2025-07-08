@@ -16,8 +16,7 @@ using Sims3.SimIFace.CAS;
 using Sims3.UI;
 using System;
 using System.Collections.Generic;
-using static Destrospean.Common;
-using static Sims3.Gameplay.Destrospean.CustomOutfits;
+using Tuning = Sims3.Gameplay.Destrospean.CustomOutfits;
 
 namespace Destrospean
 {
@@ -63,15 +62,15 @@ namespace Destrospean
 
                 public override string GetInteractionName(Sim actor, GameObject target, InteractionObjectPair interaction)
                 {
-                    return Localize(actor.IsFemale, sLocalizationKey + "InteractionName");
+                    return Common.Localize(actor.IsFemale, sLocalizationKey + "InteractionName");
                 }
 
                 public override string[] GetPath(bool isFemale)
                 {
                     return new string[]
                     {
-                        Localize(isFemale, sLocalizationKey + "Path0"),
-                        Localize(isFemale, sLocalizationKey + "Path1")
+                        Common.Localize(isFemale, sLocalizationKey + "Path0"),
+                        Common.Localize(isFemale, sLocalizationKey + "Path1")
                     };
                 }
 
@@ -83,7 +82,7 @@ namespace Destrospean
 
             public override bool Run()
             {
-                return EditSpecialOutfit(Actor, sLocalizationKey, kHighSchoolGraduationSpecialOutfitKey, GetHighSchoolGraduationOutfitName(Actor), ProductVersion.EP4);
+                return Common.EditSpecialOutfit(Actor, sLocalizationKey, kHighSchoolGraduationSpecialOutfitKey, GetHighSchoolGraduationOutfitName(Actor), ProductVersion.EP4);
             }
         }
 
@@ -196,8 +195,9 @@ namespace Destrospean
                     {
                         foreach (InteractionInstance interaction in mOtherPossibleFollowingGraduate.InteractionQueue.InteractionList)
                         {
-                            if (interaction is GraduateInCityHall graduateInCityHall)
+                            if (interaction is GraduateInCityHall)
                             {
+                                GraduateInCityHall graduateInCityHall = (GraduateInCityHall)interaction;
                                 graduateInCityHall.mReaddOnClean = true;
                                 graduateInCityHall.mLeader = Actor;
                                 graduateInCityHall.mWasFollower = true;
@@ -211,8 +211,9 @@ namespace Destrospean
                     {
                         foreach (InteractionInstance interaction in otherPossibleFollowingGraduate.InteractionQueue.InteractionList)
                         {
-                            if (interaction is GraduateInCityHall graduateInCityHall)
+                            if (interaction is GraduateInCityHall)
                             {
+                                GraduateInCityHall graduateInCityHall = (GraduateInCityHall)interaction;
                                 graduateInCityHall.mReaddOnClean = false;
                                 graduateInCityHall.mLeader = null;
                                 break;
@@ -242,7 +243,7 @@ namespace Destrospean
             {
                 public override string GetInteractionName(Sim actor, IGameObject target, InteractionObjectPair interaction)
                 {
-                    return LocalizeString("InteractionName");
+                    return GraduateInPlace.LocalizeString("InteractionName");
                 }
 
                 public override bool Test(Sim actor, IGameObject target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
@@ -323,7 +324,13 @@ namespace Destrospean
         {
             public class DefinitionModified : InteractionDefinition<Sim, FairyHouse, PutOnGraduationRobesDresser>, IOverridesVisualType, IHasTraitIcon
             {
-                public InteractionVisualTypes GetVisualType => InteractionVisualTypes.Trait;
+                public InteractionVisualTypes GetVisualType
+                {
+                    get
+                    {
+                        return InteractionVisualTypes.Trait;
+                    }
+                }
 
                 public override bool Test(Sim actor, FairyHouse target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
                 {
@@ -383,15 +390,15 @@ namespace Destrospean
 
                 public override string GetInteractionName(Sim actor, GameObject target, InteractionObjectPair interaction)
                 {
-                    return Localize(actor.IsFemale, sLocalizationKey + "InteractionName");
+                    return Common.Localize(actor.IsFemale, sLocalizationKey + "InteractionName");
                 }
 
                 public override string[] GetPath(bool isFemale)
                 {
                     return new string[]
                     {
-                        Localize(isFemale, sLocalizationKey + "Path0"),
-                        Localize(isFemale, sLocalizationKey + "Path1")
+                        Common.Localize(isFemale, sLocalizationKey + "Path0"),
+                        Common.Localize(isFemale, sLocalizationKey + "Path1")
                     };
                 }
 
@@ -404,7 +411,7 @@ namespace Destrospean
             public override bool Run()
             {
                 Actor.SimDescription.RemoveSpecialOutfit(kHighSchoolGraduationSpecialOutfitKey);
-                Notify(Localize(Actor.IsFemale, sLocalizationKey + "Feedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
+                Common.Notify(Common.Localize(Actor.IsFemale, sLocalizationKey + "Feedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
                 return true;
             }
         }
@@ -464,17 +471,17 @@ namespace Destrospean
                 {
                     if (GetHighSchoolGraduationOutfitEnabled(actor.SimDescription))
                     {
-                        return Localize(actor.IsFemale, sLocalizationKey + "DisableInteractionName");
+                        return Common.Localize(actor.IsFemale, sLocalizationKey + "DisableInteractionName");
                     }
-                    return Localize(actor.IsFemale, sLocalizationKey + "EnableInteractionName");
+                    return Common.Localize(actor.IsFemale, sLocalizationKey + "EnableInteractionName");
                 }
 
                 public override string[] GetPath(bool isFemale)
                 {
                     return new string[]
                     {
-                        Localize(isFemale, sLocalizationKey + "Path0"),
-                        Localize(isFemale, sLocalizationKey + "Path1")
+                        Common.Localize(isFemale, sLocalizationKey + "Path0"),
+                        Common.Localize(isFemale, sLocalizationKey + "Path1")
                     };
                 }
 
@@ -489,12 +496,12 @@ namespace Destrospean
                 if (GetHighSchoolGraduationOutfitEnabled(Actor.SimDescription))
                 {
                     DisableHighSchoolGraduationOutfit(Actor.SimDescription);
-                    Notify(Localize(Actor.IsFemale, sLocalizationKey + "DisabledFeedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
+                    Common.Notify(Common.Localize(Actor.IsFemale, sLocalizationKey + "DisabledFeedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
                 }
                 else
                 {
                     EnableHighSchoolGraduationOutfit(Actor.SimDescription);
-                    Notify(Localize(Actor.IsFemale, sLocalizationKey + "EnabledFeedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
+                    Common.Notify(Common.Localize(Actor.IsFemale, sLocalizationKey + "EnabledFeedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
                 }
                 return true;
             }
@@ -550,8 +557,9 @@ namespace Destrospean
             SimDescription simDescription = actor.SimDescription;
             if (BoardingSchool.DidSimGraduate(simDescription, BoardingSchool.BoardingSchoolTypes.None, false))
             {
-                BoardingSchool.BoardingSchoolData.sBoardingSchoolDataList.TryGetValue(simDescription.BoardingSchool.GraduatedHigh, out var value);
-                return "a" + (simDescription.IsMale ? "m" : "f") + value.GraduationUniform;
+                BoardingSchool.BoardingSchoolData boardingSchoolData;
+                BoardingSchool.BoardingSchoolData.sBoardingSchoolDataList.TryGetValue(simDescription.BoardingSchool.GraduatedHigh, out boardingSchoolData);
+                return "a" + (simDescription.IsMale ? "m" : "f") + boardingSchoolData.GraduationUniform;
             }
             return (simDescription.Elder ? "e" : "a") + (simDescription.IsMale ? "m" : "f") + "BodyEP4Graduation" + (simDescription.TraitManager.HasAnyElement(TraitNames.PartyAnimal, TraitNames.GoodSenseOfHumor, TraitNames.Childish) ? "Party" : "");
         }
@@ -561,7 +569,7 @@ namespace Destrospean
             Sim sim = simDescription.CreatedSim;
             if (sim != null)
             {
-                return CreateAndAddSpecialOutfit(sim, kHighSchoolGraduationSpecialOutfitKey, ResourceKey.CreateOutfitKeyFromProductVersion(GetHighSchoolGraduationOutfitName(sim), ProductVersion.EP4));
+                return Common.CreateAndAddSpecialOutfit(sim, kHighSchoolGraduationSpecialOutfitKey, ResourceKey.CreateOutfitKeyFromProductVersion(GetHighSchoolGraduationOutfitName(sim), ProductVersion.EP4));
             }
             return ResourceKey.kInvalidResourceKey;
         }
@@ -573,9 +581,13 @@ namespace Destrospean
 
         static void OnObjectPlacedInLot(object sender, EventArgs e)
         {
-            if (kShowObjectMenu && e is World.OnObjectPlacedInLotEventArgs onObjectPlacedInLotEventArgs && GameObject.GetObject(onObjectPlacedInLotEventArgs.ObjectId) is Dresser dresser)
+            if (Tuning.kShowObjectMenu && e is World.OnObjectPlacedInLotEventArgs)
             {
-                AddInteractions(dresser);
+                GameObject gameObject = GameObject.GetObject(((World.OnObjectPlacedInLotEventArgs)e).ObjectId);
+                if (gameObject is Dresser)
+                {
+                    AddInteractions(gameObject);
+                }
             }
         }
 
@@ -586,18 +598,18 @@ namespace Destrospean
             School.GraduateInCityHall.Singleton = new GraduateInCityHall.DefinitionModified();
             School.GraduateInPlace.Singleton = new GraduateInPlace.DefinitionModified();
             School.SwitchToGraduationOutfit.Singleton = new SwitchToGraduationOutfit.DefinitionModified();
-            CopyTuning(typeof(Dresser), typeof(Dresser.PutOnGraduationRobes.Definition), typeof(PutOnGraduationRobesDresser.DefinitionModified));
-            CopyTuning(typeof(FairyHouse), typeof(FairyHouse.PutOnGraduationRobes.Definition), typeof(PutOnGraduationRobesFairyHouse.DefinitionModified));
-            CopyTuning(typeof(School), typeof(School.GraduateInCityHall.Definition), typeof(GraduateInCityHall.DefinitionModified));
+            Common.CopyTuning(typeof(Dresser), typeof(Dresser.PutOnGraduationRobes.Definition), typeof(PutOnGraduationRobesDresser.DefinitionModified));
+            Common.CopyTuning(typeof(FairyHouse), typeof(FairyHouse.PutOnGraduationRobes.Definition), typeof(PutOnGraduationRobesFairyHouse.DefinitionModified));
+            Common.CopyTuning(typeof(School), typeof(School.GraduateInCityHall.Definition), typeof(GraduateInCityHall.DefinitionModified));
         }
 
         static ListenerAction OnSimDestroyed(Event e)
         {
             try
             {
-                if (e.Actor is Sim sim)
+                if (e.Actor is Sim)
                 {
-                    EnableHighSchoolGraduationOutfit(sim.SimDescription);
+                    EnableHighSchoolGraduationOutfit(e.Actor.SimDescription);
                 }
             }
             catch (Exception ex)
@@ -611,7 +623,7 @@ namespace Destrospean
         {
             try
             {
-                if (kShowSimMenu)
+                if (Tuning.kShowSimMenu)
                 {
                     AddInteractions(Sim.ActiveActor);
                 }
@@ -626,14 +638,14 @@ namespace Destrospean
         static void OnWorldLoadFinished(object sender, EventArgs e)
         {
             Init();
-            if (kShowObjectMenu)
+            if (Tuning.kShowObjectMenu)
             {
                 foreach (Dresser dresser in Sims3.Gameplay.Queries.GetObjects<Dresser>())
                 {
                     AddInteractions(dresser);
                 }
             }
-            if (kShowSimMenu && Household.ActiveHousehold != null)
+            if (Tuning.kShowSimMenu && Household.ActiveHousehold != null)
             {
                 foreach (Sim sim in Household.ActiveHousehold.Sims)
                 {

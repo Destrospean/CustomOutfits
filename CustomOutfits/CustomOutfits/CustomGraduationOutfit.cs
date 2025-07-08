@@ -13,8 +13,7 @@ using Sims3.UI;
 using Sims3.UI.Hud;
 using System;
 using System.Collections.Generic;
-using static Destrospean.Common;
-using static Sims3.Gameplay.Destrospean.CustomOutfits;
+using Tuning = Sims3.Gameplay.Destrospean.CustomOutfits;
 
 namespace Destrospean
 {
@@ -110,15 +109,15 @@ namespace Destrospean
 
                 public override string GetInteractionName(Sim actor, GameObject target, InteractionObjectPair interaction)
                 {
-                    return Localize(actor.IsFemale, GetLocalizationKey(mAcademicDegreeName) + "InteractionName");
+                    return Common.Localize(actor.IsFemale, GetLocalizationKey(mAcademicDegreeName) + "InteractionName");
                 }
 
                 public override string[] GetPath(bool isFemale)
                 {
                     return new string[]
                     {
-                        Localize(isFemale, GetLocalizationKey(mAcademicDegreeName) + "Path0"),
-                        Localize(isFemale, GetLocalizationKey(mAcademicDegreeName) + "Path1")
+                        Common.Localize(isFemale, GetLocalizationKey(mAcademicDegreeName) + "Path0"),
+                        Common.Localize(isFemale, GetLocalizationKey(mAcademicDegreeName) + "Path1")
                     };
                 }
 
@@ -162,7 +161,7 @@ namespace Destrospean
             public override bool Run()
             {
                 string outfitName = GetGraduationOutfitName(Actor, mAcademicDegreeName);
-                return EditSpecialOutfit(Actor, GetLocalizationKey(mAcademicDegreeName), outfitName, outfitName, ProductVersion.EP9);
+                return Common.EditSpecialOutfit(Actor, GetLocalizationKey(mAcademicDegreeName), outfitName, outfitName, ProductVersion.EP9);
             }
 
             public void SetAcademicDegreeName(AcademicDegreeNames academicDegreeName)
@@ -239,15 +238,15 @@ namespace Destrospean
 
                 public override string GetInteractionName(Sim actor, GameObject target, InteractionObjectPair interaction)
                 {
-                    return Localize(actor.IsFemale, GetLocalizationKey(mAcademicDegreeName) + "InteractionName");
+                    return Common.Localize(actor.IsFemale, GetLocalizationKey(mAcademicDegreeName) + "InteractionName");
                 }
 
                 public override string[] GetPath(bool isFemale)
                 {
                     return new string[]
                     {
-                        Localize(isFemale, GetLocalizationKey(mAcademicDegreeName) + "Path0"),
-                        Localize(isFemale, GetLocalizationKey(mAcademicDegreeName) + "Path1")
+                        Common.Localize(isFemale, GetLocalizationKey(mAcademicDegreeName) + "Path0"),
+                        Common.Localize(isFemale, GetLocalizationKey(mAcademicDegreeName) + "Path1")
                     };
                 }
 
@@ -291,7 +290,7 @@ namespace Destrospean
             public override bool Run()
             {
                 Actor.SimDescription.RemoveSpecialOutfit(GetGraduationOutfitName(Actor, mAcademicDegreeName));
-                Notify(Localize(Actor.IsFemale, GetLocalizationKey(mAcademicDegreeName) + "Feedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
+                Common.Notify(Common.Localize(Actor.IsFemale, GetLocalizationKey(mAcademicDegreeName) + "Feedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
                 return true;
             }
 
@@ -349,17 +348,17 @@ namespace Destrospean
                 {
                     if (GetGraduationOutfitEnabled(actor.SimDescription, mAcademicDegreeName))
                     {
-                        return Localize(actor.IsFemale, GetLocalizationKey(mAcademicDegreeName) + "DisableInteractionName");
+                        return Common.Localize(actor.IsFemale, GetLocalizationKey(mAcademicDegreeName) + "DisableInteractionName");
                     }
-                    return Localize(actor.IsFemale, GetLocalizationKey(mAcademicDegreeName) + "EnableInteractionName");
+                    return Common.Localize(actor.IsFemale, GetLocalizationKey(mAcademicDegreeName) + "EnableInteractionName");
                 }
 
                 public override string[] GetPath(bool isFemale)
                 {
                     return new string[]
                     {
-                        Localize(isFemale, GetLocalizationKey(mAcademicDegreeName) + "Path0"),
-                        Localize(isFemale, GetLocalizationKey(mAcademicDegreeName) + "Path1")
+                        Common.Localize(isFemale, GetLocalizationKey(mAcademicDegreeName) + "Path0"),
+                        Common.Localize(isFemale, GetLocalizationKey(mAcademicDegreeName) + "Path1")
                     };
                 }
 
@@ -405,12 +404,12 @@ namespace Destrospean
                 if (GetGraduationOutfitEnabled(Actor.SimDescription, mAcademicDegreeName))
                 {
                     DisableGraduationOutfit(Actor.SimDescription, mAcademicDegreeName);
-                    Notify(Localize(Actor.IsFemale, GetLocalizationKey(mAcademicDegreeName) + "DisabledFeedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
+                    Common.Notify(Common.Localize(Actor.IsFemale, GetLocalizationKey(mAcademicDegreeName) + "DisabledFeedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
                 }
                 else
                 {
                     EnableGraduationOutfit(Actor.SimDescription, mAcademicDegreeName);
-                    Notify(Localize(Actor.IsFemale, GetLocalizationKey(mAcademicDegreeName) + "EnabledFeedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
+                    Common.Notify(Common.Localize(Actor.IsFemale, GetLocalizationKey(mAcademicDegreeName) + "EnabledFeedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
                 }
                 return true;
             }
@@ -745,7 +744,7 @@ namespace Destrospean
                 return ResourceKey.kInvalidResourceKey;
             }
             string outfitName = GetGraduationOutfitName(actor, academicDegreeName);
-            return CreateAndAddSpecialOutfit(actor, outfitName, ResourceKey.CreateOutfitKeyFromProductVersion(outfitName, ProductVersion.EP9));
+            return Common.CreateAndAddSpecialOutfit(actor, outfitName, ResourceKey.CreateOutfitKeyFromProductVersion(outfitName, ProductVersion.EP9));
         }
 
         static void Init()
@@ -755,9 +754,13 @@ namespace Destrospean
 
         static void OnObjectPlacedInLot(object sender, EventArgs e)
         {
-            if (kShowObjectMenu && e is World.OnObjectPlacedInLotEventArgs onObjectPlacedInLotEventArgs && GameObject.GetObject(onObjectPlacedInLotEventArgs.ObjectId) is Dresser dresser)
+            if (Tuning.kShowObjectMenu && e is World.OnObjectPlacedInLotEventArgs)
             {
-                AddInteractions(dresser);
+                GameObject gameObject = GameObject.GetObject(((World.OnObjectPlacedInLotEventArgs)e).ObjectId);
+                if (gameObject is Dresser)
+                {
+                    AddInteractions(gameObject);
+                }
             }
         }
 
@@ -765,15 +768,15 @@ namespace Destrospean
         {
             Annex.UniversityGraduationCeremony.Singleton = new UniversityGraduationCeremony.DefinitionModified();
             CollegeGraduation.GraduateInPlace.Singleton = new GraduateInPlace.DefinitionModified();
-            CopyTuning(typeof(Annex), typeof(Annex.UniversityGraduationCeremony.Definition), typeof(UniversityGraduationCeremony.DefinitionModified));
-            CopyTuning(typeof(CollegeGraduation), typeof(CollegeGraduation.GraduateInPlace.Definition), typeof(GraduateInPlace.DefinitionModified));
+            Common.CopyTuning(typeof(Annex), typeof(Annex.UniversityGraduationCeremony.Definition), typeof(UniversityGraduationCeremony.DefinitionModified));
+            Common.CopyTuning(typeof(CollegeGraduation), typeof(CollegeGraduation.GraduateInPlace.Definition), typeof(GraduateInPlace.DefinitionModified));
         }
 
         static ListenerAction OnSimDestroyed(Event e)
         {
             try
             {
-                if (e.Actor is Sim sim)
+                if (e.Actor is Sim)
                 {
                     foreach (AcademicDegreeNames academicDegreeName in Enum.GetValues(typeof(AcademicDegreeNames)))
                     {
@@ -784,7 +787,7 @@ namespace Destrospean
                             case AcademicDegreeNames.MaxDegreeNames:
                                 break;
                             default:
-                                EnableGraduationOutfit(sim.SimDescription, academicDegreeName);
+                                EnableGraduationOutfit(e.Actor.SimDescription, academicDegreeName);
                                 break;
                         }
                     }
@@ -801,7 +804,7 @@ namespace Destrospean
         {
             try
             {
-                if (kShowSimMenu)
+                if (Tuning.kShowSimMenu)
                 {
                     AddInteractions(Sim.ActiveActor);
                 }
@@ -816,14 +819,14 @@ namespace Destrospean
         static void OnWorldLoadFinished(object sender, EventArgs e)
         {
             Init();
-            if (kShowObjectMenu)
+            if (Tuning.kShowObjectMenu)
             {
                 foreach (Dresser dresser in Sims3.Gameplay.Queries.GetObjects<Dresser>())
                 {
                     AddInteractions(dresser);
                 }
             }
-            if (kShowSimMenu && Household.ActiveHousehold != null)
+            if (Tuning.kShowSimMenu && Household.ActiveHousehold != null)
             {
                 foreach (Sim sim in Household.ActiveHousehold.Sims)
                 {

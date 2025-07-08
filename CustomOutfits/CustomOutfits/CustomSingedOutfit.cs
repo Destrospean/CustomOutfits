@@ -14,8 +14,7 @@ using Sims3.Store.Objects;
 using Sims3.UI;
 using System;
 using System.Collections.Generic;
-using static Destrospean.Common;
-using static Sims3.Gameplay.Destrospean.CustomOutfits;
+using Tuning = Sims3.Gameplay.Destrospean.CustomOutfits;
 
 namespace Destrospean
 {
@@ -49,14 +48,14 @@ namespace Destrospean
             {
                 public override string GetInteractionName(Sim actor, GameObject target, InteractionObjectPair interaction)
                 {
-                    return Localize(actor.IsFemale, sLocalizationKey + "InteractionName");
+                    return Common.Localize(actor.IsFemale, sLocalizationKey + "InteractionName");
                 }
 
                 public override string[] GetPath(bool isFemale)
                 {
                     return new string[]
                     {
-                        Localize(isFemale, sLocalizationKey + "Path")
+                        Common.Localize(isFemale, sLocalizationKey + "Path")
                     };
                 }
 
@@ -72,7 +71,7 @@ namespace Destrospean
                 {
                     Actor.SimDescription.AddSpecialOutfit(CreateSingedOutfit(Actor), kSingedSpecialOutfitKey);
                 }
-                return EditSpecialOutfit(Actor, sLocalizationKey, kSingedSpecialOutfitKey);
+                return Common.EditSpecialOutfit(Actor, sLocalizationKey, kSingedSpecialOutfitKey);
             }
         }
 
@@ -86,14 +85,14 @@ namespace Destrospean
             {
                 public override string GetInteractionName(Sim actor, GameObject target, InteractionObjectPair interaction)
                 {
-                    return Localize(actor.IsFemale, sLocalizationKey + "InteractionName");
+                    return Common.Localize(actor.IsFemale, sLocalizationKey + "InteractionName");
                 }
 
                 public override string[] GetPath(bool isFemale)
                 {
                     return new string[]
                     {
-                        Localize(isFemale, sLocalizationKey + "Path")
+                        Common.Localize(isFemale, sLocalizationKey + "Path")
                     };
                 }
 
@@ -106,7 +105,7 @@ namespace Destrospean
             public override bool Run()
             {
                 Actor.SimDescription.RemoveSpecialOutfit(kSingedSpecialOutfitKey);
-                Notify(Localize(Actor.IsFemale, sLocalizationKey + "Feedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
+                Common.Notify(Common.Localize(Actor.IsFemale, sLocalizationKey + "Feedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
                 return true;
             }
         }
@@ -227,9 +226,13 @@ namespace Destrospean
 
         static void OnObjectPlacedInLot(object sender, EventArgs e)
         {
-            if (kShowObjectMenu && e is World.OnObjectPlacedInLotEventArgs onObjectPlacedInLotEventArgs && GameObject.GetObject(onObjectPlacedInLotEventArgs.ObjectId) is Dresser dresser)
+            if (Tuning.kShowObjectMenu && e is World.OnObjectPlacedInLotEventArgs)
             {
-                AddInteractions(dresser);
+                GameObject gameObject = GameObject.GetObject(((World.OnObjectPlacedInLotEventArgs)e).ObjectId);
+                if (gameObject is Dresser)
+                {
+                    AddInteractions(gameObject);
+                }
             }
         }
 
@@ -237,7 +240,7 @@ namespace Destrospean
         {
             try
             {
-                if (kShowSimMenu)
+                if (Tuning.kShowSimMenu)
                 {
                     AddInteractions(Sim.ActiveActor);
                 }
@@ -252,20 +255,20 @@ namespace Destrospean
         static void OnPreLoad()
         {
             BabyDragon.ShootFireball.Singleton = new ShootFireball.DefinitionModified();
-            CopyTuning(typeof(BabyDragon), typeof(BabyDragon.ShootFireball.Definition), typeof(ShootFireball.DefinitionModified));
+            Common.CopyTuning(typeof(BabyDragon), typeof(BabyDragon.ShootFireball.Definition), typeof(ShootFireball.DefinitionModified));
         }
 
         static void OnWorldLoadFinished(object sender, EventArgs e)
         {
             Init();
-            if (kShowObjectMenu)
+            if (Tuning.kShowObjectMenu)
             {
                 foreach (Dresser dresser in Sims3.Gameplay.Queries.GetObjects<Dresser>())
                 {
                     AddInteractions(dresser);
                 }
             }
-            if (kShowSimMenu && Household.ActiveHousehold != null)
+            if (Tuning.kShowSimMenu && Household.ActiveHousehold != null)
             {
                 foreach (Sim sim in Household.ActiveHousehold.Sims)
                 {
@@ -280,7 +283,7 @@ namespace Destrospean
             sSimSelectedListener = null;
         }
 
-        [ReplaceMethod(typeof(BuffSinged), nameof(BuffSinged.SetupSingedOutfit))]
+        [ReplaceMethod(typeof(BuffSinged), "SetupSingedOutfit")]
         public static void SetupSingedOutfit(Sim actor)
         {
             SimDescription simDescription = actor.SimDescription;

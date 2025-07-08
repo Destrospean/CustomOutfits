@@ -2,7 +2,6 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
   <PropertyGroup>
     <ProjectGuid>{D5E41DB2-3F43-4EEB-9CC7-303D24C203C1}</ProjectGuid>
-    <ProjectTypeGuids>{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <OutputType>Library</OutputType>
@@ -80,10 +79,6 @@
       <HintPath>..\libs\Sims3GameplaySystems.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="Sims3MetaData">
-      <HintPath>..\libs\Sims3MetaData.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="Sims3StoreObjects">
       <HintPath>..\libs\Sims3StoreObjects.dll</HintPath>
       <Private>False</Private>
@@ -100,10 +95,14 @@
       <HintPath>..\libs\UI.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Sims3Metadata">
+      <HintPath>..\libs\Sims3MetaData.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\MonoPatcher\MonoPatcher\MonoPatcher.csproj">
-      <Project>{91460f7b-9c23-4a43-ab52-95eac8d52d93}</Project>
+      <Project>{91460F7B-9C23-4A43-AB52-95EAC8D52D93}</Project>
       <Name>MonoPatcher</Name>
       <Private>False</Private>
     </ProjectReference>

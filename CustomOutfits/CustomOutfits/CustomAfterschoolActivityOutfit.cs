@@ -16,8 +16,7 @@ using Sims3.SimIFace.CAS;
 using Sims3.UI;
 using System;
 using System.Collections.Generic;
-using static Destrospean.Common;
-using static Sims3.Gameplay.Destrospean.CustomOutfits;
+using Tuning = Sims3.Gameplay.Destrospean.CustomOutfits;
 
 namespace Destrospean
 {
@@ -57,7 +56,13 @@ namespace Destrospean
             {
                 Definition mDefinitionBase = new Definition();
 
-                public InteractionVisualTypes GetVisualType => InteractionVisualTypes.Opportunity;
+                public InteractionVisualTypes GetVisualType
+                {
+                    get
+                    {
+                        return InteractionVisualTypes.Opportunity;
+                    }
+                }
 
                 public override string GetInteractionName(Sim actor, SchoolRabbitHole target, InteractionObjectPair interaction)
                 {
@@ -158,9 +163,21 @@ namespace Destrospean
             {
                 Definition mDefinitionBase = new Definition();
 
-                public override float TimeToWaitInside => kTimeToSpendInside;
+                public override float TimeToWaitInside
+                {
+                    get
+                    {
+                        return kTimeToSpendInside;
+                    }
+                }
 
-                public InteractionVisualTypes GetVisualType => InteractionVisualTypes.Opportunity;
+                public InteractionVisualTypes GetVisualType
+                {
+                    get
+                    {
+                        return InteractionVisualTypes.Opportunity;
+                    }
+                }
 
                 public override string GetInteractionName(Sim actor, RabbitHole target, InteractionObjectPair interaction)
                 {
@@ -299,14 +316,14 @@ namespace Destrospean
 
                 public override string GetInteractionName(Sim actor, GameObject target, InteractionObjectPair interaction)
                 {
-                    return Localize(actor.IsFemale, GetLocalizationKey(mAfterschoolActivityType) + "InteractionName");
+                    return Common.Localize(actor.IsFemale, GetLocalizationKey(mAfterschoolActivityType) + "InteractionName");
                 }
 
                 public override string[] GetPath(bool isFemale)
                 {
                     return new string[]
                     {
-                        Localize(isFemale, GetLocalizationKey(mAfterschoolActivityType) + "Path")
+                        Common.Localize(isFemale, GetLocalizationKey(mAfterschoolActivityType) + "Path")
                     };
                 }
 
@@ -334,7 +351,7 @@ namespace Destrospean
             public override bool Run()
             {
                 string outfitName = GetAfterschoolActivityOutfitName(Actor, mAfterschoolActivityType);
-                return EditSpecialOutfit(Actor, GetLocalizationKey(mAfterschoolActivityType), outfitName, outfitName, ProductVersion.EP4);
+                return Common.EditSpecialOutfit(Actor, GetLocalizationKey(mAfterschoolActivityType), outfitName, outfitName, ProductVersion.EP4);
             }
 
             public void SetAfterschoolActivityType(AfterschoolActivityType afterschoolActivityType)
@@ -386,14 +403,14 @@ namespace Destrospean
 
                 public override string GetInteractionName(Sim actor, GameObject target, InteractionObjectPair interaction)
                 {
-                    return Localize(actor.IsFemale, GetLocalizationKey(mAfterschoolActivityType) + "InteractionName");
+                    return Common.Localize(actor.IsFemale, GetLocalizationKey(mAfterschoolActivityType) + "InteractionName");
                 }
 
                 public override string[] GetPath(bool isFemale)
                 {
                     return new string[]
                     {
-                        Localize(isFemale, GetLocalizationKey(mAfterschoolActivityType) + "Path")
+                        Common.Localize(isFemale, GetLocalizationKey(mAfterschoolActivityType) + "Path")
                     };
                 }
 
@@ -421,7 +438,7 @@ namespace Destrospean
             public override bool Run()
             {
                 Actor.SimDescription.RemoveSpecialOutfit(GetAfterschoolActivityOutfitName(Actor, mAfterschoolActivityType));
-                Notify(Localize(Actor.IsFemale, GetLocalizationKey(mAfterschoolActivityType) + "Feedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
+                Common.Notify(Common.Localize(Actor.IsFemale, GetLocalizationKey(mAfterschoolActivityType) + "Feedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
                 return true;
             }
 
@@ -516,12 +533,12 @@ namespace Destrospean
                             break;
                     }
                     SimDescription simDescription = Actor.SimDescription;
-                    SimOutfit simOutfit = null;
+                    SimOutfit resultOutfit, simOutfit = null, uniform;
                     if (simDescription.HasSpecialOutfit(outfitName))
                     {
                         simOutfit = simDescription.GetSpecialOutfit(outfitName);
                     }
-                    else if (OutfitUtils.TryGenerateSimOutfit(outfitName, ProductVersion.EP4, out var uniform) && OutfitUtils.TryApplyUniformToOutfit(simDescription.GetOutfit(OutfitCategories.Everyday, 0), uniform, simDescription, outfitName, out var resultOutfit))
+                    else if (OutfitUtils.TryGenerateSimOutfit(outfitName, ProductVersion.EP4, out uniform) && OutfitUtils.TryApplyUniformToOutfit(simDescription.GetOutfit(OutfitCategories.Everyday, 0), uniform, simDescription, outfitName, out resultOutfit))
                     {
                         simDescription.AddSpecialOutfit(resultOutfit, outfitName);
                         simOutfit = resultOutfit;
@@ -592,16 +609,16 @@ namespace Destrospean
                 {
                     if (GetAfterschoolActivityOutfitEnabled(actor.SimDescription, mAfterschoolActivityType))
                     {
-                        return Localize(actor.IsFemale, GetLocalizationKey(mAfterschoolActivityType) + "DisableInteractionName");
+                        return Common.Localize(actor.IsFemale, GetLocalizationKey(mAfterschoolActivityType) + "DisableInteractionName");
                     }
-                    return Localize(actor.IsFemale, GetLocalizationKey(mAfterschoolActivityType) + "EnableInteractionName");
+                    return Common.Localize(actor.IsFemale, GetLocalizationKey(mAfterschoolActivityType) + "EnableInteractionName");
                 }
 
                 public override string[] GetPath(bool isFemale)
                 {
                     return new string[]
                     {
-                        Localize(isFemale, GetLocalizationKey(mAfterschoolActivityType) + "Path")
+                        Common.Localize(isFemale, GetLocalizationKey(mAfterschoolActivityType) + "Path")
                     };
                 }
 
@@ -631,12 +648,12 @@ namespace Destrospean
                 if (GetAfterschoolActivityOutfitEnabled(Actor.SimDescription, mAfterschoolActivityType))
                 {
                     DisableAfterschoolActivityOutfit(Actor.SimDescription, mAfterschoolActivityType);
-                    Notify(Localize(Actor.IsFemale, GetLocalizationKey(mAfterschoolActivityType) + "DisabledFeedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
+                    Common.Notify(Common.Localize(Actor.IsFemale, GetLocalizationKey(mAfterschoolActivityType) + "DisabledFeedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
                 }
                 else
                 {
                     EnableAfterschoolActivityOutfit(Actor.SimDescription, mAfterschoolActivityType);
-                    Notify(Localize(Actor.IsFemale, GetLocalizationKey(mAfterschoolActivityType) + "EnabledFeedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
+                    Common.Notify(Common.Localize(Actor.IsFemale, GetLocalizationKey(mAfterschoolActivityType) + "EnabledFeedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
                 }
                 return true;
             }
@@ -772,9 +789,13 @@ namespace Destrospean
 
         static void OnObjectPlacedInLot(object sender, EventArgs e)
         {
-            if (kShowObjectMenu && e is World.OnObjectPlacedInLotEventArgs onObjectPlacedInLotEventArgs && GameObject.GetObject(onObjectPlacedInLotEventArgs.ObjectId) is Dresser dresser)
+            if (Tuning.kShowObjectMenu && e is World.OnObjectPlacedInLotEventArgs)
             {
-                AddInteractions(dresser);
+                GameObject gameObject = GameObject.GetObject(((World.OnObjectPlacedInLotEventArgs)e).ObjectId);
+                if (gameObject is Dresser)
+                {
+                    AddInteractions(gameObject);
+                }
             }
         }
 
@@ -783,21 +804,21 @@ namespace Destrospean
             SchoolRabbitHole.AttendAudition.Singleton = new AttendAudition.DefinitionModified();
             SchoolRabbitHole.AttendRecital.Singleton = new AttendRecital.DefinitionModified();
             Sim.DoShowOffMove.Singleton = new DoShowOffMove.DefinitionModified();
-            CopyTuning(typeof(SchoolRabbitHole), typeof(SchoolRabbitHole.AttendAudition.Definition), typeof(AttendAudition.DefinitionModified));
-            CopyTuning(typeof(SchoolRabbitHole), typeof(SchoolRabbitHole.AttendRecital.Definition), typeof(AttendRecital.DefinitionModified));
-            CopyTuning(typeof(Sim), typeof(Sim.DoShowOffMove.Definition), typeof(DoShowOffMove.DefinitionModified));
+            Common.CopyTuning(typeof(SchoolRabbitHole), typeof(SchoolRabbitHole.AttendAudition.Definition), typeof(AttendAudition.DefinitionModified));
+            Common.CopyTuning(typeof(SchoolRabbitHole), typeof(SchoolRabbitHole.AttendRecital.Definition), typeof(AttendRecital.DefinitionModified));
+            Common.CopyTuning(typeof(Sim), typeof(Sim.DoShowOffMove.Definition), typeof(DoShowOffMove.DefinitionModified));
         }
 
         static ListenerAction OnSimDestroyed(Event e)
         {
             try
             {
-                if (e.Actor is Sim sim)
+                if (e.Actor is Sim)
                 {
                     int index = 0;
                     foreach (AfterschoolActivityType afterschoolActivityType in Enum.GetValues(typeof(AfterschoolActivityType)))
                     {
-                        EnableAfterschoolActivityOutfit(sim.SimDescription, afterschoolActivityType);
+                        EnableAfterschoolActivityOutfit(e.Actor.SimDescription, afterschoolActivityType);
                         if (index == 1)
                         {
                             break;
@@ -817,7 +838,7 @@ namespace Destrospean
         {
             try
             {
-                if (kShowSimMenu)
+                if (Tuning.kShowSimMenu)
                 {
                     AddInteractions(Sim.ActiveActor);
                 }
@@ -832,14 +853,14 @@ namespace Destrospean
         static void OnWorldLoadFinished(object sender, EventArgs e)
         {
             Init();
-            if (kShowObjectMenu)
+            if (Tuning.kShowObjectMenu)
             {
                 foreach (Dresser dresser in Sims3.Gameplay.Queries.GetObjects<Dresser>())
                 {
                     AddInteractions(dresser);
                 }
             }
-            if (kShowSimMenu && Household.ActiveHousehold != null)
+            if (Tuning.kShowSimMenu && Household.ActiveHousehold != null)
             {
                 foreach (Sim sim in Household.ActiveHousehold.Sims)
                 {

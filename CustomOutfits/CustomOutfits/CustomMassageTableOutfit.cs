@@ -11,8 +11,7 @@ using Sims3.Store.Objects;
 using Sims3.UI;
 using System;
 using System.Collections.Generic;
-using static Destrospean.Common;
-using static Sims3.Gameplay.Destrospean.CustomOutfits;
+using Tuning = Sims3.Gameplay.Destrospean.CustomOutfits;
 
 namespace Destrospean
 {
@@ -54,14 +53,14 @@ namespace Destrospean
             {
                 public override string GetInteractionName(Sim actor, GameObject target, InteractionObjectPair interaction)
                 {
-                    return Localize(actor.IsFemale, sLocalizationKey + "InteractionName");
+                    return Common.Localize(actor.IsFemale, sLocalizationKey + "InteractionName");
                 }
 
                 public override string[] GetPath(bool isFemale)
                 {
                     return new string[]
                     {
-                        Localize(isFemale, sLocalizationKey + "Path")
+                        Common.Localize(isFemale, sLocalizationKey + "Path")
                     };
                 }
 
@@ -73,7 +72,7 @@ namespace Destrospean
 
             public override bool Run()
             {
-                return EditSpecialOutfit(Actor, sLocalizationKey, kMassageTableSpecialOutfitKey, GetMassageTableOutfitName(Actor), ProductVersion.EP3, Actor.SimDescription.GetOutfit(OutfitCategories.Swimwear, 0));
+                return Common.EditSpecialOutfit(Actor, sLocalizationKey, kMassageTableSpecialOutfitKey, GetMassageTableOutfitName(Actor), ProductVersion.EP3, Actor.SimDescription.GetOutfit(OutfitCategories.Swimwear, 0));
             }
         }
 
@@ -149,14 +148,14 @@ namespace Destrospean
             {
                 public override string GetInteractionName(Sim actor, GameObject target, InteractionObjectPair interaction)
                 {
-                    return Localize(actor.IsFemale, sLocalizationKey + "InteractionName");
+                    return Common.Localize(actor.IsFemale, sLocalizationKey + "InteractionName");
                 }
 
                 public override string[] GetPath(bool isFemale)
                 {
                     return new string[]
                     {
-                        Localize(isFemale, sLocalizationKey + "Path")
+                        Common.Localize(isFemale, sLocalizationKey + "Path")
                     };
                 }
 
@@ -169,7 +168,7 @@ namespace Destrospean
             public override bool Run()
             {
                 Actor.SimDescription.RemoveSpecialOutfit(kMassageTableSpecialOutfitKey);
-                Notify(Localize(Actor.IsFemale, sLocalizationKey + "Feedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
+                Common.Notify(Common.Localize(Actor.IsFemale, sLocalizationKey + "Feedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
                 return true;
             }
         }
@@ -186,16 +185,16 @@ namespace Destrospean
                 {
                     if (GetMassageTableOutfitEnabled(actor.SimDescription))
                     {
-                        return Localize(actor.IsFemale, sLocalizationKey + "DisableInteractionName");
+                        return Common.Localize(actor.IsFemale, sLocalizationKey + "DisableInteractionName");
                     }
-                    return Localize(actor.IsFemale, sLocalizationKey + "EnableInteractionName");
+                    return Common.Localize(actor.IsFemale, sLocalizationKey + "EnableInteractionName");
                 }
 
                 public override string[] GetPath(bool isFemale)
                 {
                     return new string[]
                     {
-                        Localize(isFemale, sLocalizationKey + "Path")
+                        Common.Localize(isFemale, sLocalizationKey + "Path")
                     };
                 }
 
@@ -210,12 +209,12 @@ namespace Destrospean
                 if (GetMassageTableOutfitEnabled(Actor.SimDescription))
                 {
                     DisableMassageTableOutfit(Actor.SimDescription);
-                    Notify(Localize(Actor.IsFemale, sLocalizationKey + "DisabledFeedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
+                    Common.Notify(Common.Localize(Actor.IsFemale, sLocalizationKey + "DisabledFeedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
                 }
                 else
                 {
                     EnableMassageTableOutfit(Actor.SimDescription);
-                    Notify(Localize(Actor.IsFemale, sLocalizationKey + "EnabledFeedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
+                    Common.Notify(Common.Localize(Actor.IsFemale, sLocalizationKey + "EnabledFeedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
                 }
                 return true;
             }
@@ -243,14 +242,14 @@ namespace Destrospean
         {
             if (!(actor.CurrentOutfitCategory == OutfitCategories.Singed || actor.Service is GrimReaper))
             {
-                SimOutfit simOutfit = null;
+                SimOutfit resultOutfit, simOutfit = null;
                 SimDescription simDescription = actor.SimDescription;
                 if (simDescription.HasSpecialOutfit(kMassageTableSpecialOutfitKey))
                 {
                     simDescription.AddOutfit(simDescription.GetSpecialOutfit(kMassageTableSpecialOutfitKey), OutfitCategories.SkinnyDippingTowel);
                     simOutfit = simDescription.GetOutfit(OutfitCategories.SkinnyDippingTowel, simDescription.GetOutfitCount(OutfitCategories.SkinnyDippingTowel) - 1);
                 }
-                else if (OutfitUtils.TryApplyUniformToOutfit(simDescription.GetOutfit(OutfitCategories.Swimwear, 0), new SimOutfit(ResourceKey.CreateOutfitKey(GetMassageTableOutfitName(actor), ResourceUtils.ProductVersionToGroupId(ProductVersion.EP3))), simDescription, "ChangeSimToTowelOutfit", out var resultOutfit))
+                else if (OutfitUtils.TryApplyUniformToOutfit(simDescription.GetOutfit(OutfitCategories.Swimwear, 0), new SimOutfit(ResourceKey.CreateOutfitKey(GetMassageTableOutfitName(actor), ResourceUtils.ProductVersionToGroupId(ProductVersion.EP3))), simDescription, "ChangeSimToTowelOutfit", out resultOutfit))
                 {
                     simDescription.AddOutfit(resultOutfit, OutfitCategories.SkinnyDippingTowel);
                     simOutfit = simDescription.GetOutfit(OutfitCategories.SkinnyDippingTowel, simDescription.GetOutfitCount(OutfitCategories.SkinnyDippingTowel) - 1);
@@ -317,25 +316,29 @@ namespace Destrospean
 
         static void OnObjectPlacedInLot(object sender, EventArgs e)
         {
-            if (kShowObjectMenu && e is World.OnObjectPlacedInLotEventArgs onObjectPlacedInLotEventArgs && GameObject.GetObject(onObjectPlacedInLotEventArgs.ObjectId) is MassageTable massageTable)
+            if (Tuning.kShowObjectMenu && e is World.OnObjectPlacedInLotEventArgs)
             {
-                AddInteractions(massageTable);
+                GameObject gameObject = GameObject.GetObject(((World.OnObjectPlacedInLotEventArgs)e).ObjectId);
+                if (gameObject is MassageTable)
+                {
+                    AddInteractions(gameObject);
+                }
             }
         }
 
         static void OnPreLoad()
         {
             MassageTable.GetMassage.Singleton = new GetMassage.DefinitionModified();
-            CopyTuning(typeof(MassageTable), typeof(MassageTable.GetMassage.Definition), typeof(GetMassage.DefinitionModified));
+            Common.CopyTuning(typeof(MassageTable), typeof(MassageTable.GetMassage.Definition), typeof(GetMassage.DefinitionModified));
         }
 
         static ListenerAction OnSimDestroyed(Event e)
         {
             try
             {
-                if (e.Actor is Sim sim)
+                if (e.Actor is Sim)
                 {
-                    EnableMassageTableOutfit(sim.SimDescription);
+                    EnableMassageTableOutfit(e.Actor.SimDescription);
                 }
             }
             catch (Exception ex)
@@ -349,7 +352,7 @@ namespace Destrospean
         {
             try
             {
-                if (kShowSimMenu)
+                if (Tuning.kShowSimMenu)
                 {
                     AddInteractions(Sim.ActiveActor);
                 }
@@ -364,14 +367,14 @@ namespace Destrospean
         static void OnWorldLoadFinished(object sender, EventArgs e)
         {
             Init();
-            if (kShowObjectMenu)
+            if (Tuning.kShowObjectMenu)
             {
                 foreach (MassageTable massageTable in Sims3.Gameplay.Queries.GetObjects<MassageTable>())
                 {
                     AddInteractions(massageTable);
                 }
             }
-            if (kShowSimMenu && Household.ActiveHousehold != null)
+            if (Tuning.kShowSimMenu && Household.ActiveHousehold != null)
             {
                 foreach (Sim sim in Household.ActiveHousehold.Sims)
                 {

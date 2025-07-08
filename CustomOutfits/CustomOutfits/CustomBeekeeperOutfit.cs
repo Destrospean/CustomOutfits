@@ -15,9 +15,7 @@ using Sims3.SimIFace.Enums;
 using Sims3.UI;
 using System;
 using System.Collections.Generic;
-using static Destrospean.Common;
-using static Sims3.Gameplay.Destrospean.CustomOutfits;
-using static Sims3.Gameplay.Objects.Insect.BeekeepingBox;
+using Tuning = Sims3.Gameplay.Destrospean.CustomOutfits;
 
 namespace Destrospean
 {
@@ -53,7 +51,7 @@ namespace Destrospean
             {
                 public override string GetInteractionName(Sim actor, BeekeepingBox target, InteractionObjectPair interaction)
                 {
-                    return LocalizeString("CleanBox");
+                    return BeekeepingBox.LocalizeString("CleanBox");
                 }
 
                 public override bool Test(Sim actor, BeekeepingBox target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
@@ -64,9 +62,9 @@ namespace Destrospean
 
             public override bool Run()
             {
-                bool baseInteractionFunctionalityDone = false;
+                bool baseInteractionFunctionalityDone = false, outfitChanged, swimwearUsed;
                 AlarmHandle alarmHandle = AlarmHandle.kInvalidHandle;
-                baseInteractionFunctionalityDone = DoBaseInteractionFunctionality(mCurrentStateMachine, Actor, this, out var outfitChanged, out var swimwearUsed, Target);
+                baseInteractionFunctionalityDone = DoBaseInteractionFunctionality(mCurrentStateMachine, Actor, this, out outfitChanged, out swimwearUsed, Target);
                 if (baseInteractionFunctionalityDone)
                 {
                     AnimateSim("FeedCleanLoop");
@@ -102,14 +100,14 @@ namespace Destrospean
             {
                 public override string GetInteractionName(Sim actor, GameObject target, InteractionObjectPair interaction)
                 {
-                    return Localize(actor.IsFemale, sLocalizationKey + "InteractionName");
+                    return Common.Localize(actor.IsFemale, sLocalizationKey + "InteractionName");
                 }
 
                 public override string[] GetPath(bool isFemale)
                 {
                     return new string[]
                     {
-                        Localize(isFemale, sLocalizationKey + "Path")
+                        Common.Localize(isFemale, sLocalizationKey + "Path")
                     };
                 }
 
@@ -122,7 +120,7 @@ namespace Destrospean
             public override bool Run()
             {
                 string outfitName = GetBeekeeperOutfitName(Actor);
-                return EditSpecialOutfit(Actor, sLocalizationKey, outfitName, outfitName, ProductVersion.EP7);
+                return Common.EditSpecialOutfit(Actor, sLocalizationKey, outfitName, outfitName, ProductVersion.EP7);
             }
         }
 
@@ -132,7 +130,7 @@ namespace Destrospean
             {
                 public override string GetInteractionName(Sim actor, BeekeepingBox target, InteractionObjectPair interaction)
                 {
-                    return LocalizeString("FeedBees");
+                    return BeekeepingBox.LocalizeString("FeedBees");
                 }
 
                 public override bool Test(Sim actor, BeekeepingBox target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
@@ -143,9 +141,9 @@ namespace Destrospean
 
             public override bool Run()
             {
-                bool baseInteractionFunctionalityDone = false;
+                bool baseInteractionFunctionalityDone = false, outfitChanged, swimwearUsed;
                 AlarmHandle alarmHandle = AlarmHandle.kInvalidHandle;
-                baseInteractionFunctionalityDone = DoBaseInteractionFunctionality(mCurrentStateMachine, Actor, this, out var outfitChanged, out var swimwearUsed, Target);
+                baseInteractionFunctionalityDone = DoBaseInteractionFunctionality(mCurrentStateMachine, Actor, this, out outfitChanged, out swimwearUsed, Target);
                 if (baseInteractionFunctionalityDone)
                 {
                     AnimateSim("FeedCleanLoop");
@@ -178,12 +176,12 @@ namespace Destrospean
             {
                 public override string GetInteractionName(Sim actor, BeekeepingBox target, InteractionObjectPair interaction)
                 {
-                    return LocalizeString("HarvestHoney");
+                    return BeekeepingBox.LocalizeString("HarvestHoney");
                 }
 
                 public string NoHoneyStored()
                 {
-                    return LocalizeString("NoHoneyStored");
+                    return BeekeepingBox.LocalizeString("NoHoneyStored");
                 }
 
                 public override bool Test(Sim actor, BeekeepingBox target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
@@ -203,15 +201,15 @@ namespace Destrospean
 
             public override bool Run()
             {
-                bool baseInteractionFunctionalityDone = false;
-                baseInteractionFunctionalityDone = DoBaseInteractionFunctionality(mCurrentStateMachine, Actor, this, out var outfitChanged, out var swimwearUsed, Target);
+                bool baseInteractionFunctionalityDone = false, outfitChanged, swimwearUsed;
+                baseInteractionFunctionalityDone = DoBaseInteractionFunctionality(mCurrentStateMachine, Actor, this, out outfitChanged, out swimwearUsed, Target);
                 if (baseInteractionFunctionalityDone)
                 {
                     AnimateSim("Harvest");
-                    bool honeyStorageLimitMet = Target.mStoredHoneyInfo.Count == kHoneyStorageLimit;
+                    bool honeyStorageLimitMet = Target.mStoredHoneyInfo.Count == BeekeepingBox.kHoneyStorageLimit;
                     while (Target.mStoredHoneyInfo.Count > 0)
                     {
-                        HoneyCreationInfo honeyCreationInfo = Target.mStoredHoneyInfo[0];
+                        BeekeepingBox.HoneyCreationInfo honeyCreationInfo = Target.mStoredHoneyInfo[0];
                         Target.mStoredHoneyInfo.RemoveAt(0);
                         Ingredient honey = Ingredient.Create(IngredientData.NameToDataMap["Honey"]);
                         honey.SetQuality(honeyCreationInfo.Quality);
@@ -228,7 +226,7 @@ namespace Destrospean
                     AnimateSim("Success");
                     if (honeyStorageLimitMet)
                     {
-                        Target.mHoneyProductionAlarm = Target.AddAlarmRepeating(kHoneyProductionTimeInSimHours, TimeUnit.Hours, Target.ProduceHoney, "Produce Honey", AlarmType.AlwaysPersisted);
+                        Target.mHoneyProductionAlarm = Target.AddAlarmRepeating(BeekeepingBox.kHoneyProductionTimeInSimHours, TimeUnit.Hours, Target.ProduceHoney, "Produce Honey", AlarmType.AlwaysPersisted);
                     }
                 }
                 EndCommodityUpdates(baseInteractionFunctionalityDone);
@@ -248,14 +246,14 @@ namespace Destrospean
             {
                 public override string GetInteractionName(Sim actor, GameObject target, InteractionObjectPair interaction)
                 {
-                    return Localize(actor.IsFemale, sLocalizationKey + "InteractionName");
+                    return Common.Localize(actor.IsFemale, sLocalizationKey + "InteractionName");
                 }
 
                 public override string[] GetPath(bool isFemale)
                 {
                     return new string[]
                     {
-                        Localize(isFemale, sLocalizationKey + "Path")
+                        Common.Localize(isFemale, sLocalizationKey + "Path")
                     };
                 }
 
@@ -268,7 +266,7 @@ namespace Destrospean
             public override bool Run()
             {
                 Actor.SimDescription.RemoveSpecialOutfit(GetBeekeeperOutfitName(Actor));
-                Notify(Localize(Actor.IsFemale, sLocalizationKey + "Feedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
+                Common.Notify(Common.Localize(Actor.IsFemale, sLocalizationKey + "Feedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
                 return true;
             }
         }
@@ -284,15 +282,15 @@ namespace Destrospean
 
                 public override string GetInteractionName(Sim actor, BeekeepingBox target, InteractionObjectPair interaction)
                 {
-                    return LocalizeString("SmokeOut");
+                    return BeekeepingBox.LocalizeString("SmokeOut");
                 }
             }
 
             public override bool Run()
             {
-                bool baseInteractionFunctionalityDone;
-                _ = AlarmHandle.kInvalidHandle;
-                baseInteractionFunctionalityDone = DoBaseInteractionFunctionality(mCurrentStateMachine, Actor, this, out var outfitChanged, out var swimwearUsed, Target);
+                bool baseInteractionFunctionalityDone, outfitChanged, swimwearUsed;
+                AlarmHandle ignoreThis = AlarmHandle.kInvalidHandle;
+                baseInteractionFunctionalityDone = DoBaseInteractionFunctionality(mCurrentStateMachine, Actor, this, out outfitChanged, out swimwearUsed, Target);
                 if (baseInteractionFunctionalityDone)
                 {
                     AnimateSim("Smoke");
@@ -321,16 +319,16 @@ namespace Destrospean
                 {
                     if (GetBeekeeperOutfitEnabled(actor.SimDescription))
                     {
-                        return Localize(actor.IsFemale, sLocalizationKey + "DisableInteractionName");
+                        return Common.Localize(actor.IsFemale, sLocalizationKey + "DisableInteractionName");
                     }
-                    return Localize(actor.IsFemale, sLocalizationKey + "EnableInteractionName");
+                    return Common.Localize(actor.IsFemale, sLocalizationKey + "EnableInteractionName");
                 }
 
                 public override string[] GetPath(bool isFemale)
                 {
                     return new string[]
                     {
-                        Localize(isFemale, sLocalizationKey + "Path")
+                        Common.Localize(isFemale, sLocalizationKey + "Path")
                     };
                 }
 
@@ -345,12 +343,12 @@ namespace Destrospean
                 if (GetBeekeeperOutfitEnabled(Actor.SimDescription))
                 {
                     DisableBeekeeperOutfit(Actor.SimDescription);
-                    Notify(Localize(Actor.IsFemale, sLocalizationKey + "DisabledFeedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
+                    Common.Notify(Common.Localize(Actor.IsFemale, sLocalizationKey + "DisabledFeedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
                 }
                 else
                 {
                     EnableBeekeeperOutfit(Actor.SimDescription);
-                    Notify(Localize(Actor.IsFemale, sLocalizationKey + "EnabledFeedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
+                    Common.Notify(Common.Localize(Actor.IsFemale, sLocalizationKey + "EnabledFeedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
                 }
                 return true;
             }
@@ -506,9 +504,13 @@ namespace Destrospean
 
         static void OnObjectPlacedInLot(object sender, EventArgs e)
         {
-            if (kShowObjectMenu && e is World.OnObjectPlacedInLotEventArgs onObjectPlacedInLotEventArgs && GameObject.GetObject(onObjectPlacedInLotEventArgs.ObjectId) is BeekeepingBox beekeepingBox)
+            if (Tuning.kShowObjectMenu && e is World.OnObjectPlacedInLotEventArgs)
             {
-                AddInteractions(beekeepingBox);
+                GameObject gameObject = GameObject.GetObject(((World.OnObjectPlacedInLotEventArgs)e).ObjectId);
+                if (gameObject is BeekeepingBox)
+                {
+                    AddInteractions(gameObject);
+                }
             }
         }
 
@@ -518,19 +520,19 @@ namespace Destrospean
             BeekeepingBox.Feed.Singleton = new Feed.DefinitionModified();
             BeekeepingBox.Harvest.Singleton = new Harvest.DefinitionModified();
             BeekeepingBox.SmokeOut.Singleton = new SmokeOut.DefinitionModified();
-            CopyTuning(typeof(BeekeepingBox), typeof(BeekeepingBox.Clean.Definition), typeof(Clean.DefinitionModified));
-            CopyTuning(typeof(BeekeepingBox), typeof(BeekeepingBox.Feed.Definition), typeof(Feed.DefinitionModified));
-            CopyTuning(typeof(BeekeepingBox), typeof(BeekeepingBox.Harvest.Definition), typeof(Harvest.DefinitionModified));
-            CopyTuning(typeof(BeekeepingBox), typeof(BeekeepingBox.SmokeOut.Definition), typeof(SmokeOut.DefinitionModified));
+            Common.CopyTuning(typeof(BeekeepingBox), typeof(BeekeepingBox.Clean.Definition), typeof(Clean.DefinitionModified));
+            Common.CopyTuning(typeof(BeekeepingBox), typeof(BeekeepingBox.Feed.Definition), typeof(Feed.DefinitionModified));
+            Common.CopyTuning(typeof(BeekeepingBox), typeof(BeekeepingBox.Harvest.Definition), typeof(Harvest.DefinitionModified));
+            Common.CopyTuning(typeof(BeekeepingBox), typeof(BeekeepingBox.SmokeOut.Definition), typeof(SmokeOut.DefinitionModified));
         }
 
         static ListenerAction OnSimDestroyed(Event e)
         {
             try
             {
-                if (e.Actor is Sim sim)
+                if (e.Actor is Sim)
                 {
-                    EnableBeekeeperOutfit(sim.SimDescription);
+                    EnableBeekeeperOutfit(e.Actor.SimDescription);
                 }
             }
             catch (Exception ex)
@@ -544,7 +546,7 @@ namespace Destrospean
         {
             try
             {
-                if (kShowSimMenu)
+                if (Tuning.kShowSimMenu)
                 {
                     AddInteractions(Sim.ActiveActor);
                 }
@@ -559,14 +561,14 @@ namespace Destrospean
         static void OnWorldLoadFinished(object sender, EventArgs e)
         {
             Init();
-            if (kShowObjectMenu)
+            if (Tuning.kShowObjectMenu)
             {
                 foreach (BeekeepingBox beekeepingBox in Sims3.Gameplay.Queries.GetObjects<BeekeepingBox>())
                 {
                     AddInteractions(beekeepingBox);
                 }
             }
-            if (kShowSimMenu && Household.ActiveHousehold != null)
+            if (Tuning.kShowSimMenu && Household.ActiveHousehold != null)
             {
                 foreach (Sim sim in Household.ActiveHousehold.Sims)
                 {

@@ -16,8 +16,7 @@ using Sims3.SimIFace.CAS;
 using Sims3.UI;
 using System;
 using System.Collections.Generic;
-using static Destrospean.Common;
-using static Sims3.Gameplay.Destrospean.CustomOutfits;
+using Tuning = Sims3.Gameplay.Destrospean.CustomOutfits;
 
 namespace Destrospean
 {
@@ -159,14 +158,14 @@ namespace Destrospean
             {
                 public override string GetInteractionName(Sim actor, GameObject target, InteractionObjectPair interaction)
                 {
-                    return Localize(actor.IsFemale, sLocalizationKey + "InteractionName");
+                    return Common.Localize(actor.IsFemale, sLocalizationKey + "InteractionName");
                 }
 
                 public override string[] GetPath(bool isFemale)
                 {
                     return new string[]
                     {
-                        Localize(isFemale, sLocalizationKey + "Path")
+                        Common.Localize(isFemale, sLocalizationKey + "Path")
                     };
                 }
 
@@ -178,7 +177,7 @@ namespace Destrospean
 
             public override bool Run()
             {
-                return EditSpecialOutfit(Actor, sLocalizationKey, kChemistryLabSpecialOutfitKey, GetChemistryLabOutfitName(Actor), ProductVersion.EP4);
+                return Common.EditSpecialOutfit(Actor, sLocalizationKey, kChemistryLabSpecialOutfitKey, GetChemistryLabOutfitName(Actor), ProductVersion.EP4);
             }
         }
 
@@ -241,13 +240,14 @@ namespace Destrospean
 
                 public override bool Test(Sim actor, ChemistryLab target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
                 {
-                    if ((target.InUse && !target.IsActorUsingMe(actor)) || !(actor.SkillManager.GetElement(SkillNames.Logic) is LogicSkill logicSkill) || logicSkill.DiscoveredPotionTypes.Count == 0)
+                    Skill logicSkill = actor.SkillManager.GetElement(SkillNames.Logic);
+                    if ((target.InUse && !target.IsActorUsingMe(actor)) || !(logicSkill is LogicSkill) || ((LogicSkill)logicSkill).DiscoveredPotionTypes.Count == 0)
                     {
                         return false;
                     }
                     if (IsContinuation)
                     {
-                        if (!logicSkill.DiscoveredPotionTypes.Contains(target.mCurrentPotionType))
+                        if (!((LogicSkill)logicSkill).DiscoveredPotionTypes.Contains(target.mCurrentPotionType))
                         {
                             greyedOutTooltipCallback = CreateTooltipCallback(ChemistryLab.LocalizeString(actor.IsFemale, "DoNotKnowHowToMake", actor.SimDescription));
                             return false;
@@ -394,14 +394,14 @@ namespace Destrospean
             {
                 public override string GetInteractionName(Sim actor, GameObject target, InteractionObjectPair interaction)
                 {
-                    return Localize(actor.IsFemale, sLocalizationKey + "InteractionName");
+                    return Common.Localize(actor.IsFemale, sLocalizationKey + "InteractionName");
                 }
 
                 public override string[] GetPath(bool isFemale)
                 {
                     return new string[]
                     {
-                        Localize(isFemale, sLocalizationKey + "Path")
+                        Common.Localize(isFemale, sLocalizationKey + "Path")
                     };
                 }
 
@@ -414,7 +414,7 @@ namespace Destrospean
             public override bool Run()
             {
                 Actor.SimDescription.RemoveSpecialOutfit(kChemistryLabSpecialOutfitKey);
-                Notify(Localize(Actor.IsFemale, sLocalizationKey + "Feedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
+                Common.Notify(Common.Localize(Actor.IsFemale, sLocalizationKey + "Feedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
                 return true;
             }
         }
@@ -431,16 +431,16 @@ namespace Destrospean
                 {
                     if (GetChemistryLabOutfitEnabled(actor.SimDescription))
                     {
-                        return Localize(actor.IsFemale, sLocalizationKey + "DisableInteractionName");
+                        return Common.Localize(actor.IsFemale, sLocalizationKey + "DisableInteractionName");
                     }
-                    return Localize(actor.IsFemale, sLocalizationKey + "EnableInteractionName");
+                    return Common.Localize(actor.IsFemale, sLocalizationKey + "EnableInteractionName");
                 }
 
                 public override string[] GetPath(bool isFemale)
                 {
                     return new string[]
                     {
-                        Localize(isFemale, sLocalizationKey + "Path")
+                        Common.Localize(isFemale, sLocalizationKey + "Path")
                     };
                 }
 
@@ -455,12 +455,12 @@ namespace Destrospean
                 if (GetChemistryLabOutfitEnabled(Actor.SimDescription))
                 {
                     DisableChemistryLabOutfit(Actor.SimDescription);
-                    Notify(Localize(Actor.IsFemale, sLocalizationKey + "DisabledFeedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
+                    Common.Notify(Common.Localize(Actor.IsFemale, sLocalizationKey + "DisabledFeedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
                 }
                 else
                 {
                     EnableChemistryLabOutfit(Actor.SimDescription);
-                    Notify(Localize(Actor.IsFemale, sLocalizationKey + "EnabledFeedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
+                    Common.Notify(Common.Localize(Actor.IsFemale, sLocalizationKey + "EnabledFeedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
                 }
                 return true;
             }
@@ -555,9 +555,13 @@ namespace Destrospean
 
         static void OnObjectPlacedInLot(object sender, EventArgs e)
         {
-            if (kShowObjectMenu && e is World.OnObjectPlacedInLotEventArgs onObjectPlacedInLotEventArgs && GameObject.GetObject(onObjectPlacedInLotEventArgs.ObjectId) is ChemistryLab chemistryLab)
+            if (Tuning.kShowObjectMenu && e is World.OnObjectPlacedInLotEventArgs)
             {
-                AddInteractions(chemistryLab);
+                GameObject gameObject = GameObject.GetObject(((World.OnObjectPlacedInLotEventArgs)e).ObjectId);
+                if (gameObject is ChemistryLab)
+                {
+                    AddInteractions(gameObject);
+                }
             }
         }
 
@@ -565,17 +569,17 @@ namespace Destrospean
         {
             ChemistryLab.DiscoverPotion.Singleton = new DiscoverPotion.DefinitionModified();
             ChemistryLab.MakePotion.Singleton = new MakePotion.DefinitionModified();
-            CopyTuning(typeof(ChemistryLab), typeof(ChemistryLab.DiscoverPotion.Definition), typeof(DiscoverPotion.DefinitionModified));
-            CopyTuning(typeof(ChemistryLab), typeof(ChemistryLab.MakePotion.Definition), typeof(MakePotion.DefinitionModified));
+            Common.CopyTuning(typeof(ChemistryLab), typeof(ChemistryLab.DiscoverPotion.Definition), typeof(DiscoverPotion.DefinitionModified));
+            Common.CopyTuning(typeof(ChemistryLab), typeof(ChemistryLab.MakePotion.Definition), typeof(MakePotion.DefinitionModified));
         }
 
         static ListenerAction OnSimDestroyed(Event e)
         {
             try
             {
-                if (e.Actor is Sim sim)
+                if (e.Actor is Sim)
                 {
-                    EnableChemistryLabOutfit(sim.SimDescription);
+                    EnableChemistryLabOutfit(e.Actor.SimDescription);
                 }
             }
             catch (Exception ex)
@@ -589,7 +593,7 @@ namespace Destrospean
         {
             try
             {
-                if (kShowSimMenu)
+                if (Tuning.kShowSimMenu)
                 {
                     AddInteractions(Sim.ActiveActor);
                 }
@@ -604,14 +608,14 @@ namespace Destrospean
         static void OnWorldLoadFinished(object sender, EventArgs e)
         {
             Init();
-            if (kShowObjectMenu)
+            if (Tuning.kShowObjectMenu)
             {
                 foreach (ChemistryLab chemistryLab in Sims3.Gameplay.Queries.GetObjects<ChemistryLab>())
                 {
                     AddInteractions(chemistryLab);
                 }
             }
-            if (kShowSimMenu && Household.ActiveHousehold != null)
+            if (Tuning.kShowSimMenu && Household.ActiveHousehold != null)
             {
                 foreach (Sim sim in Household.ActiveHousehold.Sims)
                 {

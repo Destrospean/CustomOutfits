@@ -19,8 +19,7 @@ using Sims3.UI;
 using Sims3.UI.Hud;
 using System;
 using System.Collections.Generic;
-using static Destrospean.Common;
-using static Sims3.Gameplay.Destrospean.CustomOutfits;
+using Tuning = Sims3.Gameplay.Destrospean.CustomOutfits;
 
 namespace Destrospean
 {
@@ -62,14 +61,14 @@ namespace Destrospean
             {
                 public override string GetInteractionName(Sim actor, GameObject target, InteractionObjectPair interaction)
                 {
-                    return Localize(actor.IsFemale, sLocalizationKey + "InteractionName");
+                    return Common.Localize(actor.IsFemale, sLocalizationKey + "InteractionName");
                 }
 
                 public override string[] GetPath(bool isFemale)
                 {
                     return new string[]
                     {
-                        Localize(isFemale, sLocalizationKey + "Path")
+                        Common.Localize(isFemale, sLocalizationKey + "Path")
                     };
                 }
 
@@ -81,7 +80,7 @@ namespace Destrospean
 
             public override bool Run()
             {
-                return EditSpecialOutfit(Actor, sLocalizationKey, kChefSpecialOutfitKey, GetChefOutfitName(Actor), ProductVersion.BaseGame);
+                return Common.EditSpecialOutfit(Actor, sLocalizationKey, kChefSpecialOutfitKey, GetChefOutfitName(Actor), ProductVersion.BaseGame);
             }
         }
 
@@ -198,14 +197,14 @@ namespace Destrospean
             {
                 public override string GetInteractionName(Sim actor, GameObject target, InteractionObjectPair interaction)
                 {
-                    return Localize(actor.IsFemale, sLocalizationKey + "InteractionName");
+                    return Common.Localize(actor.IsFemale, sLocalizationKey + "InteractionName");
                 }
 
                 public override string[] GetPath(bool isFemale)
                 {
                     return new string[]
                     {
-                        Localize(isFemale, sLocalizationKey + "Path")
+                        Common.Localize(isFemale, sLocalizationKey + "Path")
                     };
                 }
 
@@ -218,7 +217,7 @@ namespace Destrospean
             public override bool Run()
             {
                 Actor.SimDescription.RemoveSpecialOutfit(kChefSpecialOutfitKey);
-                Notify(Localize(Actor.IsFemale, sLocalizationKey + "Feedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
+                Common.Notify(Common.Localize(Actor.IsFemale, sLocalizationKey + "Feedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
                 return true;
             }
         }
@@ -252,7 +251,8 @@ namespace Destrospean
                             Recipe.CanMakeFoodTestResult canMakeFoodTestResult = Food.CanMake(current, true, false, currentMealTime, Recipe.MealRepetition.MakeOne, target.LotCurrent, actor, Recipe.MealQuantity.Group, current.CalculateCost(actor), target);
                             if (canMakeFoodTestResult == Recipe.CanMakeFoodTestResult.Fail_NotEnoughMoney)
                             {
-                                canMakeFoodTestResult = target.CanMakeRecipe(current, true, false, currentMealTime, Recipe.MealRepetition.MakeOne, target.LotCurrent, actor, Recipe.MealQuantity.Group, current.CalculateCost(actor), target, out var needIngredients);
+                                bool needIngredients;
+                                canMakeFoodTestResult = target.CanMakeRecipe(current, true, false, currentMealTime, Recipe.MealRepetition.MakeOne, target.LotCurrent, actor, Recipe.MealQuantity.Group, current.CalculateCost(actor), target, out needIngredients);
                                 if (!needIngredients)
                                 {
                                     canMakeFoodTestResult = Recipe.CanMakeFoodTestResult.Pass;
@@ -555,16 +555,16 @@ namespace Destrospean
                 {
                     if (GetChefOutfitEnabled(actor.SimDescription))
                     {
-                        return Localize(actor.IsFemale, sLocalizationKey + "DisableInteractionName");
+                        return Common.Localize(actor.IsFemale, sLocalizationKey + "DisableInteractionName");
                     }
-                    return Localize(actor.IsFemale, sLocalizationKey + "EnableInteractionName");
+                    return Common.Localize(actor.IsFemale, sLocalizationKey + "EnableInteractionName");
                 }
 
                 public override string[] GetPath(bool isFemale)
                 {
                     return new string[]
                     {
-                        Localize(isFemale, sLocalizationKey + "Path")
+                        Common.Localize(isFemale, sLocalizationKey + "Path")
                     };
                 }
 
@@ -579,12 +579,12 @@ namespace Destrospean
                 if (GetChefOutfitEnabled(Actor.SimDescription))
                 {
                     DisableChefOutfit(Actor.SimDescription);
-                    Notify(Localize(Actor.IsFemale, sLocalizationKey + "DisabledFeedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
+                    Common.Notify(Common.Localize(Actor.IsFemale, sLocalizationKey + "DisabledFeedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
                 }
                 else
                 {
                     EnableChefOutfit(Actor.SimDescription);
-                    Notify(Localize(Actor.IsFemale, sLocalizationKey + "EnabledFeedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
+                    Common.Notify(Common.Localize(Actor.IsFemale, sLocalizationKey + "EnabledFeedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
                 }
                 return true;
             }
@@ -763,9 +763,13 @@ namespace Destrospean
 
         static void OnObjectPlacedInLot(object sender, EventArgs e)
         {
-            if (kShowObjectMenu && e is World.OnObjectPlacedInLotEventArgs onObjectPlacedInLotEventArgs && GameObject.GetObject(onObjectPlacedInLotEventArgs.ObjectId) is TeppanyakiGrill teppanyakiGrill)
+            if (Tuning.kShowObjectMenu && e is World.OnObjectPlacedInLotEventArgs)
             {
-                AddInteractions(teppanyakiGrill);
+                GameObject gameObject = GameObject.GetObject(((World.OnObjectPlacedInLotEventArgs)e).ObjectId);
+                if (gameObject is TeppanyakiGrill)
+                {
+                    AddInteractions(gameObject);
+                }
             }
         }
 
@@ -774,18 +778,18 @@ namespace Destrospean
             TeppanyakiGrill.JuggleEggTrick.Singleton = new JuggleEggTrick.DefinitionModified();
             TeppanyakiGrill.OnionVolcano.Singleton = new OnionVolcano.DefinitionModified();
             TeppanyakiGrill.TGCook.Singleton = new TGCook.DefinitionModified();
-            CopyTuning(typeof(TeppanyakiGrill), typeof(TeppanyakiGrill.JuggleEggTrick.Definition), typeof(JuggleEggTrick.DefinitionModified));
-            CopyTuning(typeof(TeppanyakiGrill), typeof(TeppanyakiGrill.OnionVolcano.Definition), typeof(OnionVolcano.DefinitionModified));
-            CopyTuning(typeof(TeppanyakiGrill), typeof(TeppanyakiGrill.TGCook.Definition), typeof(TGCook.DefinitionModified));
+            Common.CopyTuning(typeof(TeppanyakiGrill), typeof(TeppanyakiGrill.JuggleEggTrick.Definition), typeof(JuggleEggTrick.DefinitionModified));
+            Common.CopyTuning(typeof(TeppanyakiGrill), typeof(TeppanyakiGrill.OnionVolcano.Definition), typeof(OnionVolcano.DefinitionModified));
+            Common.CopyTuning(typeof(TeppanyakiGrill), typeof(TeppanyakiGrill.TGCook.Definition), typeof(TGCook.DefinitionModified));
         }
 
         static ListenerAction OnSimDestroyed(Event e)
         {
             try
             {
-                if (e.Actor is Sim sim)
+                if (e.Actor is Sim)
                 {
-                    EnableChefOutfit(sim.SimDescription);
+                    EnableChefOutfit(e.Actor.SimDescription);
                 }
             }
             catch (Exception ex)
@@ -799,7 +803,7 @@ namespace Destrospean
         {
             try
             {
-                if (kShowSimMenu)
+                if (Tuning.kShowSimMenu)
                 {
                     AddInteractions(Sim.ActiveActor);
                 }
@@ -814,14 +818,14 @@ namespace Destrospean
         static void OnWorldLoadFinished(object sender, EventArgs e)
         {
             Init();
-            if (kShowObjectMenu)
+            if (Tuning.kShowObjectMenu)
             {
                 foreach (TeppanyakiGrill teppanyakiGrill in Sims3.Gameplay.Queries.GetObjects<TeppanyakiGrill>())
                 {
                     AddInteractions(teppanyakiGrill);
                 }
             }
-            if (kShowSimMenu && Household.ActiveHousehold != null)
+            if (Tuning.kShowSimMenu && Household.ActiveHousehold != null)
             {
                 foreach (Sim sim in Household.ActiveHousehold.Sims)
                 {

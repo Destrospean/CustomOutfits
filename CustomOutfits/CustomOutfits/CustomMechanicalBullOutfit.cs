@@ -15,9 +15,7 @@ using Sims3.SimIFace.Enums;
 using Sims3.UI;
 using System;
 using System.Collections.Generic;
-using static Destrospean.Common;
-using static Sims3.Gameplay.Destrospean.CustomOutfits;
-using static Sims3.Gameplay.Objects.Entertainment.MechanicalBull;
+using Tuning = Sims3.Gameplay.Destrospean.CustomOutfits;
 
 namespace Destrospean
 {
@@ -63,26 +61,26 @@ namespace Destrospean
             {
                 public override string GetInteractionName(Sim actor, GameObject target, InteractionObjectPair interaction)
                 {
-                    return Localize(actor.IsFemale, sLocalizationKey + "InteractionName");
+                    return Common.Localize(actor.IsFemale, sLocalizationKey + "InteractionName");
                 }
 
                 public override string[] GetPath(bool isFemale)
                 {
                     return new string[]
                     {
-                        Localize(isFemale, sLocalizationKey + "Path")
+                        Common.Localize(isFemale, sLocalizationKey + "Path")
                     };
                 }
 
                 public override bool Test(Sim actor, GameObject target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
                 {
-                    return !((target is Sim && actor != target) || !actor.SkillManager.HasElement(SkillNames.Athletic) || actor.SkillManager.GetElement(SkillNames.Athletic).SkillLevel < kSkillForCowboyOutfit || actor.SimDescription.TeenOrBelow || !actor.SimDescription.IsHuman || actor.SimDescription.IsRobot || isAutonomous);
+                    return !((target is Sim && actor != target) || !actor.SkillManager.HasElement(SkillNames.Athletic) || actor.SkillManager.GetElement(SkillNames.Athletic).SkillLevel < MechanicalBull.kSkillForCowboyOutfit || actor.SimDescription.TeenOrBelow || !actor.SimDescription.IsHuman || actor.SimDescription.IsRobot || isAutonomous);
                 }
             }
 
             public override bool Run()
             {
-                return EditSpecialOutfit(Actor, sLocalizationKey, kMechanicalBullSpecialOutfitKey, GetMechanicalBullOutfitName(Actor), ProductVersion.EP6);
+                return Common.EditSpecialOutfit(Actor, sLocalizationKey, kMechanicalBullSpecialOutfitKey, GetMechanicalBullOutfitName(Actor), ProductVersion.EP6);
             }
         }
 
@@ -96,27 +94,27 @@ namespace Destrospean
             {
                 public override string GetInteractionName(Sim actor, GameObject target, InteractionObjectPair interaction)
                 {
-                    return Localize(actor.IsFemale, sLocalizationKey + "InteractionName");
+                    return Common.Localize(actor.IsFemale, sLocalizationKey + "InteractionName");
                 }
 
                 public override string[] GetPath(bool isFemale)
                 {
                     return new string[]
                     {
-                        Localize(isFemale, sLocalizationKey + "Path")
+                        Common.Localize(isFemale, sLocalizationKey + "Path")
                     };
                 }
 
                 public override bool Test(Sim actor, GameObject target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
                 {
-                    return !(!actor.SimDescription.HasSpecialOutfit(kMechanicalBullSpecialOutfitKey) || (target is Sim && actor != target) || !actor.SkillManager.HasElement(SkillNames.Athletic) || actor.SkillManager.GetElement(SkillNames.Athletic).SkillLevel < kSkillForCowboyOutfit || actor.SimDescription.TeenOrBelow || !actor.SimDescription.IsHuman || actor.SimDescription.IsRobot || isAutonomous);
+                    return !(!actor.SimDescription.HasSpecialOutfit(kMechanicalBullSpecialOutfitKey) || (target is Sim && actor != target) || !actor.SkillManager.HasElement(SkillNames.Athletic) || actor.SkillManager.GetElement(SkillNames.Athletic).SkillLevel < MechanicalBull.kSkillForCowboyOutfit || actor.SimDescription.TeenOrBelow || !actor.SimDescription.IsHuman || actor.SimDescription.IsRobot || isAutonomous);
                 }
             }
 
             public override bool Run()
             {
                 Actor.SimDescription.RemoveSpecialOutfit(kMechanicalBullSpecialOutfitKey);
-                Notify(Localize(Actor.IsFemale, sLocalizationKey + "Feedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
+                Common.Notify(Common.Localize(Actor.IsFemale, sLocalizationKey + "Feedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
                 return true;
             }
         }
@@ -169,7 +167,7 @@ namespace Destrospean
                     }
                     if (ShouldChargeForRide(actor, target))
                     {
-                        interactionSubstring += " " + EAText.GetMoneyString(kCostOfRide);
+                        interactionSubstring += " " + EAText.GetMoneyString(MechanicalBull.kCostOfRide);
                     }
                     return interactionSubstring;
                 }
@@ -180,14 +178,14 @@ namespace Destrospean
                     {
                         return false;
                     }
-                    if (ShouldChargeForRide(actor, target) && actor.FamilyFunds < kCostOfRide)
+                    if (ShouldChargeForRide(actor, target) && actor.FamilyFunds < MechanicalBull.kCostOfRide)
                     {
                         greyedOutTooltipCallback = CreateTooltipCallback(LocalizationHelper.InsufficientFunds);
                         return false;
                     }
                     if (actor.BuffManager.HasElement(BuffNames.Fatigued))
                     {
-                        greyedOutTooltipCallback = () => LocalizeString("FailRideBullFatigue", actor);
+                        greyedOutTooltipCallback = () => MechanicalBull.LocalizeString("FailRideBullFatigue", actor);
                         return false;
                     }
                     if (actor.TraitManager.HasElement(TraitNames.Daredevil))
@@ -213,23 +211,23 @@ namespace Destrospean
                 }
                 if (shouldChargeForRide)
                 {
-                    if (Actor.FamilyFunds < kCostOfRide)
+                    if (Actor.FamilyFunds < MechanicalBull.kCostOfRide)
                     {
                         Actor.AddExitReason(ExitReason.FailedToStart);
                         return false;
                     }
-                    Actor.ModifyFunds(-kCostOfRide);
+                    Actor.ModifyFunds(-MechanicalBull.kCostOfRide);
                 }
                 Target.mCurrentRider = Actor;
                 StandardEntry();
-                if (GetMechanicalBullOutfitEnabled(Actor.SimDescription) && skillLevel >= kSkillForCowboyOutfit)
+                if (GetMechanicalBullOutfitEnabled(Actor.SimDescription) && skillLevel >= MechanicalBull.kSkillForCowboyOutfit)
                 {
                     changeClothesState = ChangeClothesState.Cowboy;
                 }
                 if (GetMechanicalBullSwimwearEnabled(Actor.SimDescription) && (Actor.TraitManager.HasElement(TraitNames.Dramatic) || Actor.TraitManager.HasElement(TraitNames.Inappropriate)))
                 {
                     float roll = RandomUtil.GetFloat(100f);
-                    if (roll < kSwimwearPercent)
+                    if (roll < MechanicalBull.kSwimwearPercent)
                     {
                         changeClothesState = ChangeClothesState.Swimwear;
                     }
@@ -242,13 +240,14 @@ namespace Destrospean
                         break;
                     case ChangeClothesState.Cowboy:
                         {
+                            SimOutfit resultOutfit, uniform;
                             if (Actor.SimDescription.HasSpecialOutfit(kMechanicalBullSpecialOutfitKey))
                             {
                                 Actor.SwitchToOutfitWithSpin(Actor.SimDescription.GetSpecialOutfit(kMechanicalBullSpecialOutfitKey).Key);
                             }
-                            else if (OutfitUtils.TryGenerateSimOutfit(GetMechanicalBullOutfitName(Actor), ProductVersion.EP6, out var uniform))
+                            else if (OutfitUtils.TryGenerateSimOutfit(GetMechanicalBullOutfitName(Actor), ProductVersion.EP6, out uniform))
                             {
-                                if (OutfitUtils.TryApplyUniformToOutfit(Actor.SimDescription.GetOutfit(OutfitCategories.Everyday, 0), uniform, Actor.SimDescription, "MechanicalBull.ApplyCowboyOutfit", out var resultOutfit))
+                                if (OutfitUtils.TryApplyUniformToOutfit(Actor.SimDescription.GetOutfit(OutfitCategories.Everyday, 0), uniform, Actor.SimDescription, "MechanicalBull.ApplyCowboyOutfit", out resultOutfit))
                                 {
                                     Actor.SimDescription.AddSpecialOutfit(resultOutfit, kMechanicalBullSpecialOutfitKey);
                                     Actor.SwitchToOutfitWithSpin(resultOutfit.Key);
@@ -257,28 +256,28 @@ namespace Destrospean
                             break;
                         }
                 }
-                if (RandomUtil.RandomChance(kProbabilityOfFail[(uint)mDifficulty] - skillLevel * kPercentPerLevel))
+                if (RandomUtil.RandomChance(MechanicalBull.kProbabilityOfFail[(uint)mDifficulty] - skillLevel * MechanicalBull.kPercentPerLevel))
                 {
                     mRideEnding = RideEndingState.Fail;
-                    if (RandomUtil.RandomChance(kBaseEpicFailChance - kPercentPerLevelEpicFail * skillLevel))
+                    if (RandomUtil.RandomChance(MechanicalBull.kBaseEpicFailChance - MechanicalBull.kPercentPerLevelEpicFail * skillLevel))
                     {
                         mRideEnding = RideEndingState.EpicFail;
                     }
-                    mLengthOfRide = RandomUtil.GetFloat(kRideLength[(uint)mDifficulty]) * (1f + skillLevel / 10f);
-                    mLengthOfRide = Math.Min(mLengthOfRide, kRideLength[(uint)mDifficulty]);
+                    mLengthOfRide = RandomUtil.GetFloat(MechanicalBull.kRideLength[(uint)mDifficulty]) * (1f + skillLevel / 10f);
+                    mLengthOfRide = Math.Min(mLengthOfRide, MechanicalBull.kRideLength[(uint)mDifficulty]);
                 }
                 else
                 {
-                    mLengthOfRide = kRideLength[(uint)mDifficulty];
+                    mLengthOfRide = MechanicalBull.kRideLength[(uint)mDifficulty];
                 }
-                mBroadcasterParams.PulseRadius += kPulseRadiusIncreasePerSkillLevel * skillLevel;
-                mBroadcasterParams.MaxSimsToProcessPerTick += kSimsToProcessPerDifficultyLevel * (int)mDifficulty;
+                mBroadcasterParams.PulseRadius += MechanicalBull.kPulseRadiusIncreasePerSkillLevel * skillLevel;
+                mBroadcasterParams.MaxSimsToProcessPerTick += MechanicalBull.kSimsToProcessPerDifficultyLevel * (int)mDifficulty;
                 if (changeClothesState == ChangeClothesState.Swimwear || Actor.CurrentOutfitCategory == OutfitCategories.Swimwear)
                 {
                     Actor.BuffManager.AddElement(BuffNames.AttentionFrenzy, Origin.FromRidingBull);
-                    mBroadcasterParams.MaxSimsToProcessPerTick += kSimsIncreaseForFrenzy;
+                    mBroadcasterParams.MaxSimsToProcessPerTick += MechanicalBull.kSimsIncreaseForFrenzy;
                 }
-                mBroadcaster = new ReactionBroadcaster(Target, mBroadcasterParams, WatchBull.Singleton);
+                mBroadcaster = new ReactionBroadcaster(Target, mBroadcasterParams, MechanicalBull.WatchBull.Singleton);
                 mStartTime = SimClock.ElapsedTime(TimeUnit.Minutes);
                 AcquireStateMachine("MechanicalBull");
                 SetParameter("AthleticSkill", skill.GetSkillLevelParameterForJazzGraph());
@@ -355,22 +354,22 @@ namespace Destrospean
                 {
                     if (GetMechanicalBullOutfitEnabled(actor.SimDescription))
                     {
-                        return Localize(actor.IsFemale, sLocalizationKey + "DisableInteractionName");
+                        return Common.Localize(actor.IsFemale, sLocalizationKey + "DisableInteractionName");
                     }
-                    return Localize(actor.IsFemale, sLocalizationKey + "EnableInteractionName");
+                    return Common.Localize(actor.IsFemale, sLocalizationKey + "EnableInteractionName");
                 }
 
                 public override string[] GetPath(bool isFemale)
                 {
                     return new string[]
                     {
-                        Localize(isFemale, sLocalizationKey + "Path")
+                        Common.Localize(isFemale, sLocalizationKey + "Path")
                     };
                 }
 
                 public override bool Test(Sim actor, GameObject target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
                 {
-                    return !((target is Sim && actor != target) || !actor.SkillManager.HasElement(SkillNames.Athletic) || actor.SkillManager.GetElement(SkillNames.Athletic).SkillLevel < kSkillForCowboyOutfit || actor.SimDescription.TeenOrBelow || !actor.SimDescription.IsHuman || actor.SimDescription.IsRobot || isAutonomous);
+                    return !((target is Sim && actor != target) || !actor.SkillManager.HasElement(SkillNames.Athletic) || actor.SkillManager.GetElement(SkillNames.Athletic).SkillLevel < MechanicalBull.kSkillForCowboyOutfit || actor.SimDescription.TeenOrBelow || !actor.SimDescription.IsHuman || actor.SimDescription.IsRobot || isAutonomous);
                 }
             }
 
@@ -379,12 +378,12 @@ namespace Destrospean
                 if (GetMechanicalBullOutfitEnabled(Actor.SimDescription))
                 {
                     DisableMechanicalBullOutfit(Actor.SimDescription);
-                    Notify(Localize(Actor.IsFemale, sLocalizationKey + "DisabledFeedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
+                    Common.Notify(Common.Localize(Actor.IsFemale, sLocalizationKey + "DisabledFeedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
                 }
                 else
                 {
                     EnableMechanicalBullOutfit(Actor.SimDescription);
-                    Notify(Localize(Actor.IsFemale, sLocalizationKey + "EnabledFeedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
+                    Common.Notify(Common.Localize(Actor.IsFemale, sLocalizationKey + "EnabledFeedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
                 }
                 return true;
             }
@@ -402,16 +401,16 @@ namespace Destrospean
                 {
                     if (GetMechanicalBullSwimwearEnabled(actor.SimDescription))
                     {
-                        return Localize(actor.IsFemale, sLocalizationKey + "DisableInteractionName");
+                        return Common.Localize(actor.IsFemale, sLocalizationKey + "DisableInteractionName");
                     }
-                    return Localize(actor.IsFemale, sLocalizationKey + "EnableInteractionName");
+                    return Common.Localize(actor.IsFemale, sLocalizationKey + "EnableInteractionName");
                 }
 
                 public override string[] GetPath(bool isFemale)
                 {
                     return new string[]
                     {
-                        Localize(isFemale, sLocalizationKey + "Path")
+                        Common.Localize(isFemale, sLocalizationKey + "Path")
                     };
                 }
 
@@ -426,12 +425,12 @@ namespace Destrospean
                 if (GetMechanicalBullSwimwearEnabled(Actor.SimDescription))
                 {
                     DisableMechanicalBullSwimwear(Actor.SimDescription);
-                    Notify(Localize(Actor.IsFemale, sLocalizationKey + "DisabledFeedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
+                    Common.Notify(Common.Localize(Actor.IsFemale, sLocalizationKey + "DisabledFeedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
                 }
                 else
                 {
                     EnableMechanicalBullSwimwear(Actor.SimDescription);
-                    Notify(Localize(Actor.IsFemale, sLocalizationKey + "EnabledFeedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
+                    Common.Notify(Common.Localize(Actor.IsFemale, sLocalizationKey + "EnabledFeedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
                 }
                 return true;
             }
@@ -522,26 +521,30 @@ namespace Destrospean
 
         static void OnObjectPlacedInLot(object sender, EventArgs e)
         {
-            if (kShowObjectMenu && e is World.OnObjectPlacedInLotEventArgs onObjectPlacedInLotEventArgs && GameObject.GetObject(onObjectPlacedInLotEventArgs.ObjectId) is MechanicalBull mechanicalBull)
+            if (Tuning.kShowObjectMenu && e is World.OnObjectPlacedInLotEventArgs)
             {
-                AddInteractions(mechanicalBull);
+                GameObject gameObject = GameObject.GetObject(((World.OnObjectPlacedInLotEventArgs)e).ObjectId);
+                if (gameObject is MechanicalBull)
+                {
+                    AddInteractions(gameObject);
+                }
             }
         }
 
         static void OnPreLoad()
         {
             MechanicalBull.RideBull.Singleton = new RideBull.DefinitionModified();
-            CopyTuning(typeof(MechanicalBull), typeof(MechanicalBull.RideBull.Definition), typeof(RideBull.DefinitionModified));
+            Common.CopyTuning(typeof(MechanicalBull), typeof(MechanicalBull.RideBull.Definition), typeof(RideBull.DefinitionModified));
         }
 
         static ListenerAction OnSimDestroyed(Event e)
         {
             try
             {
-                if (e.Actor is Sim sim)
+                if (e.Actor is Sim)
                 {
-                    EnableMechanicalBullOutfit(sim.SimDescription);
-                    EnableMechanicalBullSwimwear(sim.SimDescription);
+                    EnableMechanicalBullOutfit(e.Actor.SimDescription);
+                    EnableMechanicalBullSwimwear(e.Actor.SimDescription);
                 }
             }
             catch (Exception ex)
@@ -555,7 +558,7 @@ namespace Destrospean
         {
             try
             {
-                if (kShowSimMenu)
+                if (Tuning.kShowSimMenu)
                 {
                     AddInteractions(Sim.ActiveActor);
                 }
@@ -570,14 +573,14 @@ namespace Destrospean
         static void OnWorldLoadFinished(object sender, EventArgs e)
         {
             Init();
-            if (kShowObjectMenu)
+            if (Tuning.kShowObjectMenu)
             {
                 foreach (MechanicalBull mechanicalBull in Sims3.Gameplay.Queries.GetObjects<MechanicalBull>())
                 {
                     AddInteractions(mechanicalBull);
                 }
             }
-            if (kShowSimMenu && Household.ActiveHousehold != null)
+            if (Tuning.kShowSimMenu && Household.ActiveHousehold != null)
             {
                 foreach (Sim sim in Household.ActiveHousehold.Sims)
                 {

@@ -13,8 +13,7 @@ using Sims3.SimIFace.CAS;
 using Sims3.UI;
 using System;
 using System.Collections.Generic;
-using static Destrospean.Common;
-using static Sims3.Gameplay.Destrospean.CustomOutfits;
+using Tuning = Sims3.Gameplay.Destrospean.CustomOutfits;
 
 namespace Destrospean
 {
@@ -81,15 +80,15 @@ namespace Destrospean
 
                 public override string GetInteractionName(Sim actor, GameObject target, InteractionObjectPair interaction)
                 {
-                    return Localize(actor.IsFemale, GetLocalizationKey(mSkatingType) + "InteractionName");
+                    return Common.Localize(actor.IsFemale, GetLocalizationKey(mSkatingType) + "InteractionName");
                 }
 
                 public override string[] GetPath(bool isFemale)
                 {
                     return new string[]
                     {
-                        Localize(isFemale, GetLocalizationKey(mSkatingType) + "Path0"),
-                        Localize(isFemale, GetLocalizationKey(mSkatingType) + "Path1")
+                        Common.Localize(isFemale, GetLocalizationKey(mSkatingType) + "Path0"),
+                        Common.Localize(isFemale, GetLocalizationKey(mSkatingType) + "Path1")
                     };
                 }
 
@@ -100,7 +99,7 @@ namespace Destrospean
 
                 public override InteractionTestResult Test(ref InteractionInstanceParameters parameters, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
                 {
-                    return InteractionDefinitionUtilities.FromBool(!(!((SkatableTerrain.GetPondSkatingAreaAtPoint(parameters.Hit.mPoint) != null && mSkatingType == SkatingTypes.Ice && PondManager.ArePondsFrozen()) || (parameters.Target is ISkatableObject skatableObject && !((skatableObject.IsIceRink && mSkatingType != SkatingTypes.Ice) || (!skatableObject.IsIceRink && mSkatingType == SkatingTypes.Ice))) || parameters.Target is Sim) || (parameters.Target is Sim && parameters.Actor != parameters.Target) || parameters.Actor.SimDescription.ToddlerOrBelow || !parameters.Actor.SimDescription.IsHuman || parameters.Actor.SimDescription.IsRobot || parameters.Autonomous));
+                    return InteractionDefinitionUtilities.FromBool(!(!((SkatableTerrain.GetPondSkatingAreaAtPoint(parameters.Hit.mPoint) != null && mSkatingType == SkatingTypes.Ice && PondManager.ArePondsFrozen()) || (parameters.Target is ISkatableObject && !((((ISkatableObject)parameters.Target).IsIceRink && mSkatingType != SkatingTypes.Ice) || (!((ISkatableObject)parameters.Target).IsIceRink && mSkatingType == SkatingTypes.Ice))) || parameters.Target is Sim) || (parameters.Target is Sim && parameters.Actor != parameters.Target) || parameters.Actor.SimDescription.ToddlerOrBelow || !parameters.Actor.SimDescription.IsHuman || parameters.Actor.SimDescription.IsRobot || parameters.Autonomous));
                 }
             }
 
@@ -140,7 +139,7 @@ namespace Destrospean
                 {
                     Actor.SimDescription.AddSpecialOutfit(CreateSkatingOutfit(Actor, mSkatingType), outfitName);
                 }
-                return EditSpecialOutfit(Actor, GetLocalizationKey(mSkatingType), outfitName);
+                return Common.EditSpecialOutfit(Actor, GetLocalizationKey(mSkatingType), outfitName);
             }
 
             public void SetSkatingType(SkatingTypes skatingType)
@@ -188,15 +187,15 @@ namespace Destrospean
 
                 public override string GetInteractionName(Sim actor, GameObject target, InteractionObjectPair interaction)
                 {
-                    return Localize(actor.IsFemale, GetLocalizationKey(mSkatingType) + "InteractionName");
+                    return Common.Localize(actor.IsFemale, GetLocalizationKey(mSkatingType) + "InteractionName");
                 }
 
                 public override string[] GetPath(bool isFemale)
                 {
                     return new string[]
                     {
-                        Localize(isFemale, GetLocalizationKey(mSkatingType) + "Path0"),
-                        Localize(isFemale, GetLocalizationKey(mSkatingType) + "Path1")
+                        Common.Localize(isFemale, GetLocalizationKey(mSkatingType) + "Path0"),
+                        Common.Localize(isFemale, GetLocalizationKey(mSkatingType) + "Path1")
                     };
                 }
 
@@ -207,7 +206,7 @@ namespace Destrospean
 
                 public override InteractionTestResult Test(ref InteractionInstanceParameters parameters, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
                 {
-                    return InteractionDefinitionUtilities.FromBool(!(!parameters.Actor.SimDescription.HasSpecialOutfit(GetSkatingOutfitName((Sim)parameters.Actor, mSkatingType)) || !((SkatableTerrain.GetPondSkatingAreaAtPoint(parameters.Hit.mPoint) != null && mSkatingType == SkatingTypes.Ice && PondManager.ArePondsFrozen()) || (parameters.Target is ISkatableObject skatableObject && !((skatableObject.IsIceRink && mSkatingType != SkatingTypes.Ice) || (!skatableObject.IsIceRink && mSkatingType == SkatingTypes.Ice))) || parameters.Target is Sim) || (parameters.Target is Sim && parameters.Actor != parameters.Target) || parameters.Actor.SimDescription.ToddlerOrBelow || !parameters.Actor.SimDescription.IsHuman || parameters.Actor.SimDescription.IsRobot || parameters.Autonomous));
+                    return InteractionDefinitionUtilities.FromBool(!(!parameters.Actor.SimDescription.HasSpecialOutfit(GetSkatingOutfitName((Sim)parameters.Actor, mSkatingType)) || !((SkatableTerrain.GetPondSkatingAreaAtPoint(parameters.Hit.mPoint) != null && mSkatingType == SkatingTypes.Ice && PondManager.ArePondsFrozen()) || (parameters.Target is ISkatableObject && !((((ISkatableObject)parameters.Target).IsIceRink && mSkatingType != SkatingTypes.Ice) || (!((ISkatableObject)parameters.Target).IsIceRink && mSkatingType == SkatingTypes.Ice))) || parameters.Target is Sim) || (parameters.Target is Sim && parameters.Actor != parameters.Target) || parameters.Actor.SimDescription.ToddlerOrBelow || !parameters.Actor.SimDescription.IsHuman || parameters.Actor.SimDescription.IsRobot || parameters.Autonomous));
                 }
             }
 
@@ -243,7 +242,7 @@ namespace Destrospean
             public override bool Run()
             {
                 Actor.SimDescription.RemoveSpecialOutfit(GetSkatingOutfitName(Actor, mSkatingType));
-                Notify(Localize(Actor.IsFemale, GetLocalizationKey(mSkatingType) + "Feedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
+                Common.Notify(Common.Localize(Actor.IsFemale, GetLocalizationKey(mSkatingType) + "Feedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
                 return true;
             }
 
@@ -269,9 +268,9 @@ namespace Destrospean
 
                 public InteractionObjectPair GetInteractionForJoin(IActor actor, Sim target, InteractionObjectPair interactionToJoin, bool isAskToJoin)
                 {
-                    if (interactionToJoin.Target is ISkatableObject skatableObject)
+                    if (interactionToJoin.Target is ISkatableObject)
                     {
-                        ISkatableObject skatableObjectForAskToJoin = skatableObject.GetSkatableObjectForAskToJoin(target);
+                        ISkatableObject skatableObjectForAskToJoin = ((ISkatableObject)target).GetSkatableObjectForAskToJoin(target);
                         return new InteractionObjectPair(Singleton, skatableObjectForAskToJoin);
                     }
                     return null;
@@ -296,7 +295,8 @@ namespace Destrospean
                         mSkateOutfitIndex = skateOutfitIndex;
                     }
                 }
-                bool result = Target.RouteUpToSkatingLocation(Actor, this, out var entranceUsed);
+                int entranceUsed;
+                bool result = Target.RouteUpToSkatingLocation(Actor, this, out entranceUsed);
                 mEntranceUsed = entranceUsed;
                 return result;
             }
@@ -377,7 +377,7 @@ namespace Destrospean
 
         public static bool CreateSkatingOutfit(Sim actor, bool isIceRink, ref int skateOutfitIndex)
         {
-            SimOutfit simOutfit = null;
+            SimOutfit resultOutfit, simOutfit = null;
             SimDescription simDescription = actor.SimDescription;
             uint specialOutfitKey = ResourceUtils.HashString32("SkatingOutfit");
             int specialOutfitIndexFromKey = simDescription.GetSpecialOutfitIndexFromKey(specialOutfitKey);
@@ -391,7 +391,7 @@ namespace Destrospean
             {
                 simOutfit = GetSkatingOutfitShoesOnly(actor, isIceRink ? SkatingTypes.Ice : SkatingTypes.Roller);
             }
-            if ((simOutfit != null || OutfitUtils.TryGenerateSimOutfit(outfitName, ProductVersion.EP8, out simOutfit)) && OutfitUtils.TryApplyUniformToOutfit(GetOutfitWithoutShoes(actor, actor.CurrentOutfit), simOutfit, simDescription, "CreateSkatingOutfit", out var resultOutfit))
+            if ((simOutfit != null || OutfitUtils.TryGenerateSimOutfit(outfitName, ProductVersion.EP8, out simOutfit)) && OutfitUtils.TryApplyUniformToOutfit(GetOutfitWithoutShoes(actor, actor.CurrentOutfit), simOutfit, simDescription, "CreateSkatingOutfit", out resultOutfit))
             {
                 skateOutfitIndex = simDescription.AddSpecialOutfit(resultOutfit, specialOutfitKey);
                 return true;
@@ -401,7 +401,8 @@ namespace Destrospean
 
         public static SimOutfit CreateSkatingOutfit(Sim actor, SkatingTypes skatingType)
         {
-            return OutfitUtils.TryGenerateSimOutfit(GetSkatingOutfitName(actor, skatingType), ProductVersion.EP8, out var simOutfit) && OutfitUtils.TryApplyUniformToOutfit(actor.CurrentOutfit, simOutfit, actor.SimDescription, "CreateSkatingOutfit", out var resultOutfit) ? resultOutfit : null;
+            SimOutfit resultOutfit, simOutfit;
+            return OutfitUtils.TryGenerateSimOutfit(GetSkatingOutfitName(actor, skatingType), ProductVersion.EP8, out simOutfit) && OutfitUtils.TryApplyUniformToOutfit(actor.CurrentOutfit, simOutfit, actor.SimDescription, "CreateSkatingOutfit", out resultOutfit) ? resultOutfit : null;
         }
 
         public static SimOutfit GetOutfitWithoutShoes(Sim actor, SimOutfit outfit)
@@ -452,9 +453,9 @@ namespace Destrospean
 
         static void OnObjectPlacedInLot(object sender, EventArgs e)
         {
-            if (kShowObjectMenu && e is World.OnObjectPlacedInLotEventArgs onObjectPlacedInLotEventArgs)
+            if (Tuning.kShowObjectMenu && e is World.OnObjectPlacedInLotEventArgs)
             {
-                GameObject gameObject = GameObject.GetObject(onObjectPlacedInLotEventArgs.ObjectId);
+                GameObject gameObject = GameObject.GetObject(((World.OnObjectPlacedInLotEventArgs)e).ObjectId);
                 if (gameObject is ISkatableObject)
                 {
                     AddInteractions(gameObject);
@@ -465,14 +466,14 @@ namespace Destrospean
         static void OnPreLoad()
         {
             SkatingRink.Skate.Singleton = new Skate.DefinitionModified();
-            CopyTuning(typeof(SkatingRink), typeof(SkatingRink.Skate.Definition), typeof(Skate.DefinitionModified));
+            Common.CopyTuning(typeof(SkatingRink), typeof(SkatingRink.Skate.Definition), typeof(Skate.DefinitionModified));
         }
 
         static ListenerAction OnSimSelected(Event e)
         {
             try
             {
-                if (kShowSimMenu)
+                if (Tuning.kShowSimMenu)
                 {
                     AddInteractions(Sim.ActiveActor);
                 }
@@ -487,7 +488,7 @@ namespace Destrospean
         static void OnWorldLoadFinished(object sender, EventArgs e)
         {
             Init();
-            if (kShowObjectMenu)
+            if (Tuning.kShowObjectMenu)
             {
                 foreach (GameObject gameObject in Sims3.Gameplay.Queries.GetObjects<GameObject>())
                 {
@@ -497,7 +498,7 @@ namespace Destrospean
                     }
                 }
             }
-            if (kShowSimMenu && Household.ActiveHousehold != null)
+            if (Tuning.kShowSimMenu && Household.ActiveHousehold != null)
             {
                 foreach (Sim sim in Household.ActiveHousehold.Sims)
                 {
