@@ -1,4 +1,5 @@
-﻿using MonoPatcherLib;
+﻿using Destrospean.CustomOutfits;
+using MonoPatcherLib;
 using Sims3.Gameplay.Abstracts;
 using Sims3.Gameplay.Actors;
 using Sims3.Gameplay.ActorSystems;

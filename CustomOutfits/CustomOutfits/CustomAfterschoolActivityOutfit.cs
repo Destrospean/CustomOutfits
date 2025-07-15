@@ -1,4 +1,5 @@
-﻿using Sims3.Gameplay;
+﻿using Destrospean.CustomOutfits;
+using Sims3.Gameplay;
 using Sims3.Gameplay.Abstracts;
 using Sims3.Gameplay.Actors;
 using Sims3.Gameplay.ActorSystems;

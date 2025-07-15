@@ -9,7 +9,7 @@ using Sims3.UI;
 using Sims3.UI.CAS;
 using System;
 
-namespace Destrospean
+namespace Destrospean.CustomOutfits
 {
     public class Common
     {

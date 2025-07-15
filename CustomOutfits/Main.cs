@@ -1,6 +1,6 @@
 ﻿using MonoPatcherLib;
 
-namespace Destrospean
+namespace Destrospean.CustomOutfits
 {
     [Plugin]
     class Main
