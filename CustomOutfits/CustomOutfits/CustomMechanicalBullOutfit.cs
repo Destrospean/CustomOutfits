@@ -75,7 +75,7 @@ namespace Destrospean
 
                 public override bool Test(Sim actor, GameObject target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
                 {
-                    return !((target is Sim && actor != target) || !actor.SkillManager.HasElement(SkillNames.Athletic) || actor.SkillManager.GetElement(SkillNames.Athletic).SkillLevel < MechanicalBull.kSkillForCowboyOutfit || actor.SimDescription.TeenOrBelow || !actor.SimDescription.IsHuman || actor.SimDescription.IsRobot || isAutonomous);
+                    return ((target is Sim && actor == target && Tuning.kShowSimMenu) || (!(target is Sim) && Tuning.kShowObjectMenu)) && actor.SkillManager.HasElement(SkillNames.Athletic) && actor.SkillManager.GetElement(SkillNames.Athletic).SkillLevel >= MechanicalBull.kSkillForCowboyOutfit && actor.SimDescription.YoungAdultOrAbove && actor.SimDescription.IsHuman && !actor.SimDescription.IsRobot && !isAutonomous;
                 }
             }
 
@@ -108,7 +108,7 @@ namespace Destrospean
 
                 public override bool Test(Sim actor, GameObject target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
                 {
-                    return !(!actor.SimDescription.HasSpecialOutfit(kMechanicalBullSpecialOutfitKey) || (target is Sim && actor != target) || !actor.SkillManager.HasElement(SkillNames.Athletic) || actor.SkillManager.GetElement(SkillNames.Athletic).SkillLevel < MechanicalBull.kSkillForCowboyOutfit || actor.SimDescription.TeenOrBelow || !actor.SimDescription.IsHuman || actor.SimDescription.IsRobot || isAutonomous);
+                    return ((target is Sim && actor == target && Tuning.kShowSimMenu) || (!(target is Sim) && Tuning.kShowObjectMenu)) && actor.SkillManager.HasElement(SkillNames.Athletic) && actor.SkillManager.GetElement(SkillNames.Athletic).SkillLevel >= MechanicalBull.kSkillForCowboyOutfit && actor.SimDescription.YoungAdultOrAbove && actor.SimDescription.IsHuman && !actor.SimDescription.IsRobot && !isAutonomous && actor.SimDescription.HasSpecialOutfit(kMechanicalBullSpecialOutfitKey);
                 }
             }
 
@@ -370,7 +370,7 @@ namespace Destrospean
 
                 public override bool Test(Sim actor, GameObject target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
                 {
-                    return !((target is Sim && actor != target) || !actor.SkillManager.HasElement(SkillNames.Athletic) || actor.SkillManager.GetElement(SkillNames.Athletic).SkillLevel < MechanicalBull.kSkillForCowboyOutfit || actor.SimDescription.TeenOrBelow || !actor.SimDescription.IsHuman || actor.SimDescription.IsRobot || isAutonomous);
+                    return ((target is Sim && actor == target && Tuning.kShowSimMenu) || (!(target is Sim) && Tuning.kShowObjectMenu)) && actor.SkillManager.HasElement(SkillNames.Athletic) && actor.SkillManager.GetElement(SkillNames.Athletic).SkillLevel >= MechanicalBull.kSkillForCowboyOutfit && actor.SimDescription.YoungAdultOrAbove && actor.SimDescription.IsHuman && !actor.SimDescription.IsRobot && !isAutonomous;
                 }
             }
 
@@ -417,7 +417,7 @@ namespace Destrospean
 
                 public override bool Test(Sim actor, GameObject target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
                 {
-                    return !(!(actor.TraitManager.HasElement(TraitNames.Dramatic) || actor.TraitManager.HasElement(TraitNames.Inappropriate)) || (target is Sim && actor != target) || actor.SimDescription.TeenOrBelow || !actor.SimDescription.IsHuman || actor.SimDescription.IsRobot || isAutonomous);
+                    return ((target is Sim && actor == target && Tuning.kShowSimMenu) || (!(target is Sim) && Tuning.kShowObjectMenu)) && actor.SkillManager.HasElement(SkillNames.Athletic) && actor.SkillManager.GetElement(SkillNames.Athletic).SkillLevel >= MechanicalBull.kSkillForCowboyOutfit && actor.SimDescription.YoungAdultOrAbove && actor.SimDescription.IsHuman && !actor.SimDescription.IsRobot && !isAutonomous && (actor.TraitManager.HasElement(TraitNames.Dramatic) || actor.TraitManager.HasElement(TraitNames.Inappropriate));
                 }
             }
 
@@ -439,29 +439,17 @@ namespace Destrospean
 
         static void AddInteractions(GameObject gameObject)
         {
-            if (gameObject == null || !GameUtils.IsInstalled(ProductVersion.EP6))
+            if (gameObject != null && !gameObject.Interactions.Exists(interaction => interaction.InteractionDefinition.GetType() == EditMechanicalBullOutfit.Singleton.GetType()) && GameUtils.IsInstalled(ProductVersion.EP6))
             {
-                return;
+                gameObject.AddInteraction(EditMechanicalBullOutfit.Singleton);
+                gameObject.AddInteraction(ResetMechanicalBullOutfit.Singleton);
+                gameObject.AddInteraction(ToggleMechanicalBullOutfit.Singleton);
+                gameObject.AddInteraction(ToggleMechanicalBullSwimwear.Singleton);
             }
-            foreach (InteractionObjectPair interaction in gameObject.Interactions)
-            {
-                if (interaction.InteractionDefinition.GetType() == EditMechanicalBullOutfit.Singleton.GetType())
-                {
-                    return;
-                }
-            }
-            gameObject.AddInteraction(EditMechanicalBullOutfit.Singleton);
-            gameObject.AddInteraction(ResetMechanicalBullOutfit.Singleton);
-            gameObject.AddInteraction(ToggleMechanicalBullOutfit.Singleton);
-            gameObject.AddInteraction(ToggleMechanicalBullSwimwear.Singleton);
         }
 
         static void DisableMechanicalBullOutfit(SimDescription simDescription)
         {
-            if (sMechanicalBullOutfitDisabledList == null)
-            {
-                sMechanicalBullOutfitDisabledList = new List<ulong>();
-            }
             if (GetMechanicalBullOutfitEnabled(simDescription))
             {
                 sMechanicalBullOutfitDisabledList.Add(simDescription.SimDescriptionId);
@@ -471,10 +459,6 @@ namespace Destrospean
 
         static void DisableMechanicalBullSwimwear(SimDescription simDescription)
         {
-            if (sMechanicalBullSwimwearDisabledList == null)
-            {
-                sMechanicalBullSwimwearDisabledList = new List<ulong>();
-            }
             if (GetMechanicalBullSwimwearEnabled(simDescription))
             {
                 sMechanicalBullSwimwearDisabledList.Add(simDescription.SimDescriptionId);
@@ -522,7 +506,7 @@ namespace Destrospean
 
         static void OnObjectPlacedInLot(object sender, EventArgs e)
         {
-            if (Tuning.kShowObjectMenu && e is World.OnObjectPlacedInLotEventArgs)
+            if (e is World.OnObjectPlacedInLotEventArgs)
             {
                 GameObject gameObject = GameObject.GetObject(((World.OnObjectPlacedInLotEventArgs)e).ObjectId);
                 if (gameObject is MechanicalBull)
@@ -559,10 +543,7 @@ namespace Destrospean
         {
             try
             {
-                if (Tuning.kShowSimMenu)
-                {
-                    AddInteractions(Sim.ActiveActor);
-                }
+                AddInteractions(Sim.ActiveActor);
             }
             catch (Exception ex)
             {
@@ -574,19 +555,10 @@ namespace Destrospean
         static void OnWorldLoadFinished(object sender, EventArgs e)
         {
             Init();
-            if (Tuning.kShowObjectMenu)
+            new List<MechanicalBull>(Sims3.Gameplay.Queries.GetObjects<MechanicalBull>()).ForEach(AddInteractions);
+            if (Household.ActiveHousehold != null)
             {
-                foreach (MechanicalBull mechanicalBull in Sims3.Gameplay.Queries.GetObjects<MechanicalBull>())
-                {
-                    AddInteractions(mechanicalBull);
-                }
-            }
-            if (Tuning.kShowSimMenu && Household.ActiveHousehold != null)
-            {
-                foreach (Sim sim in Household.ActiveHousehold.Sims)
-                {
-                    AddInteractions(sim);
-                }
+                Household.ActiveHousehold.Sims.ForEach(AddInteractions);
             }
         }
 

@@ -15,6 +15,7 @@ using Sims3.SimIFace;
 using Sims3.SimIFace.CAS;
 using Sims3.UI;
 using System;
+using System.Collections.Generic;
 using Tuning = Sims3.Gameplay.Destrospean.CustomOutfits;
 
 namespace Destrospean
@@ -68,7 +69,7 @@ namespace Destrospean
 
                 public override InteractionTestResult Test(ref InteractionInstanceParameters parameters, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
                 {
-                    return InteractionDefinitionUtilities.FromBool(!(!((Pool.GetPoolNearestPoint(parameters.Hit.mPoint) != null && parameters.Hit.mType != GameObjectHitType.WaterFountain) || parameters.Target is HotTubBase || parameters.Target is Sim) || (parameters.Target is Sim && parameters.Actor != parameters.Target) || parameters.Actor.SimDescription.TeenOrBelow || !parameters.Actor.SimDescription.IsHuman || parameters.Actor.SimDescription.IsRobot || parameters.Autonomous));
+                    return InteractionDefinitionUtilities.FromBool(((Tuning.kShowObjectMenu && ((Pool.GetPoolNearestPoint(parameters.Hit.mPoint) != null && parameters.Hit.mType != GameObjectHitType.WaterFountain) || parameters.Target is HotTubBase)) || (Tuning.kShowSimMenu && parameters.Target is Sim && parameters.Actor == parameters.Target)) && parameters.Actor.SimDescription.YoungAdultOrAbove && parameters.Actor.SimDescription.IsHuman && !parameters.Actor.SimDescription.IsRobot && !parameters.Autonomous);
                 }
             }
 
@@ -122,7 +123,7 @@ namespace Destrospean
 
                 public override InteractionTestResult Test(ref InteractionInstanceParameters parameters, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
                 {
-                    return InteractionDefinitionUtilities.FromBool(!(!parameters.Actor.SimDescription.HasSpecialOutfit(kTowelSpecialOutfitKey) || !((Pool.GetPoolNearestPoint(parameters.Hit.mPoint) != null && parameters.Hit.mType != GameObjectHitType.WaterFountain) || parameters.Target is HotTubBase || parameters.Target is Sim) || (parameters.Target is Sim && parameters.Actor != parameters.Target) || parameters.Actor.SimDescription.TeenOrBelow || !parameters.Actor.SimDescription.IsHuman || parameters.Actor.SimDescription.IsRobot || parameters.Autonomous));
+                    return InteractionDefinitionUtilities.FromBool(((Tuning.kShowObjectMenu && ((Pool.GetPoolNearestPoint(parameters.Hit.mPoint) != null && parameters.Hit.mType != GameObjectHitType.WaterFountain) || parameters.Target is HotTubBase)) || (Tuning.kShowSimMenu && parameters.Target is Sim && parameters.Actor == parameters.Target)) && parameters.Actor.SimDescription.YoungAdultOrAbove && parameters.Actor.SimDescription.IsHuman && !parameters.Actor.SimDescription.IsRobot && !parameters.Autonomous && parameters.Actor.SimDescription.HasSpecialOutfit(kTowelSpecialOutfitKey));
                 }
             }
 
@@ -150,19 +151,11 @@ namespace Destrospean
 
         static void AddInteractions(GameObject gameObject)
         {
-            if (gameObject == null || !GameUtils.IsInstalled(ProductVersion.EP3))
+            if (gameObject != null && !gameObject.Interactions.Exists(interaction => interaction.InteractionDefinition.GetType() == EditTowelOutfit.Singleton.GetType()) && GameUtils.IsInstalled(ProductVersion.EP3))
             {
-                return;
+                gameObject.AddInteraction(EditTowelOutfit.Singleton);
+                gameObject.AddInteraction(ResetTowelOutfit.Singleton);
             }
-            foreach (InteractionObjectPair interaction in gameObject.Interactions)
-            {
-                if (interaction.InteractionDefinition.GetType() == EditTowelOutfit.Singleton.GetType())
-                {
-                    return;
-                }
-            }
-            gameObject.AddInteraction(EditTowelOutfit.Singleton);
-            gameObject.AddInteraction(ResetTowelOutfit.Singleton);
         }
 
         [ReplaceMethod(typeof(SkinnyDipClothingPile), "ChangeSimToTowelOutfit")]
@@ -231,7 +224,7 @@ namespace Destrospean
 
         static void OnObjectPlacedInLot(object sender, EventArgs e)
         {
-            if (Tuning.kShowObjectMenu && e is World.OnObjectPlacedInLotEventArgs)
+            if (e is World.OnObjectPlacedInLotEventArgs)
             {
                 GameObject gameObject = GameObject.GetObject(((World.OnObjectPlacedInLotEventArgs)e).ObjectId);
                 if (gameObject is HotTubBase)
@@ -245,10 +238,7 @@ namespace Destrospean
         {
             try
             {
-                if (Tuning.kShowSimMenu)
-                {
-                    AddInteractions(Sim.ActiveActor);
-                }
+                AddInteractions(Sim.ActiveActor);
             }
             catch (Exception ex)
             {
@@ -260,22 +250,11 @@ namespace Destrospean
         static void OnWorldLoadFinished(object sender, EventArgs e)
         {
             Init();
-            if (Tuning.kShowObjectMenu)
+            new List<HotTubBase>(Sims3.Gameplay.Queries.GetObjects<HotTubBase>()).ForEach(AddInteractions);
+            new List<Terrain>(Sims3.Gameplay.Queries.GetObjects<Terrain>()).ForEach(AddInteractions);
+            if (Household.ActiveHousehold != null)
             {
-                foreach (GameObject gameObject in Sims3.Gameplay.Queries.GetObjects<GameObject>())
-                {
-                    if (gameObject is HotTubBase || gameObject is Terrain)
-                    {
-                        AddInteractions(gameObject);
-                    }
-                }
-            }
-            if (Tuning.kShowSimMenu && Household.ActiveHousehold != null)
-            {
-                foreach (Sim sim in Household.ActiveHousehold.Sims)
-                {
-                    AddInteractions(sim);
-                }
+                Household.ActiveHousehold.Sims.ForEach(AddInteractions);
             }
         }
 

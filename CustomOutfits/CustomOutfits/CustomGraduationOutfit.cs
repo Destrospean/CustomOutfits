@@ -124,7 +124,7 @@ namespace Destrospean
 
                 public override bool Test(Sim actor, GameObject target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
                 {
-                    return !((target is Sim && actor != target) || actor.SimDescription.TeenOrBelow || !actor.SimDescription.IsHuman || actor.SimDescription.IsRobot || isAutonomous);
+                    return ((target is Sim && actor == target && Tuning.kShowSimMenu) || (!(target is Sim) && Tuning.kShowObjectMenu)) && actor.SimDescription.YoungAdultOrAbove && actor.SimDescription.IsHuman && !actor.SimDescription.IsRobot && !isAutonomous;
                 }
             }
 
@@ -253,7 +253,7 @@ namespace Destrospean
 
                 public override bool Test(Sim actor, GameObject target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
                 {
-                    return !(!actor.SimDescription.HasSpecialOutfit(GetGraduationOutfitName(actor, mAcademicDegreeName)) || (target is Sim && actor != target) || actor.SimDescription.TeenOrBelow || !actor.SimDescription.IsHuman || actor.SimDescription.IsRobot || isAutonomous);
+                    return ((target is Sim && actor == target && Tuning.kShowSimMenu) || (!(target is Sim) && Tuning.kShowObjectMenu)) && actor.SimDescription.YoungAdultOrAbove && actor.SimDescription.IsHuman && !actor.SimDescription.IsRobot && !isAutonomous && actor.SimDescription.HasSpecialOutfit(GetGraduationOutfitName(actor, mAcademicDegreeName));
                 }
             }
 
@@ -365,7 +365,7 @@ namespace Destrospean
 
                 public override bool Test(Sim actor, GameObject target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
                 {
-                    return !((target is Sim && actor != target) || actor.SimDescription.TeenOrBelow || !actor.SimDescription.IsHuman || actor.SimDescription.IsRobot || isAutonomous);
+                    return ((target is Sim && actor == target && Tuning.kShowSimMenu) || (!(target is Sim) && Tuning.kShowObjectMenu)) && actor.SimDescription.YoungAdultOrAbove && actor.SimDescription.IsHuman && !actor.SimDescription.IsRobot && !isAutonomous;
                 }
             }
 
@@ -450,28 +450,16 @@ namespace Destrospean
 
         static void AddInteractions(GameObject gameObject)
         {
-            if (gameObject == null || !GameUtils.IsInstalled(ProductVersion.EP9))
+            if (gameObject != null && !gameObject.Interactions.Exists(interaction => interaction.InteractionDefinition.GetType() == EditGraduationOutfit.Singleton.GetType()) && GameUtils.IsInstalled(ProductVersion.EP9))
             {
-                return;
+                gameObject.AddInteraction(EditGraduationOutfit.Singleton);
+                gameObject.AddInteraction(ResetGraduationOutfit.Singleton);
+                gameObject.AddInteraction(ToggleGraduationOutfit.Singleton);
             }
-            foreach (InteractionObjectPair interaction in gameObject.Interactions)
-            {
-                if (interaction.InteractionDefinition.GetType() == EditGraduationOutfit.Singleton.GetType())
-                {
-                    return;
-                }
-            }
-            gameObject.AddInteraction(EditGraduationOutfit.Singleton);
-            gameObject.AddInteraction(ResetGraduationOutfit.Singleton);
-            gameObject.AddInteraction(ToggleGraduationOutfit.Singleton);
         }
 
         static void DisableGraduationBusinessOutfit(SimDescription simDescription)
         {
-            if (sGraduationBusinessOutfitDisabledList == null)
-            {
-                sGraduationBusinessOutfitDisabledList = new List<ulong>();
-            }
             if (GetGraduationOutfitEnabled(simDescription, AcademicDegreeNames.Business))
             {
                 sGraduationBusinessOutfitDisabledList.Add(simDescription.SimDescriptionId);
@@ -481,10 +469,6 @@ namespace Destrospean
 
         static void DisableGraduationCommOutfit(SimDescription simDescription)
         {
-            if (sGraduationCommOutfitDisabledList == null)
-            {
-                sGraduationCommOutfitDisabledList = new List<ulong>();
-            }
             if (GetGraduationOutfitEnabled(simDescription, AcademicDegreeNames.Communications))
             {
                 sGraduationCommOutfitDisabledList.Add(simDescription.SimDescriptionId);
@@ -494,10 +478,6 @@ namespace Destrospean
 
         static void DisableGraduationFineArtsOutfit(SimDescription simDescription)
         {
-            if (sGraduationFineArtsOutfitDisabledList == null)
-            {
-                sGraduationFineArtsOutfitDisabledList = new List<ulong>();
-            }
             if (GetGraduationOutfitEnabled(simDescription, AcademicDegreeNames.FineArts))
             {
                 sGraduationFineArtsOutfitDisabledList.Add(simDescription.SimDescriptionId);
@@ -532,10 +512,6 @@ namespace Destrospean
 
         static void DisableGraduationPhysEdOutfit(SimDescription simDescription)
         {
-            if (sGraduationPhysEdOutfitDisabledList == null)
-            {
-                sGraduationPhysEdOutfitDisabledList = new List<ulong>();
-            }
             if (GetGraduationOutfitEnabled(simDescription, AcademicDegreeNames.PhysEd))
             {
                 sGraduationPhysEdOutfitDisabledList.Add(simDescription.SimDescriptionId);
@@ -545,10 +521,6 @@ namespace Destrospean
 
         static void DisableGraduationScienceMedOutfit(SimDescription simDescription)
         {
-            if (sGraduationScienceMedOutfitDisabledList == null)
-            {
-                sGraduationScienceMedOutfitDisabledList = new List<ulong>();
-            }
             if (GetGraduationOutfitEnabled(simDescription, AcademicDegreeNames.Science))
             {
                 sGraduationScienceMedOutfitDisabledList.Add(simDescription.SimDescriptionId);
@@ -558,10 +530,6 @@ namespace Destrospean
 
         static void DisableGraduationTechnologyOutfit(SimDescription simDescription)
         {
-            if (sGraduationTechnologyOutfitDisabledList == null)
-            {
-                sGraduationTechnologyOutfitDisabledList = new List<ulong>();
-            }
             if (GetGraduationOutfitEnabled(simDescription, AcademicDegreeNames.Technology))
             {
                 sGraduationTechnologyOutfitDisabledList.Add(simDescription.SimDescriptionId);
@@ -755,7 +723,7 @@ namespace Destrospean
 
         static void OnObjectPlacedInLot(object sender, EventArgs e)
         {
-            if (Tuning.kShowObjectMenu && e is World.OnObjectPlacedInLotEventArgs)
+            if (e is World.OnObjectPlacedInLotEventArgs)
             {
                 GameObject gameObject = GameObject.GetObject(((World.OnObjectPlacedInLotEventArgs)e).ObjectId);
                 if (gameObject is Dresser)
@@ -805,10 +773,7 @@ namespace Destrospean
         {
             try
             {
-                if (Tuning.kShowSimMenu)
-                {
-                    AddInteractions(Sim.ActiveActor);
-                }
+                AddInteractions(Sim.ActiveActor);
             }
             catch (Exception ex)
             {
@@ -820,19 +785,10 @@ namespace Destrospean
         static void OnWorldLoadFinished(object sender, EventArgs e)
         {
             Init();
-            if (Tuning.kShowObjectMenu)
+            new List<Dresser>(Sims3.Gameplay.Queries.GetObjects<Dresser>()).ForEach(AddInteractions);
+            if (Household.ActiveHousehold != null)
             {
-                foreach (Dresser dresser in Sims3.Gameplay.Queries.GetObjects<Dresser>())
-                {
-                    AddInteractions(dresser);
-                }
-            }
-            if (Tuning.kShowSimMenu && Household.ActiveHousehold != null)
-            {
-                foreach (Sim sim in Household.ActiveHousehold.Sims)
-                {
-                    AddInteractions(sim);
-                }
+                Household.ActiveHousehold.Sims.ForEach(AddInteractions);
             }
         }
 

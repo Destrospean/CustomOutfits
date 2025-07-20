@@ -67,7 +67,7 @@ namespace Destrospean
 
                 public override bool Test(Sim actor, GameObject target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
                 {
-                    return !((target is Sim && actor != target) || actor.SimDescription.ChildOrBelow || !actor.SimDescription.IsHuman || actor.SimDescription.IsRobot || isAutonomous);
+                    return ((target is Sim && actor == target && Tuning.kShowSimMenu) || (!(target is Sim) && Tuning.kShowObjectMenu)) && actor.SimDescription.TeenOrAbove && actor.SimDescription.IsHuman && !actor.SimDescription.IsRobot && !isAutonomous;
                 }
             }
 
@@ -162,7 +162,7 @@ namespace Destrospean
 
                 public override bool Test(Sim actor, GameObject target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
                 {
-                    return !(!actor.SimDescription.HasSpecialOutfit(kMassageTableSpecialOutfitKey) || (target is Sim && actor != target) || actor.SimDescription.ChildOrBelow || !actor.SimDescription.IsHuman || actor.SimDescription.IsRobot || isAutonomous);
+                    return ((target is Sim && actor == target && Tuning.kShowSimMenu) || (!(target is Sim) && Tuning.kShowObjectMenu)) && actor.SimDescription.TeenOrAbove && actor.SimDescription.IsHuman && !actor.SimDescription.IsRobot && !isAutonomous && actor.SimDescription.HasSpecialOutfit(kMassageTableSpecialOutfitKey);
                 }
             }
 
@@ -201,7 +201,7 @@ namespace Destrospean
 
                 public override bool Test(Sim actor, GameObject target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
                 {
-                    return !((target is Sim && actor != target) || actor.SimDescription.ChildOrBelow || !actor.SimDescription.IsHuman || actor.SimDescription.IsRobot || isAutonomous);
+                    return ((target is Sim && actor == target && Tuning.kShowSimMenu) || (!(target is Sim) && Tuning.kShowObjectMenu)) && actor.SimDescription.TeenOrAbove && actor.SimDescription.IsHuman && !actor.SimDescription.IsRobot && !isAutonomous;
                 }
             }
 
@@ -223,20 +223,12 @@ namespace Destrospean
 
         static void AddInteractions(GameObject gameObject)
         {
-            if (gameObject == null)
+            if (gameObject != null && !gameObject.Interactions.Exists(interaction => interaction.InteractionDefinition.GetType() == EditMassageTableOutfit.Singleton.GetType()))
             {
-                return;
+                gameObject.AddInteraction(EditMassageTableOutfit.Singleton);
+                gameObject.AddInteraction(ResetMassageTableOutfit.Singleton);
+                gameObject.AddInteraction(ToggleMassageTableOutfit.Singleton);
             }
-            foreach (InteractionObjectPair interaction in gameObject.Interactions)
-            {
-                if (interaction.InteractionDefinition.GetType() == EditMassageTableOutfit.Singleton.GetType())
-                {
-                    return;
-                }
-            }
-            gameObject.AddInteraction(EditMassageTableOutfit.Singleton);
-            gameObject.AddInteraction(ResetMassageTableOutfit.Singleton);
-            gameObject.AddInteraction(ToggleMassageTableOutfit.Singleton);
         }
 
         public static void ChangeSimToTowelOutfit(Sim actor)
@@ -280,10 +272,6 @@ namespace Destrospean
 
         static void DisableMassageTableOutfit(SimDescription simDescription)
         {
-            if (sMassageTableOutfitDisabledList == null)
-            {
-                sMassageTableOutfitDisabledList = new List<ulong>();
-            }
             if (GetMassageTableOutfitEnabled(simDescription))
             {
                 sMassageTableOutfitDisabledList.Add(simDescription.SimDescriptionId);
@@ -317,7 +305,7 @@ namespace Destrospean
 
         static void OnObjectPlacedInLot(object sender, EventArgs e)
         {
-            if (Tuning.kShowObjectMenu && e is World.OnObjectPlacedInLotEventArgs)
+            if (e is World.OnObjectPlacedInLotEventArgs)
             {
                 GameObject gameObject = GameObject.GetObject(((World.OnObjectPlacedInLotEventArgs)e).ObjectId);
                 if (gameObject is MassageTable)
@@ -353,10 +341,7 @@ namespace Destrospean
         {
             try
             {
-                if (Tuning.kShowSimMenu)
-                {
-                    AddInteractions(Sim.ActiveActor);
-                }
+                AddInteractions(Sim.ActiveActor);
             }
             catch (Exception ex)
             {
@@ -368,19 +353,10 @@ namespace Destrospean
         static void OnWorldLoadFinished(object sender, EventArgs e)
         {
             Init();
-            if (Tuning.kShowObjectMenu)
+            new List<MassageTable>(Sims3.Gameplay.Queries.GetObjects<MassageTable>()).ForEach(AddInteractions);
+            if (Household.ActiveHousehold != null)
             {
-                foreach (MassageTable massageTable in Sims3.Gameplay.Queries.GetObjects<MassageTable>())
-                {
-                    AddInteractions(massageTable);
-                }
-            }
-            if (Tuning.kShowSimMenu && Household.ActiveHousehold != null)
-            {
-                foreach (Sim sim in Household.ActiveHousehold.Sims)
-                {
-                    AddInteractions(sim);
-                }
+                Household.ActiveHousehold.Sims.ForEach(AddInteractions);
             }
         }
 

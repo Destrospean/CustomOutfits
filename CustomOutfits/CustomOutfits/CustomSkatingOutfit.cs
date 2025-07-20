@@ -100,7 +100,7 @@ namespace Destrospean
 
                 public override InteractionTestResult Test(ref InteractionInstanceParameters parameters, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
                 {
-                    return InteractionDefinitionUtilities.FromBool(!(!((SkatableTerrain.GetPondSkatingAreaAtPoint(parameters.Hit.mPoint) != null && mSkatingType == SkatingTypes.Ice && PondManager.ArePondsFrozen()) || (parameters.Target is ISkatableObject && !((((ISkatableObject)parameters.Target).IsIceRink && mSkatingType != SkatingTypes.Ice) || (!((ISkatableObject)parameters.Target).IsIceRink && mSkatingType == SkatingTypes.Ice))) || parameters.Target is Sim) || (parameters.Target is Sim && parameters.Actor != parameters.Target) || parameters.Actor.SimDescription.ToddlerOrBelow || !parameters.Actor.SimDescription.IsHuman || parameters.Actor.SimDescription.IsRobot || parameters.Autonomous));
+                    return InteractionDefinitionUtilities.FromBool(((Tuning.kShowObjectMenu && (SkatableTerrain.GetPondSkatingAreaAtPoint(parameters.Hit.mPoint) != null && mSkatingType == SkatingTypes.Ice && PondManager.ArePondsFrozen()) || (parameters.Target is ISkatableObject && mSkatingType == (((ISkatableObject)parameters.Target).IsIceRink ? SkatingTypes.Ice : SkatingTypes.Roller))) || (Tuning.kShowSimMenu && parameters.Target is Sim && parameters.Actor == parameters.Target)) && parameters.Actor.SimDescription.ChildOrAbove && parameters.Actor.SimDescription.IsHuman && !parameters.Actor.SimDescription.IsRobot && !parameters.Autonomous);
                 }
             }
 
@@ -207,7 +207,7 @@ namespace Destrospean
 
                 public override InteractionTestResult Test(ref InteractionInstanceParameters parameters, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
                 {
-                    return InteractionDefinitionUtilities.FromBool(!(!parameters.Actor.SimDescription.HasSpecialOutfit(GetSkatingOutfitName((Sim)parameters.Actor, mSkatingType)) || !((SkatableTerrain.GetPondSkatingAreaAtPoint(parameters.Hit.mPoint) != null && mSkatingType == SkatingTypes.Ice && PondManager.ArePondsFrozen()) || (parameters.Target is ISkatableObject && !((((ISkatableObject)parameters.Target).IsIceRink && mSkatingType != SkatingTypes.Ice) || (!((ISkatableObject)parameters.Target).IsIceRink && mSkatingType == SkatingTypes.Ice))) || parameters.Target is Sim) || (parameters.Target is Sim && parameters.Actor != parameters.Target) || parameters.Actor.SimDescription.ToddlerOrBelow || !parameters.Actor.SimDescription.IsHuman || parameters.Actor.SimDescription.IsRobot || parameters.Autonomous));
+                    return InteractionDefinitionUtilities.FromBool(((Tuning.kShowObjectMenu && (SkatableTerrain.GetPondSkatingAreaAtPoint(parameters.Hit.mPoint) != null && mSkatingType == SkatingTypes.Ice && PondManager.ArePondsFrozen()) || (parameters.Target is ISkatableObject && mSkatingType == (((ISkatableObject)parameters.Target).IsIceRink ? SkatingTypes.Ice : SkatingTypes.Roller))) || (Tuning.kShowSimMenu && parameters.Target is Sim && parameters.Actor == parameters.Target)) && parameters.Actor.SimDescription.ChildOrAbove && parameters.Actor.SimDescription.IsHuman && !parameters.Actor.SimDescription.IsRobot && !parameters.Autonomous && parameters.Actor.SimDescription.HasSpecialOutfit(GetSkatingOutfitName((Sim)parameters.Actor, mSkatingType)));
                 }
             }
 
@@ -361,19 +361,11 @@ namespace Destrospean
 
         static void AddInteractions(GameObject gameObject)
         {
-            if (gameObject == null || !GameUtils.IsInstalled(ProductVersion.EP8))
+            if (gameObject != null && !gameObject.Interactions.Exists(interaction => interaction.InteractionDefinition.GetType() == EditSkatingOutfit.Singleton.GetType()) && GameUtils.IsInstalled(ProductVersion.EP8))
             {
-                return;
+                gameObject.AddInteraction(EditSkatingOutfit.Singleton);
+                gameObject.AddInteraction(ResetSkatingOutfit.Singleton);
             }
-            foreach (InteractionObjectPair interaction in gameObject.Interactions)
-            {
-                if (interaction.InteractionDefinition.GetType() == EditSkatingOutfit.Singleton.GetType())
-                {
-                    return;
-                }
-            }
-            gameObject.AddInteraction(EditSkatingOutfit.Singleton);
-            gameObject.AddInteraction(ResetSkatingOutfit.Singleton);
         }
 
         public static bool CreateSkatingOutfit(Sim actor, bool isIceRink, ref int skateOutfitIndex)
@@ -454,7 +446,7 @@ namespace Destrospean
 
         static void OnObjectPlacedInLot(object sender, EventArgs e)
         {
-            if (Tuning.kShowObjectMenu && e is World.OnObjectPlacedInLotEventArgs)
+            if (e is World.OnObjectPlacedInLotEventArgs)
             {
                 GameObject gameObject = GameObject.GetObject(((World.OnObjectPlacedInLotEventArgs)e).ObjectId);
                 if (gameObject is ISkatableObject)
@@ -474,10 +466,7 @@ namespace Destrospean
         {
             try
             {
-                if (Tuning.kShowSimMenu)
-                {
-                    AddInteractions(Sim.ActiveActor);
-                }
+                AddInteractions(Sim.ActiveActor);
             }
             catch (Exception ex)
             {
@@ -489,22 +478,11 @@ namespace Destrospean
         static void OnWorldLoadFinished(object sender, EventArgs e)
         {
             Init();
-            if (Tuning.kShowObjectMenu)
+            new List<SkatingRink>(Sims3.Gameplay.Queries.GetObjects<SkatingRink>()).ForEach(AddInteractions);
+            new List<Terrain>(Sims3.Gameplay.Queries.GetObjects<Terrain>()).ForEach(AddInteractions);
+            if (Household.ActiveHousehold != null)
             {
-                foreach (GameObject gameObject in Sims3.Gameplay.Queries.GetObjects<GameObject>())
-                {
-                    if (gameObject is ISkatableObject || gameObject is Terrain)
-                    {
-                        AddInteractions(gameObject);
-                    }
-                }
-            }
-            if (Tuning.kShowSimMenu && Household.ActiveHousehold != null)
-            {
-                foreach (Sim sim in Household.ActiveHousehold.Sims)
-                {
-                    AddInteractions(sim);
-                }
+                Household.ActiveHousehold.Sims.ForEach(AddInteractions);
             }
         }
 

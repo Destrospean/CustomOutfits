@@ -330,7 +330,7 @@ namespace Destrospean
 
                 public override bool Test(Sim actor, GameObject target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
                 {
-                    return !((target is Sim && actor != target) || !actor.SimDescription.Child || !actor.SimDescription.IsHuman || actor.SimDescription.IsRobot || !AfterschoolActivity.HasAfterschoolActivityOfType(actor, mAfterschoolActivityType) || isAutonomous);
+                    return ((target is Sim && actor == target && Tuning.kShowSimMenu) || (!(target is Sim) && Tuning.kShowObjectMenu)) && actor.SimDescription.Child && actor.SimDescription.IsHuman && !actor.SimDescription.IsRobot && !isAutonomous && AfterschoolActivity.HasAfterschoolActivityOfType(actor, mAfterschoolActivityType);
                 }
             }
 
@@ -417,7 +417,7 @@ namespace Destrospean
 
                 public override bool Test(Sim actor, GameObject target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
                 {
-                    return !(!actor.SimDescription.HasSpecialOutfit(GetAfterschoolActivityOutfitName(actor, mAfterschoolActivityType)) || (target is Sim && actor != target) || !actor.SimDescription.Child || !actor.SimDescription.IsHuman || actor.SimDescription.IsRobot || !AfterschoolActivity.HasAfterschoolActivityOfType(actor, mAfterschoolActivityType) || isAutonomous);
+                    return ((target is Sim && actor == target && Tuning.kShowSimMenu) || (!(target is Sim) && Tuning.kShowObjectMenu)) && actor.SimDescription.Child && actor.SimDescription.IsHuman && !actor.SimDescription.IsRobot && !isAutonomous && AfterschoolActivity.HasAfterschoolActivityOfType(actor, mAfterschoolActivityType) && actor.SimDescription.HasSpecialOutfit(GetAfterschoolActivityOutfitName(actor, mAfterschoolActivityType));
                 }
             }
 
@@ -625,7 +625,7 @@ namespace Destrospean
 
                 public override bool Test(Sim actor, GameObject target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
                 {
-                    return !((target is Sim && actor != target) || !actor.SimDescription.Child || !actor.SimDescription.IsHuman || actor.SimDescription.IsRobot || !AfterschoolActivity.HasAfterschoolActivityOfType(actor, mAfterschoolActivityType) || isAutonomous);
+                    return ((target is Sim && actor == target && Tuning.kShowSimMenu) || (!(target is Sim) && Tuning.kShowObjectMenu)) && actor.SimDescription.Child && actor.SimDescription.IsHuman && !actor.SimDescription.IsRobot && !isAutonomous && AfterschoolActivity.HasAfterschoolActivityOfType(actor, mAfterschoolActivityType);
                 }
             }
 
@@ -667,20 +667,12 @@ namespace Destrospean
 
         static void AddInteractions(GameObject gameObject)
         {
-            if (gameObject == null || !GameUtils.IsInstalled(ProductVersion.EP4))
+            if (gameObject != null && !gameObject.Interactions.Exists(interaction => interaction.InteractionDefinition.GetType() == EditAfterschoolActivityOutfit.Singleton.GetType()) && GameUtils.IsInstalled(ProductVersion.EP4))
             {
-                return;
+                gameObject.AddInteraction(EditAfterschoolActivityOutfit.Singleton);
+                gameObject.AddInteraction(ResetAfterschoolActivityOutfit.Singleton);
+                gameObject.AddInteraction(ToggleAfterschoolActivityOutfit.Singleton);
             }
-            foreach (InteractionObjectPair interaction in gameObject.Interactions)
-            {
-                if (interaction.InteractionDefinition.GetType() == EditAfterschoolActivityOutfit.Singleton.GetType())
-                {
-                    return;
-                }
-            }
-            gameObject.AddInteraction(EditAfterschoolActivityOutfit.Singleton);
-            gameObject.AddInteraction(ResetAfterschoolActivityOutfit.Singleton);
-            gameObject.AddInteraction(ToggleAfterschoolActivityOutfit.Singleton);
         }
 
         static void DisableAfterschoolActivityOutfit(SimDescription simDescription, AfterschoolActivityType afterschoolActivityType)
@@ -698,10 +690,6 @@ namespace Destrospean
 
         static void DisableBalletOutfit(SimDescription simDescription)
         {
-            if (sBalletOutfitDisabledList == null)
-            {
-                sBalletOutfitDisabledList = new List<ulong>();
-            }
             if (GetAfterschoolActivityOutfitEnabled(simDescription, AfterschoolActivityType.Ballet))
             {
                 sBalletOutfitDisabledList.Add(simDescription.SimDescriptionId);
@@ -711,10 +699,6 @@ namespace Destrospean
 
         static void DisableScoutsOutfit(SimDescription simDescription)
         {
-            if (sScoutsOutfitDisabledList == null)
-            {
-                sScoutsOutfitDisabledList = new List<ulong>();
-            }
             if (GetAfterschoolActivityOutfitEnabled(simDescription, AfterschoolActivityType.Scouts))
             {
                 sScoutsOutfitDisabledList.Add(simDescription.SimDescriptionId);
@@ -790,7 +774,7 @@ namespace Destrospean
 
         static void OnObjectPlacedInLot(object sender, EventArgs e)
         {
-            if (Tuning.kShowObjectMenu && e is World.OnObjectPlacedInLotEventArgs)
+            if (e is World.OnObjectPlacedInLotEventArgs)
             {
                 GameObject gameObject = GameObject.GetObject(((World.OnObjectPlacedInLotEventArgs)e).ObjectId);
                 if (gameObject is Dresser)
@@ -839,10 +823,7 @@ namespace Destrospean
         {
             try
             {
-                if (Tuning.kShowSimMenu)
-                {
-                    AddInteractions(Sim.ActiveActor);
-                }
+                AddInteractions(Sim.ActiveActor);
             }
             catch (Exception ex)
             {
@@ -854,19 +835,10 @@ namespace Destrospean
         static void OnWorldLoadFinished(object sender, EventArgs e)
         {
             Init();
-            if (Tuning.kShowObjectMenu)
+            new List<Dresser>(Sims3.Gameplay.Queries.GetObjects<Dresser>()).ForEach(AddInteractions);
+            if (Household.ActiveHousehold != null)
             {
-                foreach (Dresser dresser in Sims3.Gameplay.Queries.GetObjects<Dresser>())
-                {
-                    AddInteractions(dresser);
-                }
-            }
-            if (Tuning.kShowSimMenu && Household.ActiveHousehold != null)
-            {
-                foreach (Sim sim in Household.ActiveHousehold.Sims)
-                {
-                    AddInteractions(sim);
-                }
+                Household.ActiveHousehold.Sims.ForEach(AddInteractions);
             }
         }
 

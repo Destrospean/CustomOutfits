@@ -77,7 +77,7 @@ namespace Destrospean
 
                 public override bool Test(Sim actor, GameObject target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
                 {
-                    return !((target is Sim && actor != target) || actor.SimDescription.TeenOrBelow || !actor.SimDescription.IsHuman || actor.SimDescription.IsRobot || isAutonomous);
+                    return ((target is Sim && actor == target && Tuning.kShowSimMenu) || (!(target is Sim) && Tuning.kShowObjectMenu)) && actor.SimDescription.YoungAdultOrAbove && actor.SimDescription.IsHuman && !actor.SimDescription.IsRobot && !isAutonomous;
                 }
             }
 
@@ -405,7 +405,7 @@ namespace Destrospean
 
                 public override bool Test(Sim actor, GameObject target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
                 {
-                    return !(!actor.SimDescription.HasSpecialOutfit(kHighSchoolGraduationSpecialOutfitKey) || (target is Sim && actor != target) || actor.SimDescription.TeenOrBelow || !actor.SimDescription.IsHuman || actor.SimDescription.IsRobot || isAutonomous);
+                    return ((target is Sim && actor == target && Tuning.kShowSimMenu) || (!(target is Sim) && Tuning.kShowObjectMenu)) && actor.SimDescription.YoungAdultOrAbove && actor.SimDescription.IsHuman && !actor.SimDescription.IsRobot && !isAutonomous && actor.SimDescription.HasSpecialOutfit(kHighSchoolGraduationSpecialOutfitKey);
                 }
             }
 
@@ -488,7 +488,7 @@ namespace Destrospean
 
                 public override bool Test(Sim actor, GameObject target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
                 {
-                    return !((target is Sim && actor != target) || actor.SimDescription.TeenOrBelow || !actor.SimDescription.IsHuman || actor.SimDescription.IsRobot || isAutonomous);
+                    return ((target is Sim && actor == target && Tuning.kShowSimMenu) || (!(target is Sim) && Tuning.kShowObjectMenu)) && actor.SimDescription.YoungAdultOrAbove && actor.SimDescription.IsHuman && !actor.SimDescription.IsRobot && !isAutonomous;
                 }
             }
 
@@ -510,28 +510,16 @@ namespace Destrospean
 
         static void AddInteractions(GameObject gameObject)
         {
-            if (gameObject == null || !GameUtils.IsInstalled(ProductVersion.EP4))
+            if (gameObject != null && !gameObject.Interactions.Exists(interaction => interaction.InteractionDefinition.GetType() == EditHighSchoolGraduationOutfit.Singleton.GetType()) && GameUtils.IsInstalled(ProductVersion.EP4))
             {
-                return;
+                gameObject.AddInteraction(EditHighSchoolGraduationOutfit.Singleton);
+                gameObject.AddInteraction(ResetHighSchoolGraduationOutfit.Singleton);
+                gameObject.AddInteraction(ToggleHighSchoolGraduationOutfit.Singleton);
             }
-            foreach (InteractionObjectPair interaction in gameObject.Interactions)
-            {
-                if (interaction.InteractionDefinition.GetType() == EditHighSchoolGraduationOutfit.Singleton.GetType())
-                {
-                    return;
-                }
-            }
-            gameObject.AddInteraction(EditHighSchoolGraduationOutfit.Singleton);
-            gameObject.AddInteraction(ResetHighSchoolGraduationOutfit.Singleton);
-            gameObject.AddInteraction(ToggleHighSchoolGraduationOutfit.Singleton);
         }
 
         static void DisableHighSchoolGraduationOutfit(SimDescription simDescription)
         {
-            if (sHighSchoolGraduationOutfitDisabledList == null)
-            {
-                sHighSchoolGraduationOutfitDisabledList = new List<ulong>();
-            }
             if (GetHighSchoolGraduationOutfitEnabled(simDescription))
             {
                 sHighSchoolGraduationOutfitDisabledList.Add(simDescription.SimDescriptionId);
@@ -582,7 +570,7 @@ namespace Destrospean
 
         static void OnObjectPlacedInLot(object sender, EventArgs e)
         {
-            if (Tuning.kShowObjectMenu && e is World.OnObjectPlacedInLotEventArgs)
+            if (e is World.OnObjectPlacedInLotEventArgs)
             {
                 GameObject gameObject = GameObject.GetObject(((World.OnObjectPlacedInLotEventArgs)e).ObjectId);
                 if (gameObject is Dresser)
@@ -624,10 +612,7 @@ namespace Destrospean
         {
             try
             {
-                if (Tuning.kShowSimMenu)
-                {
-                    AddInteractions(Sim.ActiveActor);
-                }
+                AddInteractions(Sim.ActiveActor);
             }
             catch (Exception ex)
             {
@@ -639,19 +624,10 @@ namespace Destrospean
         static void OnWorldLoadFinished(object sender, EventArgs e)
         {
             Init();
-            if (Tuning.kShowObjectMenu)
+            new List<Dresser>(Sims3.Gameplay.Queries.GetObjects<Dresser>()).ForEach(AddInteractions);
+            if (Household.ActiveHousehold != null)
             {
-                foreach (Dresser dresser in Sims3.Gameplay.Queries.GetObjects<Dresser>())
-                {
-                    AddInteractions(dresser);
-                }
-            }
-            if (Tuning.kShowSimMenu && Household.ActiveHousehold != null)
-            {
-                foreach (Sim sim in Household.ActiveHousehold.Sims)
-                {
-                    AddInteractions(sim);
-                }
+                Household.ActiveHousehold.Sims.ForEach(AddInteractions);
             }
         }
 

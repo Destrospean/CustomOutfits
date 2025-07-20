@@ -170,7 +170,7 @@ namespace Destrospean
 
                 public override bool Test(Sim actor, GameObject target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
                 {
-                    return !((target is Sim && actor != target) || actor.SimDescription.TeenOrBelow || !actor.SimDescription.IsHuman || actor.SimDescription.IsRobot || isAutonomous);
+                    return ((target is Sim && actor == target && Tuning.kShowSimMenu) || (!(target is Sim) && Tuning.kShowObjectMenu)) && actor.SimDescription.YoungAdultOrAbove && actor.SimDescription.IsHuman && !actor.SimDescription.IsRobot && !isAutonomous;
                 }
             }
 
@@ -260,7 +260,7 @@ namespace Destrospean
 
                 public override bool Test(Sim actor, GameObject target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
                 {
-                    return !(!actor.SimDescription.HasSpecialOutfit(GetBachelorPartyOutfitName(actor, mOutfitType)) || (target is Sim && actor != target) || actor.SimDescription.TeenOrBelow || !actor.SimDescription.IsHuman || actor.SimDescription.IsRobot || isAutonomous);
+                    return ((target is Sim && actor == target && Tuning.kShowSimMenu) || (!(target is Sim) && Tuning.kShowObjectMenu)) && actor.SimDescription.YoungAdultOrAbove && actor.SimDescription.IsHuman && !actor.SimDescription.IsRobot && !isAutonomous && actor.SimDescription.HasSpecialOutfit(GetBachelorPartyOutfitName(actor, mOutfitType));
                 }
             }
 
@@ -403,7 +403,7 @@ namespace Destrospean
 
                 public override bool Test(Sim actor, GameObject target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
                 {
-                    return !((target is Sim && actor != target) || actor.SimDescription.TeenOrBelow || !actor.SimDescription.IsHuman || actor.SimDescription.IsRobot || isAutonomous);
+                    return ((target is Sim && actor == target && Tuning.kShowSimMenu) || (!(target is Sim) && Tuning.kShowObjectMenu)) && actor.SimDescription.YoungAdultOrAbove && actor.SimDescription.IsHuman && !actor.SimDescription.IsRobot && !isAutonomous;
                 }
             }
 
@@ -449,20 +449,12 @@ namespace Destrospean
 
         static void AddInteractions(GameObject gameObject)
         {
-            if (gameObject == null || !GameUtils.IsInstalled(ProductVersion.EP4))
+            if (gameObject != null && !gameObject.Interactions.Exists(interaction => interaction.InteractionDefinition.GetType() == EditBachelorPartyOutfit.Singleton.GetType()) && GameUtils.IsInstalled(ProductVersion.EP4))
             {
-                return;
+                gameObject.AddInteraction(EditBachelorPartyOutfit.Singleton);
+                gameObject.AddInteraction(ResetBachelorPartyOutfit.Singleton);
+                gameObject.AddInteraction(ToggleBachelorPartyOutfit.Singleton);
             }
-            foreach (InteractionObjectPair interaction in gameObject.Interactions)
-            {
-                if (interaction.InteractionDefinition.GetType() == EditBachelorPartyOutfit.Singleton.GetType())
-                {
-                    return;
-                }
-            }
-            gameObject.AddInteraction(EditBachelorPartyOutfit.Singleton);
-            gameObject.AddInteraction(ResetBachelorPartyOutfit.Singleton);
-            gameObject.AddInteraction(ToggleBachelorPartyOutfit.Singleton);
         }
 
         public static SimOutfit CreateBachelorPartyOutfit(Sim actor, BachelorPartyOutfitTypes outfitType)
@@ -497,10 +489,6 @@ namespace Destrospean
 
         static void DisableBachelorPartyGuestOutfit(SimDescription simDescription)
         {
-            if (sBachelorPartyGuestOutfitDisabledList == null)
-            {
-                sBachelorPartyGuestOutfitDisabledList = new List<ulong>();
-            }
             if (GetBachelorPartyOutfitEnabled(simDescription, BachelorPartyOutfitTypes.Guest))
             {
                 sBachelorPartyGuestOutfitDisabledList.Add(simDescription.SimDescriptionId);
@@ -510,10 +498,6 @@ namespace Destrospean
 
         static void DisableBachelorPartyHostOutfit(SimDescription simDescription)
         {
-            if (sBachelorPartyHostOutfitDisabledList == null)
-            {
-                sBachelorPartyHostOutfitDisabledList = new List<ulong>();
-            }
             if (GetBachelorPartyOutfitEnabled(simDescription, BachelorPartyOutfitTypes.Host))
             {
                 sBachelorPartyHostOutfitDisabledList.Add(simDescription.SimDescriptionId);
@@ -539,10 +523,6 @@ namespace Destrospean
 
         static void DisableBachelorPartyUnderwear(SimDescription simDescription)
         {
-            if (sBachelorPartyUnderwearDisabledList == null)
-            {
-                sBachelorPartyUnderwearDisabledList = new List<ulong>();
-            }
             if (GetBachelorPartyOutfitEnabled(simDescription, BachelorPartyOutfitTypes.Underwear))
             {
                 sBachelorPartyUnderwearDisabledList.Add(simDescription.SimDescriptionId);
@@ -638,7 +618,7 @@ namespace Destrospean
 
         static void OnObjectPlacedInLot(object sender, EventArgs e)
         {
-            if (Tuning.kShowObjectMenu && e is World.OnObjectPlacedInLotEventArgs)
+            if (e is World.OnObjectPlacedInLotEventArgs)
             {
                 GameObject gameObject = GameObject.GetObject(((World.OnObjectPlacedInLotEventArgs)e).ObjectId);
                 if (gameObject is Dresser)
@@ -671,10 +651,7 @@ namespace Destrospean
         {
             try
             {
-                if (Tuning.kShowSimMenu)
-                {
-                    AddInteractions(Sim.ActiveActor);
-                }
+                AddInteractions(Sim.ActiveActor);
             }
             catch (Exception ex)
             {
@@ -686,19 +663,10 @@ namespace Destrospean
         static void OnWorldLoadFinished(object sender, EventArgs e)
         {
             Init();
-            if (Tuning.kShowObjectMenu)
+            new List<Dresser>(Sims3.Gameplay.Queries.GetObjects<Dresser>()).ForEach(AddInteractions);
+            if (Household.ActiveHousehold != null)
             {
-                foreach (Dresser dresser in Sims3.Gameplay.Queries.GetObjects<Dresser>())
-                {
-                    AddInteractions(dresser);
-                }
-            }
-            if (Tuning.kShowSimMenu && Household.ActiveHousehold != null)
-            {
-                foreach (Sim sim in Household.ActiveHousehold.Sims)
-                {
-                    AddInteractions(sim);
-                }
+                Household.ActiveHousehold.Sims.ForEach(AddInteractions);
             }
         }
 

@@ -172,7 +172,7 @@ namespace Destrospean
 
                 public override bool Test(Sim actor, GameObject target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
                 {
-                    return !((target is Sim && actor != target) || actor.SimDescription.ToddlerOrBelow || !actor.SimDescription.IsHuman || actor.SimDescription.IsRobot || isAutonomous);
+                    return ((target is Sim && actor == target && Tuning.kShowSimMenu) || (!(target is Sim) && Tuning.kShowObjectMenu)) && actor.SimDescription.ChildOrAbove && actor.SimDescription.IsHuman && !actor.SimDescription.IsRobot && !isAutonomous;
                 }
             }
 
@@ -408,7 +408,7 @@ namespace Destrospean
 
                 public override bool Test(Sim actor, GameObject target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
                 {
-                    return !(!actor.SimDescription.HasSpecialOutfit(kChemistryLabSpecialOutfitKey) || (target is Sim && actor != target) || actor.SimDescription.ToddlerOrBelow || !actor.SimDescription.IsHuman || actor.SimDescription.IsRobot || isAutonomous);
+                    return ((target is Sim && actor == target && Tuning.kShowSimMenu) || (!(target is Sim) && Tuning.kShowObjectMenu)) && actor.SimDescription.ChildOrAbove && actor.SimDescription.IsHuman && !actor.SimDescription.IsRobot && !isAutonomous && actor.SimDescription.HasSpecialOutfit(kChemistryLabSpecialOutfitKey);
                 }
             }
 
@@ -447,7 +447,7 @@ namespace Destrospean
 
                 public override bool Test(Sim actor, GameObject target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
                 {
-                    return !((target is Sim && actor != target) || actor.SimDescription.ToddlerOrBelow || !actor.SimDescription.IsHuman || actor.SimDescription.IsRobot || isAutonomous);
+                    return ((target is Sim && actor == target && Tuning.kShowSimMenu) || (!(target is Sim) && Tuning.kShowObjectMenu)) && actor.SimDescription.ChildOrAbove && actor.SimDescription.IsHuman && !actor.SimDescription.IsRobot && !isAutonomous;
                 }
             }
 
@@ -469,20 +469,12 @@ namespace Destrospean
 
         static void AddInteractions(GameObject gameObject)
         {
-            if (gameObject == null || !GameUtils.IsInstalled(ProductVersion.EP4))
+            if (gameObject != null && !gameObject.Interactions.Exists(interaction => interaction.InteractionDefinition.GetType() == EditChemistryLabOutfit.Singleton.GetType()) && GameUtils.IsInstalled(ProductVersion.EP4))
             {
-                return;
+                gameObject.AddInteraction(EditChemistryLabOutfit.Singleton);
+                gameObject.AddInteraction(ResetChemistryLabOutfit.Singleton);
+                gameObject.AddInteraction(ToggleChemistryLabOutfit.Singleton);
             }
-            foreach (InteractionObjectPair interaction in gameObject.Interactions)
-            {
-                if (interaction.InteractionDefinition.GetType() == EditChemistryLabOutfit.Singleton.GetType())
-                {
-                    return;
-                }
-            }
-            gameObject.AddInteraction(EditChemistryLabOutfit.Singleton);
-            gameObject.AddInteraction(ResetChemistryLabOutfit.Singleton);
-            gameObject.AddInteraction(ToggleChemistryLabOutfit.Singleton);
         }
 
         public static bool ChangeSimToChemistryLabOutfit(Sim actor)
@@ -519,10 +511,6 @@ namespace Destrospean
 
         static void DisableChemistryLabOutfit(SimDescription simDescription)
         {
-            if (sChemistryLabOutfitDisabledList == null)
-            {
-                sChemistryLabOutfitDisabledList = new List<ulong>();
-            }
             if (GetChemistryLabOutfitEnabled(simDescription))
             {
                 sChemistryLabOutfitDisabledList.Add(simDescription.SimDescriptionId);
@@ -556,7 +544,7 @@ namespace Destrospean
 
         static void OnObjectPlacedInLot(object sender, EventArgs e)
         {
-            if (Tuning.kShowObjectMenu && e is World.OnObjectPlacedInLotEventArgs)
+            if (e is World.OnObjectPlacedInLotEventArgs)
             {
                 GameObject gameObject = GameObject.GetObject(((World.OnObjectPlacedInLotEventArgs)e).ObjectId);
                 if (gameObject is ChemistryLab)
@@ -594,10 +582,7 @@ namespace Destrospean
         {
             try
             {
-                if (Tuning.kShowSimMenu)
-                {
-                    AddInteractions(Sim.ActiveActor);
-                }
+                AddInteractions(Sim.ActiveActor);
             }
             catch (Exception ex)
             {
@@ -609,19 +594,10 @@ namespace Destrospean
         static void OnWorldLoadFinished(object sender, EventArgs e)
         {
             Init();
-            if (Tuning.kShowObjectMenu)
+            new List<ChemistryLab>(Sims3.Gameplay.Queries.GetObjects<ChemistryLab>()).ForEach(AddInteractions);
+            if (Household.ActiveHousehold != null)
             {
-                foreach (ChemistryLab chemistryLab in Sims3.Gameplay.Queries.GetObjects<ChemistryLab>())
-                {
-                    AddInteractions(chemistryLab);
-                }
-            }
-            if (Tuning.kShowSimMenu && Household.ActiveHousehold != null)
-            {
-                foreach (Sim sim in Household.ActiveHousehold.Sims)
-                {
-                    AddInteractions(sim);
-                }
+                Household.ActiveHousehold.Sims.ForEach(AddInteractions);
             }
         }
 
