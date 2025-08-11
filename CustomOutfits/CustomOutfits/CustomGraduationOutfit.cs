@@ -745,7 +745,7 @@ namespace Destrospean
         {
             try
             {
-                if (e.Actor is Sim)
+                if (e.TargetObject is Sim)
                 {
                     foreach (AcademicDegreeNames academicDegreeName in Enum.GetValues(typeof(AcademicDegreeNames)))
                     {
@@ -756,7 +756,7 @@ namespace Destrospean
                             case AcademicDegreeNames.MaxDegreeNames:
                                 break;
                             default:
-                                EnableGraduationOutfit(e.Actor.SimDescription, academicDegreeName);
+                                EnableGraduationOutfit(((Sim)e.TargetObject).SimDescription, academicDegreeName);
                                 break;
                         }
                     }

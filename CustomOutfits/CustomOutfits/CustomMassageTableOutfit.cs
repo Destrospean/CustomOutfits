@@ -325,9 +325,9 @@ namespace Destrospean
         {
             try
             {
-                if (e.Actor is Sim)
+                if (e.TargetObject is Sim)
                 {
-                    EnableMassageTableOutfit(e.Actor.SimDescription);
+                    EnableMassageTableOutfit(((Sim)e.TargetObject).SimDescription);
                 }
             }
             catch (Exception ex)

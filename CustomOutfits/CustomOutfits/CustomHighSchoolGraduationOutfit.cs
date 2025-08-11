@@ -596,9 +596,9 @@ namespace Destrospean
         {
             try
             {
-                if (e.Actor is Sim)
+                if (e.TargetObject is Sim)
                 {
-                    EnableHighSchoolGraduationOutfit(e.Actor.SimDescription);
+                    EnableHighSchoolGraduationOutfit(((Sim)e.TargetObject).SimDescription);
                 }
             }
             catch (Exception ex)

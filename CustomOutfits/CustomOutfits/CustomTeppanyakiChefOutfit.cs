@@ -776,9 +776,9 @@ namespace Destrospean
         {
             try
             {
-                if (e.Actor is Sim)
+                if (e.TargetObject is Sim)
                 {
-                    EnableChefOutfit(e.Actor.SimDescription);
+                    EnableChefOutfit(((Sim)e.TargetObject).SimDescription);
                 }
             }
             catch (Exception ex)

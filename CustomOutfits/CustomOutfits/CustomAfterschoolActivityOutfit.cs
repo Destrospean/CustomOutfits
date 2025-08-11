@@ -798,12 +798,12 @@ namespace Destrospean
         {
             try
             {
-                if (e.Actor is Sim)
+                if (e.TargetObject is Sim)
                 {
                     int index = 0;
                     foreach (AfterschoolActivityType afterschoolActivityType in Enum.GetValues(typeof(AfterschoolActivityType)))
                     {
-                        EnableAfterschoolActivityOutfit(e.Actor.SimDescription, afterschoolActivityType);
+                        EnableAfterschoolActivityOutfit(((Sim)e.TargetObject).SimDescription, afterschoolActivityType);
                         if (index == 1)
                         {
                             break;

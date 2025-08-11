@@ -632,11 +632,11 @@ namespace Destrospean
         {
             try
             {
-                if (e.Actor is Sim)
+                if (e.TargetObject is Sim)
                 {
                     foreach (BachelorPartyOutfitTypes outfitType in Enum.GetValues(typeof(BachelorPartyOutfitTypes)))
                     {
-                        EnableBachelorPartyOutfit(e.Actor.SimDescription, outfitType);
+                        EnableBachelorPartyOutfit(((Sim)e.TargetObject).SimDescription, outfitType);
                     }
                 }
             }

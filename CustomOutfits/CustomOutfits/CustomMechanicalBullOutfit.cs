@@ -526,10 +526,10 @@ namespace Destrospean
         {
             try
             {
-                if (e.Actor is Sim)
+                if (e.TargetObject is Sim)
                 {
-                    EnableMechanicalBullOutfit(e.Actor.SimDescription);
-                    EnableMechanicalBullSwimwear(e.Actor.SimDescription);
+                    EnableMechanicalBullOutfit(((Sim)e.TargetObject).SimDescription);
+                    EnableMechanicalBullSwimwear(((Sim)e.TargetObject).SimDescription);
                 }
             }
             catch (Exception ex)

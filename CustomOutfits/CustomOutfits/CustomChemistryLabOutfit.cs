@@ -566,9 +566,9 @@ namespace Destrospean
         {
             try
             {
-                if (e.Actor is Sim)
+                if (e.TargetObject is Sim)
                 {
-                    EnableChemistryLabOutfit(e.Actor.SimDescription);
+                    EnableChemistryLabOutfit(((Sim)e.TargetObject).SimDescription);
                 }
             }
             catch (Exception ex)

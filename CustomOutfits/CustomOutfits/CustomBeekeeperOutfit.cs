@@ -518,9 +518,9 @@ namespace Destrospean
         {
             try
             {
-                if (e.Actor is Sim)
+                if (e.TargetObject is Sim)
                 {
-                    EnableBeekeeperOutfit(e.Actor.SimDescription);
+                    EnableBeekeeperOutfit(((Sim)e.TargetObject).SimDescription);
                 }
             }
             catch (Exception ex)
