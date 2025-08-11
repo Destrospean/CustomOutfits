@@ -681,8 +681,8 @@ namespace Destrospean
             if (!GetChefOutfitEnabled(simDescription))
             {
                 sChefOutfitDisabledList.Remove(simDescription.SimDescriptionId);
-                UpdateListeners();
             }
+            UpdateListeners();
         }
 
         static bool GetChefOutfitEnabled(SimDescription simDescription)

@@ -471,8 +471,8 @@ namespace Destrospean
             if (!GetBeekeeperOutfitEnabled(simDescription))
             {
                 sBeekeeperOutfitDisabledList.Remove(simDescription.SimDescriptionId);
-                UpdateListeners();
             }
+            UpdateListeners();
         }
 
         static bool GetBeekeeperOutfitEnabled(SimDescription simDescription)

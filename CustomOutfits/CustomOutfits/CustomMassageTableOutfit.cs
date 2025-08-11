@@ -284,8 +284,8 @@ namespace Destrospean
             if (!GetMassageTableOutfitEnabled(simDescription))
             {
                 sMassageTableOutfitDisabledList.Remove(simDescription.SimDescriptionId);
-                UpdateListeners();
             }
+            UpdateListeners();
         }
 
         static bool GetMassageTableOutfitEnabled(SimDescription simDescription)

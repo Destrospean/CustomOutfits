@@ -542,8 +542,8 @@ namespace Destrospean
             if (!GetGraduationOutfitEnabled(simDescription, AcademicDegreeNames.Business))
             {
                 sGraduationBusinessOutfitDisabledList.Remove(simDescription.SimDescriptionId);
-                UpdateListeners();
             }
+            UpdateListeners();
         }
 
         static void EnableGraduationCommOutfit(SimDescription simDescription)
@@ -551,8 +551,8 @@ namespace Destrospean
             if (!GetGraduationOutfitEnabled(simDescription, AcademicDegreeNames.Communications))
             {
                 sGraduationCommOutfitDisabledList.Remove(simDescription.SimDescriptionId);
-                UpdateListeners();
             }
+            UpdateListeners();
         }
 
         static void EnableGraduationFineArtsOutfit(SimDescription simDescription)
@@ -560,8 +560,8 @@ namespace Destrospean
             if (!GetGraduationOutfitEnabled(simDescription, AcademicDegreeNames.FineArts))
             {
                 sGraduationFineArtsOutfitDisabledList.Remove(simDescription.SimDescriptionId);
-                UpdateListeners();
             }
+            UpdateListeners();
         }
 
         static void EnableGraduationOutfit(SimDescription simDescription, AcademicDegreeNames academicDegreeName)
@@ -594,8 +594,8 @@ namespace Destrospean
             if (!GetGraduationOutfitEnabled(simDescription, AcademicDegreeNames.PhysEd))
             {
                 sGraduationPhysEdOutfitDisabledList.Remove(simDescription.SimDescriptionId);
-                UpdateListeners();
             }
+            UpdateListeners();
         }
 
         static void EnableGraduationScienceMedOutfit(SimDescription simDescription)
@@ -603,8 +603,8 @@ namespace Destrospean
             if (!GetGraduationOutfitEnabled(simDescription, AcademicDegreeNames.Science))
             {
                 sGraduationScienceMedOutfitDisabledList.Remove(simDescription.SimDescriptionId);
-                UpdateListeners();
             }
+            UpdateListeners();
         }
 
         static void EnableGraduationTechnologyOutfit(SimDescription simDescription)
@@ -612,8 +612,8 @@ namespace Destrospean
             if (!GetGraduationOutfitEnabled(simDescription, AcademicDegreeNames.Technology))
             {
                 sGraduationTechnologyOutfitDisabledList.Remove(simDescription.SimDescriptionId);
-                UpdateListeners();
             }
+            UpdateListeners();
         }
 
         static bool GetGraduationOutfitEnabled(SimDescription simDescription, AcademicDegreeNames academicDegreeName)

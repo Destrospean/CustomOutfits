@@ -535,8 +535,8 @@ namespace Destrospean
             if (!GetBachelorPartyOutfitEnabled(simDescription, BachelorPartyOutfitTypes.Guest))
             {
                 sBachelorPartyGuestOutfitDisabledList.Remove(simDescription.SimDescriptionId);
-                UpdateListeners();
             }
+            UpdateListeners();
         }
 
         static void EnableBachelorPartyHostOutfit(SimDescription simDescription)
@@ -544,8 +544,8 @@ namespace Destrospean
             if (!GetBachelorPartyOutfitEnabled(simDescription, BachelorPartyOutfitTypes.Host))
             {
                 sBachelorPartyHostOutfitDisabledList.Remove(simDescription.SimDescriptionId);
-                UpdateListeners();
             }
+            UpdateListeners();
         }
 
         static void EnableBachelorPartyOutfit(SimDescription simDescription, BachelorPartyOutfitTypes outfitType)
@@ -569,8 +569,8 @@ namespace Destrospean
             if (!GetBachelorPartyOutfitEnabled(simDescription, BachelorPartyOutfitTypes.Underwear))
             {
                 sBachelorPartyUnderwearDisabledList.Remove(simDescription.SimDescriptionId);
-                UpdateListeners();
             }
+            UpdateListeners();
         }
 
         static bool GetBachelorPartyOutfitEnabled(SimDescription simDescription, BachelorPartyOutfitTypes outfitType)

@@ -532,8 +532,8 @@ namespace Destrospean
             if (!GetHighSchoolGraduationOutfitEnabled(simDescription))
             {
                 sHighSchoolGraduationOutfitDisabledList.Remove(simDescription.SimDescriptionId);
-                UpdateListeners();
             }
+            UpdateListeners();
         }
 
         static bool GetHighSchoolGraduationOutfitEnabled(SimDescription simDescription)

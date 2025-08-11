@@ -471,8 +471,8 @@ namespace Destrospean
             if (!GetMechanicalBullOutfitEnabled(simDescription))
             {
                 sMechanicalBullOutfitDisabledList.Remove(simDescription.SimDescriptionId);
-                UpdateListeners();
             }
+            UpdateListeners();
         }
 
         static void EnableMechanicalBullSwimwear(SimDescription simDescription)
@@ -480,8 +480,8 @@ namespace Destrospean
             if (!GetMechanicalBullSwimwearEnabled(simDescription))
             {
                 sMechanicalBullSwimwearDisabledList.Remove(simDescription.SimDescriptionId);
-                UpdateListeners();
             }
+            UpdateListeners();
         }
 
         static bool GetMechanicalBullOutfitEnabled(SimDescription simDescription)

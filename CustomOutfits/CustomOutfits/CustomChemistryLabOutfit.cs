@@ -523,8 +523,8 @@ namespace Destrospean
             if (!GetChemistryLabOutfitEnabled(simDescription))
             {
                 sChemistryLabOutfitDisabledList.Remove(simDescription.SimDescriptionId);
-                UpdateListeners();
             }
+            UpdateListeners();
         }
 
         static bool GetChemistryLabOutfitEnabled(SimDescription simDescription)

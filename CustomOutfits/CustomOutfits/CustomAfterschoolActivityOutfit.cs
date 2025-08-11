@@ -724,8 +724,8 @@ namespace Destrospean
             if (!GetAfterschoolActivityOutfitEnabled(simDescription, AfterschoolActivityType.Ballet))
             {
                 sBalletOutfitDisabledList.Remove(simDescription.SimDescriptionId);
-                UpdateListeners();
             }
+            UpdateListeners();
         }
 
         static void EnableScoutsOutfit(SimDescription simDescription)
@@ -733,8 +733,8 @@ namespace Destrospean
             if (!GetAfterschoolActivityOutfitEnabled(simDescription, AfterschoolActivityType.Scouts))
             {
                 sScoutsOutfitDisabledList.Remove(simDescription.SimDescriptionId);
-                UpdateListeners();
             }
+            UpdateListeners();
         }
 
         static bool GetAfterschoolActivityOutfitEnabled(SimDescription simDescription, AfterschoolActivityType? afterschoolActivityType)
