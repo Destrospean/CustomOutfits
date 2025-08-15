@@ -622,14 +622,7 @@ namespace Destrospean
             {
                 target.mBackupSO = actor.CurrentOutfit;
                 target.mBackupOC = actor.CurrentOutfitCategory;
-                Sim.SwitchOutfitHelper switchOutfitHelper = new Sim.SwitchOutfitHelper(actor, simOutfit.Key);
-                if (switchOutfitHelper != null)
-                {
-                    switchOutfitHelper.Start();
-                    switchOutfitHelper.Wait(true);
-                    actor.SwitchToOutfitWithSpin(simOutfit.Key);
-                    switchOutfitHelper.Dispose();
-                }
+                actor.SwitchToOutfitWithSpin(simOutfit.Key);
             }
         }
 
@@ -644,26 +637,11 @@ namespace Destrospean
                 actor.SimDescription.RemoveOutfit(OutfitCategories.Career, actor.CurrentOutfitIndex, true);
                 if (actor.SimDescription.HasOutfit(target.mBackupOC, target.mBackupSO.Key) > -1)
                 {
-                    Sim.SwitchOutfitHelper switchOutfitHelper = new Sim.SwitchOutfitHelper(actor, target.mBackupSO.Key);
-                    if (switchOutfitHelper != null)
-                    {
-                        switchOutfitHelper.Start();
-                        switchOutfitHelper.Wait(true);
-                        actor.SwitchToOutfitWithSpin(target.mBackupSO.Key);
-                        switchOutfitHelper.Dispose();
-                        target.mBackupSO = null;
-                        return;
-                    }
+                    actor.SwitchToOutfitWithSpin(target.mBackupSO.Key);
+                    return;
                 }
             }
-            Sim.SwitchOutfitHelper fallbackSwitchOutfitHelper = new Sim.SwitchOutfitHelper(actor, Sim.ClothesChangeReason.Force, OutfitCategories.Everyday);
-            if (fallbackSwitchOutfitHelper != null)
-            {
-                fallbackSwitchOutfitHelper.Start();
-                fallbackSwitchOutfitHelper.Wait(true);
-                actor.SwitchToOutfitWithoutSpin(Sim.ClothesChangeReason.Force, OutfitCategories.Everyday);
-                fallbackSwitchOutfitHelper.Dispose();
-            }
+            actor.SwitchToOutfitWithoutSpin(Sim.ClothesChangeReason.Force, OutfitCategories.Everyday);
             target.mBackupSO = null;
         }
 

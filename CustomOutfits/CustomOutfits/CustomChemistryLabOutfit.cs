@@ -68,17 +68,18 @@ namespace Destrospean
 
             public override void Cleanup()
             {
-                if (mNeedToSwitchOutfitOnFinish)
+                if (mNeedToSwitchOutfitOnFinish && mOutfit.Key == Actor.SimDescription.GetOutfit(OutfitCategories.Career, Actor.SimDescription.GetOutfitCount(OutfitCategories.Career) - 1).Key)
                 {
-                    Sim.SwitchOutfitHelper switchOutfitHelper = new Sim.SwitchOutfitHelper(Actor, Sim.ClothesChangeReason.Force, OutfitCategories.Everyday);
-                    if (switchOutfitHelper != null)
+                    if (Actor.CurrentOutfitCategory == OutfitCategories.Career)
                     {
-                        switchOutfitHelper.Start();
-                        switchOutfitHelper.Wait(true);
-                        Actor.SwitchToOutfitWithoutSpin(Sim.ClothesChangeReason.Force, OutfitCategories.Everyday);
-                        switchOutfitHelper.Dispose();
-                        mOutfit = null;
+                        Actor.SwitchToPreviousOutfitWithSpin();
                     }
+                    else
+                    {
+                        Actor.SwitchToOutfitWithoutSpin(Sim.ClothesChangeReason.Force, OutfitCategories.Everyday);
+                    }
+                    Actor.SimDescription.RemoveOutfit(OutfitCategories.Career, Actor.SimDescription.GetOutfitCount(OutfitCategories.Career) - 1, true);
+                    mOutfit = null;
                     mNeedToSwitchOutfitOnFinish = false;
                 }
                 base.Cleanup();
@@ -91,8 +92,9 @@ namespace Destrospean
                     return false;
                 }
                 Actor.RefreshCurrentOutfit(false);
-                mOutfit = Actor.CurrentOutfit;
-                mNeedToSwitchOutfitOnFinish = ChangeSimToChemistryLabOutfit(Actor);
+                SimOutfit outfit;
+                mNeedToSwitchOutfitOnFinish = ChangeSimToChemistryLabOutfit(Actor, out outfit);
+                mOutfit = outfit;
                 StandardEntry();
                 mLogicSkill = Actor.SkillManager.AddElement(SkillNames.Logic) as LogicSkill;
                 mResult = PotionResult.Nothing;
@@ -130,18 +132,18 @@ namespace Destrospean
                         AnimateSim("ExitCancel");
                         break;
                 }
-                if (mNeedToSwitchOutfitOnFinish && Actor.CurrentOutfitCategory == OutfitCategories.Career)
+                if (mNeedToSwitchOutfitOnFinish && mOutfit.Key == Actor.SimDescription.GetOutfit(OutfitCategories.Career, Actor.SimDescription.GetOutfitCount(OutfitCategories.Career) - 1).Key)
                 {
-                    Actor.SimDescription.RemoveOutfit(OutfitCategories.Career, Actor.CurrentOutfitIndex, true);
-                    Sim.SwitchOutfitHelper switchOutfitHelper = new Sim.SwitchOutfitHelper(Actor, mOutfit.Key);
-                    if (switchOutfitHelper != null)
+                    if (Actor.CurrentOutfitCategory == OutfitCategories.Career)
                     {
-                        switchOutfitHelper.Start();
-                        switchOutfitHelper.Wait(true);
-                        Actor.SwitchToOutfitWithSpin(mOutfit.Key);
-                        switchOutfitHelper.Dispose();
-                        mOutfit = null;
+                        Actor.SwitchToPreviousOutfitWithSpin();
                     }
+                    else
+                    {
+                        Actor.SwitchToOutfitWithoutSpin(Sim.ClothesChangeReason.Force, OutfitCategories.Everyday);
+                    }
+                    Actor.SimDescription.RemoveOutfit(OutfitCategories.Career, Actor.SimDescription.GetOutfitCount(OutfitCategories.Career) - 1, true);
+                    mOutfit = null;
                     mNeedToSwitchOutfitOnFinish = false;
                 }
                 StandardExit();
@@ -276,24 +278,6 @@ namespace Destrospean
                 }
             }
 
-            public override void Cleanup()
-            {
-                if (mNeedToSwitchOutfitOnFinish)
-                {
-                    Sim.SwitchOutfitHelper switchOutfitHelper = new Sim.SwitchOutfitHelper(Actor, Sim.ClothesChangeReason.Force, OutfitCategories.Everyday);
-                    if (switchOutfitHelper != null)
-                    {
-                        switchOutfitHelper.Start();
-                        switchOutfitHelper.Wait(true);
-                        Actor.SwitchToOutfitWithoutSpin(Sim.ClothesChangeReason.Force, OutfitCategories.Everyday);
-                        switchOutfitHelper.Dispose();
-                        mOutfit = null;
-                    }
-                    mNeedToSwitchOutfitOnFinish = false;
-                }
-                base.Cleanup();
-            }
-
             public override void Init(ref InteractionInstanceParameters parameters)
             {
                 DefinitionModified definition = parameters.InteractionDefinition as DefinitionModified;
@@ -313,6 +297,25 @@ namespace Destrospean
                 base.Init(ref parameters);
             }
 
+            public override void Cleanup()
+            {
+                if (mNeedToSwitchOutfitOnFinish && mOutfit.Key == Actor.SimDescription.GetOutfit(OutfitCategories.Career, Actor.SimDescription.GetOutfitCount(OutfitCategories.Career) - 1).Key)
+                {
+                    if (Actor.CurrentOutfitCategory == OutfitCategories.Career)
+                    {
+                        Actor.SwitchToPreviousOutfitWithSpin();
+                    }
+                    else
+                    {
+                        Actor.SwitchToOutfitWithoutSpin(Sim.ClothesChangeReason.Force, OutfitCategories.Everyday);
+                    }
+                    Actor.SimDescription.RemoveOutfit(OutfitCategories.Career, Actor.SimDescription.GetOutfitCount(OutfitCategories.Career) - 1, true);
+                    mOutfit = null;
+                    mNeedToSwitchOutfitOnFinish = false;
+                }
+                base.Cleanup();
+            }
+
             public override bool Run()
             {
                 DefinitionModified definition = InteractionDefinition as DefinitionModified;
@@ -328,8 +331,9 @@ namespace Destrospean
                 }
                 Target.mCurrentPotionType = currPotionType;
                 Actor.RefreshCurrentOutfit(false);
-                mOutfit = Actor.CurrentOutfit;
-                mNeedToSwitchOutfitOnFinish = ChangeSimToChemistryLabOutfit(Actor);
+                SimOutfit outfit;
+                mNeedToSwitchOutfitOnFinish = ChangeSimToChemistryLabOutfit(Actor, out outfit);
+                mOutfit = outfit;
                 Target.RemovePlaceholderPotion();
                 mTotalTime = GetTimeToCompletion();
                 StandardEntry();
@@ -366,18 +370,18 @@ namespace Destrospean
                         Target.AddPlaceholderPotion();
                     }
                 }
-                if (mNeedToSwitchOutfitOnFinish && Actor.CurrentOutfitCategory == OutfitCategories.Career)
+                if (mNeedToSwitchOutfitOnFinish && mOutfit.Key == Actor.SimDescription.GetOutfit(OutfitCategories.Career, Actor.SimDescription.GetOutfitCount(OutfitCategories.Career) - 1).Key)
                 {
-                    Actor.SimDescription.RemoveOutfit(OutfitCategories.Career, Actor.CurrentOutfitIndex, true);
-                    Sim.SwitchOutfitHelper switchOutfitHelper = new Sim.SwitchOutfitHelper(Actor, mOutfit.Key);
-                    if (switchOutfitHelper != null)
+                    if (Actor.CurrentOutfitCategory == OutfitCategories.Career)
                     {
-                        switchOutfitHelper.Start();
-                        switchOutfitHelper.Wait(true);
-                        Actor.SwitchToOutfitWithSpin(mOutfit.Key);
-                        switchOutfitHelper.Dispose();
-                        mOutfit = null;
+                        Actor.SwitchToPreviousOutfitWithSpin();
                     }
+                    else
+                    {
+                        Actor.SwitchToOutfitWithoutSpin(Sim.ClothesChangeReason.Force, OutfitCategories.Everyday);
+                    }
+                    Actor.SimDescription.RemoveOutfit(OutfitCategories.Career, Actor.SimDescription.GetOutfitCount(OutfitCategories.Career) - 1, true);
+                    mOutfit = null;
                     mNeedToSwitchOutfitOnFinish = false;
                 }
                 StandardExit();
@@ -477,11 +481,12 @@ namespace Destrospean
             }
         }
 
-        public static bool ChangeSimToChemistryLabOutfit(Sim actor)
+        public static bool ChangeSimToChemistryLabOutfit(Sim actor, out SimOutfit outfit)
         {
             SimDescription simDescription = actor.SimDescription;
             if (simDescription.IsPregnant || !GetChemistryLabOutfitEnabled(simDescription))
             {
+                outfit = null;
                 return false;
             }
             SimOutfit simOutfit;
@@ -496,16 +501,11 @@ namespace Destrospean
             }
             if (simOutfit != null)
             {
-                Sim.SwitchOutfitHelper switchOutfitHelper = new Sim.SwitchOutfitHelper(actor, simOutfit.Key);
-                if (switchOutfitHelper != null)
-                {
-                    switchOutfitHelper.Start();
-                    switchOutfitHelper.Wait(true);
-                    actor.SwitchToOutfitWithSpin(simOutfit.Key);
-                    switchOutfitHelper.Dispose();
-                }
+                actor.SwitchToOutfitWithSpin(simOutfit.Key);
+                outfit = simOutfit;
                 return true;
             }
+            outfit = null;
             return false;
         }
 
