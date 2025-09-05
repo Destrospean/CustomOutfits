@@ -1,4 +1,6 @@
-﻿using Destrospean.CustomOutfits;
+﻿using System;
+using System.Collections.Generic;
+using Destrospean.CustomOutfits;
 using Sims3.Gameplay;
 using Sims3.Gameplay.Abstracts;
 using Sims3.Gameplay.Actors;
@@ -15,8 +17,6 @@ using Sims3.Gameplay.Skills;
 using Sims3.SimIFace;
 using Sims3.SimIFace.CAS;
 using Sims3.UI;
-using System;
-using System.Collections.Generic;
 using Tuning = Sims3.Gameplay.Destrospean.CustomOutfits;
 
 namespace Destrospean
@@ -26,17 +26,13 @@ namespace Destrospean
         [Tunable]
         protected static bool kInstantiator;
 
-        [PersistableStatic]
+        [PersistableStatic(true)]
         static List<ulong> sBalletOutfitDisabledList;
 
-        [PersistableStatic]
+        [PersistableStatic(true)]
         static List<ulong> sScoutsOutfitDisabledList;
 
-        [PersistableStatic]
-        static EventListener sSimDestroyedListener;
-
-        [PersistableStatic]
-        static EventListener sSimSelectedListener;
+        static EventListener sSimDestroyedListener, sSimSelectedListener;
 
         static CustomAfterschoolActivityOutfit()
         {
@@ -694,7 +690,6 @@ namespace Destrospean
             {
                 sBalletOutfitDisabledList.Add(simDescription.SimDescriptionId);
             }
-            UpdateListeners();
         }
 
         static void DisableScoutsOutfit(SimDescription simDescription)
@@ -703,7 +698,6 @@ namespace Destrospean
             {
                 sScoutsOutfitDisabledList.Add(simDescription.SimDescriptionId);
             }
-            UpdateListeners();
         }
 
         static void EnableAfterschoolActivityOutfit(SimDescription simDescription, AfterschoolActivityType afterschoolActivityType)
@@ -725,7 +719,6 @@ namespace Destrospean
             {
                 sBalletOutfitDisabledList.Remove(simDescription.SimDescriptionId);
             }
-            UpdateListeners();
         }
 
         static void EnableScoutsOutfit(SimDescription simDescription)
@@ -734,7 +727,6 @@ namespace Destrospean
             {
                 sScoutsOutfitDisabledList.Remove(simDescription.SimDescriptionId);
             }
-            UpdateListeners();
         }
 
         static bool GetAfterschoolActivityOutfitEnabled(SimDescription simDescription, AfterschoolActivityType? afterschoolActivityType)

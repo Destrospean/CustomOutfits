@@ -1,4 +1,6 @@
-﻿using Destrospean.CustomOutfits;
+﻿using System;
+using System.Collections.Generic;
+using Destrospean.CustomOutfits;
 using Sims3.Gameplay;
 using Sims3.Gameplay.Abstracts;
 using Sims3.Gameplay.Actors;
@@ -15,8 +17,6 @@ using Sims3.Gameplay.Utilities;
 using Sims3.SimIFace;
 using Sims3.SimIFace.CAS;
 using Sims3.UI;
-using System;
-using System.Collections.Generic;
 using Tuning = Sims3.Gameplay.Destrospean.CustomOutfits;
 
 namespace Destrospean
@@ -28,14 +28,10 @@ namespace Destrospean
         [Tunable]
         protected static bool kInstantiator;
 
-        [PersistableStatic]
+        [PersistableStatic(true)]
         static List<ulong> sChemistryLabOutfitDisabledList;
 
-        [PersistableStatic]
-        static EventListener sSimDestroyedListener;
-
-        [PersistableStatic]
-        static EventListener sSimSelectedListener;
+        static EventListener sSimDestroyedListener, sSimSelectedListener;
 
         static CustomChemistryLabOutfit()
         {
@@ -515,7 +511,6 @@ namespace Destrospean
             {
                 sChemistryLabOutfitDisabledList.Add(simDescription.SimDescriptionId);
             }
-            UpdateListeners();
         }
 
         static void EnableChemistryLabOutfit(SimDescription simDescription)
@@ -524,7 +519,6 @@ namespace Destrospean
             {
                 sChemistryLabOutfitDisabledList.Remove(simDescription.SimDescriptionId);
             }
-            UpdateListeners();
         }
 
         static bool GetChemistryLabOutfitEnabled(SimDescription simDescription)

@@ -1,4 +1,6 @@
-﻿using Destrospean.CustomOutfits;
+﻿using System;
+using System.Collections.Generic;
+using Destrospean.CustomOutfits;
 using Sims3.Gameplay.Abstracts;
 using Sims3.Gameplay.Actors;
 using Sims3.Gameplay.ActorSystems;
@@ -14,8 +16,6 @@ using Sims3.SimIFace;
 using Sims3.SimIFace.CAS;
 using Sims3.SimIFace.Enums;
 using Sims3.UI;
-using System;
-using System.Collections.Generic;
 using Tuning = Sims3.Gameplay.Destrospean.CustomOutfits;
 
 namespace Destrospean
@@ -25,14 +25,10 @@ namespace Destrospean
         [Tunable]
         protected static bool kInstantiator;
 
-        [PersistableStatic]
+        [PersistableStatic(true)]
         static List<ulong> sBeekeeperOutfitDisabledList;
 
-        [PersistableStatic]
-        static EventListener sSimDestroyedListener;
-
-        [PersistableStatic]
-        static EventListener sSimSelectedListener;
+        static EventListener sSimDestroyedListener, sSimSelectedListener;
 
         static CustomBeekeeperOutfit()
         {
@@ -415,7 +411,6 @@ namespace Destrospean
             {
                 sBeekeeperOutfitDisabledList.Add(simDescription.SimDescriptionId);
             }
-            UpdateListeners();
         }
 
         public static bool DoBaseInteractionFunctionality(StateMachineClient stateMachineClient, Sim actor, InteractionInstance instance, out bool outfitChanged, out bool swimwearUsed, BeekeepingBox target)
@@ -472,7 +467,6 @@ namespace Destrospean
             {
                 sBeekeeperOutfitDisabledList.Remove(simDescription.SimDescriptionId);
             }
-            UpdateListeners();
         }
 
         static bool GetBeekeeperOutfitEnabled(SimDescription simDescription)

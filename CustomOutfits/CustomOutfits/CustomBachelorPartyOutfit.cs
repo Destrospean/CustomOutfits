@@ -1,4 +1,6 @@
-﻿using Destrospean.CustomOutfits;
+﻿using System;
+using System.Collections.Generic;
+using Destrospean.CustomOutfits;
 using MonoPatcherLib;
 using Sims3.Gameplay.Abstracts;
 using Sims3.Gameplay.Actors;
@@ -15,8 +17,6 @@ using Sims3.Gameplay.Socializing;
 using Sims3.SimIFace;
 using Sims3.SimIFace.CAS;
 using Sims3.UI;
-using System;
-using System.Collections.Generic;
 using Tuning = Sims3.Gameplay.Destrospean.CustomOutfits;
 
 namespace Destrospean
@@ -26,20 +26,16 @@ namespace Destrospean
         [Tunable]
         protected static bool kInstantiator;
 
-        [PersistableStatic]
+        [PersistableStatic(true)]
         static List<ulong> sBachelorPartyGuestOutfitDisabledList;
 
-        [PersistableStatic]
+        [PersistableStatic(true)]
         static List<ulong> sBachelorPartyHostOutfitDisabledList;
 
-        [PersistableStatic]
+        [PersistableStatic(true)]
         static List<ulong> sBachelorPartyUnderwearDisabledList;
 
-        [PersistableStatic]
-        static EventListener sSimDestroyedListener;
-
-        [PersistableStatic]
-        static EventListener sSimSelectedListener;
+        static EventListener sSimDestroyedListener, sSimSelectedListener;
 
         public enum BachelorPartyOutfitTypes
         {
@@ -493,7 +489,6 @@ namespace Destrospean
             {
                 sBachelorPartyGuestOutfitDisabledList.Add(simDescription.SimDescriptionId);
             }
-            UpdateListeners();
         }
 
         static void DisableBachelorPartyHostOutfit(SimDescription simDescription)
@@ -502,7 +497,6 @@ namespace Destrospean
             {
                 sBachelorPartyHostOutfitDisabledList.Add(simDescription.SimDescriptionId);
             }
-            UpdateListeners();
         }
 
         static void DisableBachelorPartyOutfit(SimDescription simDescription, BachelorPartyOutfitTypes outfitType)
@@ -527,7 +521,6 @@ namespace Destrospean
             {
                 sBachelorPartyUnderwearDisabledList.Add(simDescription.SimDescriptionId);
             }
-            UpdateListeners();
         }
 
         static void EnableBachelorPartyGuestOutfit(SimDescription simDescription)
@@ -536,7 +529,6 @@ namespace Destrospean
             {
                 sBachelorPartyGuestOutfitDisabledList.Remove(simDescription.SimDescriptionId);
             }
-            UpdateListeners();
         }
 
         static void EnableBachelorPartyHostOutfit(SimDescription simDescription)
@@ -545,7 +537,6 @@ namespace Destrospean
             {
                 sBachelorPartyHostOutfitDisabledList.Remove(simDescription.SimDescriptionId);
             }
-            UpdateListeners();
         }
 
         static void EnableBachelorPartyOutfit(SimDescription simDescription, BachelorPartyOutfitTypes outfitType)
@@ -570,7 +561,6 @@ namespace Destrospean
             {
                 sBachelorPartyUnderwearDisabledList.Remove(simDescription.SimDescriptionId);
             }
-            UpdateListeners();
         }
 
         static bool GetBachelorPartyOutfitEnabled(SimDescription simDescription, BachelorPartyOutfitTypes outfitType)

@@ -1,4 +1,6 @@
-﻿using Destrospean.CustomOutfits;
+﻿using System;
+using System.Collections.Generic;
+using Destrospean.CustomOutfits;
 using Sims3.Gameplay.Abstracts;
 using Sims3.Gameplay.Academics;
 using Sims3.Gameplay.Actors;
@@ -12,8 +14,6 @@ using Sims3.Gameplay.Objects.ShelvesStorage;
 using Sims3.SimIFace;
 using Sims3.UI;
 using Sims3.UI.Hud;
-using System;
-using System.Collections.Generic;
 using Tuning = Sims3.Gameplay.Destrospean.CustomOutfits;
 
 namespace Destrospean
@@ -23,29 +23,25 @@ namespace Destrospean
         [Tunable]
         protected static bool kInstantiator;
 
-        [PersistableStatic]
+        [PersistableStatic(true)]
         static List<ulong> sGraduationBusinessOutfitDisabledList;
 
-        [PersistableStatic]
+        [PersistableStatic(true)]
         static List<ulong> sGraduationCommOutfitDisabledList;
 
-        [PersistableStatic]
+        [PersistableStatic(true)]
         static List<ulong> sGraduationFineArtsOutfitDisabledList;
 
-        [PersistableStatic]
+        [PersistableStatic(true)]
         static List<ulong> sGraduationPhysEdOutfitDisabledList;
 
-        [PersistableStatic]
+        [PersistableStatic(true)]
         static List<ulong> sGraduationScienceMedOutfitDisabledList;
 
-        [PersistableStatic]
+        [PersistableStatic(true)]
         static List<ulong> sGraduationTechnologyOutfitDisabledList;
 
-        [PersistableStatic]
-        static EventListener sSimDestroyedListener;
-
-        [PersistableStatic]
-        static EventListener sSimSelectedListener;
+        static EventListener sSimDestroyedListener, sSimSelectedListener;
 
         static CustomGraduationOutfit()
         {

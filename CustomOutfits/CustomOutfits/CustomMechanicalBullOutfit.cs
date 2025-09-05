@@ -1,4 +1,6 @@
-﻿using Destrospean.CustomOutfits;
+﻿using System;
+using System.Collections.Generic;
+using Destrospean.CustomOutfits;
 using Sims3.Gameplay.Abstracts;
 using Sims3.Gameplay.Actors;
 using Sims3.Gameplay.ActorSystems;
@@ -14,8 +16,6 @@ using Sims3.SimIFace;
 using Sims3.SimIFace.CAS;
 using Sims3.SimIFace.Enums;
 using Sims3.UI;
-using System;
-using System.Collections.Generic;
 using Tuning = Sims3.Gameplay.Destrospean.CustomOutfits;
 
 namespace Destrospean
@@ -27,17 +27,13 @@ namespace Destrospean
 
         public static readonly string kMechanicalBullSpecialOutfitKey = "MechanicalBull";
 
-        [PersistableStatic]
+        [PersistableStatic(true)]
         static List<ulong> sMechanicalBullOutfitDisabledList;
 
-        [PersistableStatic]
+        [PersistableStatic(true)]
         static List<ulong> sMechanicalBullSwimwearDisabledList;
 
-        [PersistableStatic]
-        static EventListener sSimDestroyedListener;
-
-        [PersistableStatic]
-        static EventListener sSimSelectedListener;
+        static EventListener sSimDestroyedListener, sSimSelectedListener;
 
         static CustomMechanicalBullOutfit()
         {
@@ -454,7 +450,6 @@ namespace Destrospean
             {
                 sMechanicalBullOutfitDisabledList.Add(simDescription.SimDescriptionId);
             }
-            UpdateListeners();
         }
 
         static void DisableMechanicalBullSwimwear(SimDescription simDescription)
@@ -463,7 +458,6 @@ namespace Destrospean
             {
                 sMechanicalBullSwimwearDisabledList.Add(simDescription.SimDescriptionId);
             }
-            UpdateListeners();
         }
 
         static void EnableMechanicalBullOutfit(SimDescription simDescription)
@@ -472,7 +466,6 @@ namespace Destrospean
             {
                 sMechanicalBullOutfitDisabledList.Remove(simDescription.SimDescriptionId);
             }
-            UpdateListeners();
         }
 
         static void EnableMechanicalBullSwimwear(SimDescription simDescription)
@@ -481,7 +474,6 @@ namespace Destrospean
             {
                 sMechanicalBullSwimwearDisabledList.Remove(simDescription.SimDescriptionId);
             }
-            UpdateListeners();
         }
 
         static bool GetMechanicalBullOutfitEnabled(SimDescription simDescription)

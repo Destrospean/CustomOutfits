@@ -1,4 +1,6 @@
-﻿using Destrospean.CustomOutfits;
+﻿using System;
+using System.Collections.Generic;
+using Destrospean.CustomOutfits;
 using MonoPatcherLib;
 using Sims3.Gameplay.Abstracts;
 using Sims3.Gameplay.Actors;
@@ -13,8 +15,6 @@ using Sims3.SimIFace;
 using Sims3.SimIFace.CAS;
 using Sims3.Store.Objects;
 using Sims3.UI;
-using System;
-using System.Collections.Generic;
 using Tuning = Sims3.Gameplay.Destrospean.CustomOutfits;
 
 namespace Destrospean
@@ -26,7 +26,6 @@ namespace Destrospean
 
         public static readonly string kSingedSpecialOutfitKey = "Singed";
 
-        [PersistableStatic]
         static EventListener sSimSelectedListener;
 
         static CustomSingedOutfit()
