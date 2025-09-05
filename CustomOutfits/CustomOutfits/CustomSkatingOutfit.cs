@@ -99,7 +99,7 @@ namespace Destrospean
 
                 public override InteractionTestResult Test(ref InteractionInstanceParameters parameters, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
                 {
-                    return InteractionDefinitionUtilities.FromBool((Tuning.kShowObjectMenu && SkatableTerrain.GetPondSkatingAreaAtPoint(parameters.Hit.mPoint) != null && mSkatingType == SkatingTypes.Ice && PondManager.ArePondsFrozen() || (parameters.Target is ISkatableObject && mSkatingType == (((ISkatableObject)parameters.Target).IsIceRink ? SkatingTypes.Ice : SkatingTypes.Roller)) || (Tuning.kShowSimMenu && parameters.Target is Sim && parameters.Actor == parameters.Target)) && parameters.Actor.SimDescription.ChildOrAbove && parameters.Actor.SimDescription.IsHuman && !parameters.Actor.SimDescription.IsRobot && !parameters.Autonomous);
+                    return InteractionDefinitionUtilities.FromBool((Tuning.kShowObjectMenu && SkatableTerrain.GetPondSkatingAreaAtPoint(parameters.Hit.mPoint) != null && mSkatingType == SkatingTypes.Ice && PondManager.ArePondsFrozen() || parameters.Target is ISkatableObject && mSkatingType == (((ISkatableObject)parameters.Target).IsIceRink ? SkatingTypes.Ice : SkatingTypes.Roller) || Tuning.kShowSimMenu && parameters.Actor == parameters.Target) && parameters.Actor.SimDescription.ChildOrAbove && parameters.Actor.SimDescription.IsHuman && !parameters.Actor.SimDescription.IsRobot && !parameters.Autonomous);
                 }
             }
 
@@ -206,7 +206,7 @@ namespace Destrospean
 
                 public override InteractionTestResult Test(ref InteractionInstanceParameters parameters, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
                 {
-                    return InteractionDefinitionUtilities.FromBool((Tuning.kShowObjectMenu && SkatableTerrain.GetPondSkatingAreaAtPoint(parameters.Hit.mPoint) != null && mSkatingType == SkatingTypes.Ice && PondManager.ArePondsFrozen() || (parameters.Target is ISkatableObject && mSkatingType == (((ISkatableObject)parameters.Target).IsIceRink ? SkatingTypes.Ice : SkatingTypes.Roller)) || (Tuning.kShowSimMenu && parameters.Target is Sim && parameters.Actor == parameters.Target)) && parameters.Actor.SimDescription.ChildOrAbove && parameters.Actor.SimDescription.IsHuman && !parameters.Actor.SimDescription.IsRobot && !parameters.Autonomous && parameters.Actor.SimDescription.HasSpecialOutfit(GetSkatingOutfitName((Sim)parameters.Actor, mSkatingType)));
+                    return InteractionDefinitionUtilities.FromBool((Tuning.kShowObjectMenu && SkatableTerrain.GetPondSkatingAreaAtPoint(parameters.Hit.mPoint) != null && mSkatingType == SkatingTypes.Ice && PondManager.ArePondsFrozen() || parameters.Target is ISkatableObject && mSkatingType == (((ISkatableObject)parameters.Target).IsIceRink ? SkatingTypes.Ice : SkatingTypes.Roller) || Tuning.kShowSimMenu && parameters.Actor == parameters.Target) && parameters.Actor.SimDescription.ChildOrAbove && parameters.Actor.SimDescription.IsHuman && !parameters.Actor.SimDescription.IsRobot && !parameters.Autonomous && parameters.Actor.SimDescription.HasSpecialOutfit(GetSkatingOutfitName((Sim)parameters.Actor, mSkatingType)));
                 }
             }
 
