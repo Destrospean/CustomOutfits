@@ -192,9 +192,9 @@ namespace Destrospean
                     {
                         foreach (InteractionInstance interaction in mOtherPossibleFollowingGraduate.InteractionQueue.InteractionList)
                         {
-                            if (interaction is GraduateInCityHall)
+                            GraduateInCityHall graduateInCityHall = interaction as GraduateInCityHall;
+                            if (graduateInCityHall != null)
                             {
-                                GraduateInCityHall graduateInCityHall = (GraduateInCityHall)interaction;
                                 graduateInCityHall.mReaddOnClean = true;
                                 graduateInCityHall.mLeader = Actor;
                                 graduateInCityHall.mWasFollower = true;
@@ -208,9 +208,9 @@ namespace Destrospean
                     {
                         foreach (InteractionInstance interaction in otherPossibleFollowingGraduate.InteractionQueue.InteractionList)
                         {
-                            if (interaction is GraduateInCityHall)
+                            GraduateInCityHall graduateInCityHall = interaction as GraduateInCityHall;
+                            if (graduateInCityHall != null)
                             {
-                                GraduateInCityHall graduateInCityHall = (GraduateInCityHall)interaction;
                                 graduateInCityHall.mReaddOnClean = false;
                                 graduateInCityHall.mLeader = null;
                                 break;
