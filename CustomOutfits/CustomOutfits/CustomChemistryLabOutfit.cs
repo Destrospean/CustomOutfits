@@ -11,7 +11,6 @@ using Sims3.Gameplay.Core;
 using Sims3.Gameplay.EventSystem;
 using Sims3.Gameplay.Interactions;
 using Sims3.Gameplay.Objects.HobbiesSkills;
-using Sims3.Gameplay.Seasons;
 using Sims3.Gameplay.Skills;
 using Sims3.Gameplay.Tutorial;
 using Sims3.Gameplay.Utilities;
