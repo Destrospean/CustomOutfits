@@ -11,6 +11,7 @@ using Sims3.Gameplay.Core;
 using Sims3.Gameplay.EventSystem;
 using Sims3.Gameplay.Interactions;
 using Sims3.Gameplay.Objects.HobbiesSkills;
+using Sims3.Gameplay.Seasons;
 using Sims3.Gameplay.Skills;
 using Sims3.Gameplay.Tutorial;
 using Sims3.Gameplay.Utilities;
@@ -538,13 +539,10 @@ namespace Destrospean
 
         static void OnObjectPlacedInLot(object sender, EventArgs e)
         {
-            if (e is World.OnObjectPlacedInLotEventArgs)
+            World.OnObjectPlacedInLotEventArgs onObjectPlacedInLotEventArgs = e as World.OnObjectPlacedInLotEventArgs;
+            if (onObjectPlacedInLotEventArgs != null)
             {
-                GameObject gameObject = GameObject.GetObject(((World.OnObjectPlacedInLotEventArgs)e).ObjectId);
-                if (gameObject is ChemistryLab)
-                {
-                    AddInteractions(gameObject);
-                }
+                AddInteractions(GameObject.GetObject(onObjectPlacedInLotEventArgs.ObjectId) as ChemistryLab);
             }
         }
 
@@ -560,9 +558,10 @@ namespace Destrospean
         {
             try
             {
-                if (e.TargetObject is Sim)
+                Sim sim = e.TargetObject as Sim;
+                if (sim != null)
                 {
-                    EnableChemistryLabOutfit(((Sim)e.TargetObject).SimDescription);
+                    EnableChemistryLabOutfit(sim.SimDescription);
                 }
             }
             catch (Exception ex)

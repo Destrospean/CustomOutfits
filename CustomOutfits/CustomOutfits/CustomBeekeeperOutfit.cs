@@ -486,13 +486,10 @@ namespace Destrospean
 
         static void OnObjectPlacedInLot(object sender, EventArgs e)
         {
-            if (e is World.OnObjectPlacedInLotEventArgs)
+            World.OnObjectPlacedInLotEventArgs onObjectPlacedInLotEventArgs = e as World.OnObjectPlacedInLotEventArgs;
+            if (onObjectPlacedInLotEventArgs != null)
             {
-                GameObject gameObject = GameObject.GetObject(((World.OnObjectPlacedInLotEventArgs)e).ObjectId);
-                if (gameObject is BeekeepingBox)
-                {
-                    AddInteractions(gameObject);
-                }
+                AddInteractions(GameObject.GetObject(onObjectPlacedInLotEventArgs.ObjectId) as BeekeepingBox);
             }
         }
 
@@ -512,9 +509,10 @@ namespace Destrospean
         {
             try
             {
-                if (e.TargetObject is Sim)
+                Sim sim = e.TargetObject as Sim;
+                if (sim != null)
                 {
-                    EnableBeekeeperOutfit(((Sim)e.TargetObject).SimDescription);
+                    EnableBeekeeperOutfit(sim.SimDescription);
                 }
             }
             catch (Exception ex)

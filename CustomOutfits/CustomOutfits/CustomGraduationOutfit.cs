@@ -719,13 +719,10 @@ namespace Destrospean
 
         static void OnObjectPlacedInLot(object sender, EventArgs e)
         {
-            if (e is World.OnObjectPlacedInLotEventArgs)
+            World.OnObjectPlacedInLotEventArgs onObjectPlacedInLotEventArgs = e as World.OnObjectPlacedInLotEventArgs;
+            if (onObjectPlacedInLotEventArgs != null)
             {
-                GameObject gameObject = GameObject.GetObject(((World.OnObjectPlacedInLotEventArgs)e).ObjectId);
-                if (gameObject is Dresser)
-                {
-                    AddInteractions(gameObject);
-                }
+                AddInteractions(GameObject.GetObject(onObjectPlacedInLotEventArgs.ObjectId) as Dresser);
             }
         }
 
@@ -741,7 +738,8 @@ namespace Destrospean
         {
             try
             {
-                if (e.TargetObject is Sim)
+                Sim sim = e.TargetObject as Sim;
+                if (sim != null)
                 {
                     foreach (AcademicDegreeNames academicDegreeName in Enum.GetValues(typeof(AcademicDegreeNames)))
                     {
@@ -752,7 +750,7 @@ namespace Destrospean
                             case AcademicDegreeNames.MaxDegreeNames:
                                 break;
                             default:
-                                EnableGraduationOutfit(((Sim)e.TargetObject).SimDescription, academicDegreeName);
+                                EnableGraduationOutfit(sim.SimDescription, academicDegreeName);
                                 break;
                         }
                     }
