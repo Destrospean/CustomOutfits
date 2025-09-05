@@ -355,7 +355,7 @@ namespace Destrospean
 
             public override bool Run()
             {
-                if (!(Actor.Posture is FairyHouse.FairyHousePosture))
+                if (Actor.Posture as FairyHouse.FairyHousePosture == null)
                 {
                     return false;
                 }

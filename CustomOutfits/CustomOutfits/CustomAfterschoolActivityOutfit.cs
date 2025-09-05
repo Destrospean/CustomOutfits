@@ -326,7 +326,7 @@ namespace Destrospean
 
                 public override bool Test(Sim actor, GameObject target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
                 {
-                    return ((target is Sim && actor == target && Tuning.kShowSimMenu) || (!(target is Sim) && Tuning.kShowObjectMenu)) && actor.SimDescription.Child && actor.SimDescription.IsHuman && !actor.SimDescription.IsRobot && !isAutonomous && AfterschoolActivity.HasAfterschoolActivityOfType(actor, mAfterschoolActivityType);
+                    return (actor == target && Tuning.kShowSimMenu || target as Sim == null && Tuning.kShowObjectMenu) && actor.SimDescription.Child && actor.SimDescription.IsHuman && !actor.SimDescription.IsRobot && !isAutonomous && AfterschoolActivity.HasAfterschoolActivityOfType(actor, mAfterschoolActivityType);
                 }
             }
 
@@ -413,7 +413,7 @@ namespace Destrospean
 
                 public override bool Test(Sim actor, GameObject target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
                 {
-                    return ((target is Sim && actor == target && Tuning.kShowSimMenu) || (!(target is Sim) && Tuning.kShowObjectMenu)) && actor.SimDescription.Child && actor.SimDescription.IsHuman && !actor.SimDescription.IsRobot && !isAutonomous && AfterschoolActivity.HasAfterschoolActivityOfType(actor, mAfterschoolActivityType) && actor.SimDescription.HasSpecialOutfit(GetAfterschoolActivityOutfitName(actor, mAfterschoolActivityType));
+                    return (actor == target && Tuning.kShowSimMenu || target as Sim == null && Tuning.kShowObjectMenu) && actor.SimDescription.Child && actor.SimDescription.IsHuman && !actor.SimDescription.IsRobot && !isAutonomous && AfterschoolActivity.HasAfterschoolActivityOfType(actor, mAfterschoolActivityType) && actor.SimDescription.HasSpecialOutfit(GetAfterschoolActivityOutfitName(actor, mAfterschoolActivityType));
                 }
             }
 
@@ -621,7 +621,7 @@ namespace Destrospean
 
                 public override bool Test(Sim actor, GameObject target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
                 {
-                    return ((target is Sim && actor == target && Tuning.kShowSimMenu) || (!(target is Sim) && Tuning.kShowObjectMenu)) && actor.SimDescription.Child && actor.SimDescription.IsHuman && !actor.SimDescription.IsRobot && !isAutonomous && AfterschoolActivity.HasAfterschoolActivityOfType(actor, mAfterschoolActivityType);
+                    return (actor == target && Tuning.kShowSimMenu || target as Sim == null && Tuning.kShowObjectMenu) && actor.SimDescription.Child && actor.SimDescription.IsHuman && !actor.SimDescription.IsRobot && !isAutonomous && AfterschoolActivity.HasAfterschoolActivityOfType(actor, mAfterschoolActivityType);
                 }
             }
 
