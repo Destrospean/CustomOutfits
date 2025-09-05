@@ -460,7 +460,6 @@ namespace Destrospean
             {
                 sGraduationBusinessOutfitDisabledList.Add(simDescription.SimDescriptionId);
             }
-            UpdateListeners();
         }
 
         static void DisableGraduationCommOutfit(SimDescription simDescription)
@@ -469,7 +468,6 @@ namespace Destrospean
             {
                 sGraduationCommOutfitDisabledList.Add(simDescription.SimDescriptionId);
             }
-            UpdateListeners();
         }
 
         static void DisableGraduationFineArtsOutfit(SimDescription simDescription)
@@ -478,7 +476,6 @@ namespace Destrospean
             {
                 sGraduationFineArtsOutfitDisabledList.Add(simDescription.SimDescriptionId);
             }
-            UpdateListeners();
         }
 
         static void DisableGraduationOutfit(SimDescription simDescription, AcademicDegreeNames academicDegreeName)
@@ -512,7 +509,6 @@ namespace Destrospean
             {
                 sGraduationPhysEdOutfitDisabledList.Add(simDescription.SimDescriptionId);
             }
-            UpdateListeners();
         }
 
         static void DisableGraduationScienceMedOutfit(SimDescription simDescription)
@@ -521,7 +517,6 @@ namespace Destrospean
             {
                 sGraduationScienceMedOutfitDisabledList.Add(simDescription.SimDescriptionId);
             }
-            UpdateListeners();
         }
 
         static void DisableGraduationTechnologyOutfit(SimDescription simDescription)
@@ -530,7 +525,6 @@ namespace Destrospean
             {
                 sGraduationTechnologyOutfitDisabledList.Add(simDescription.SimDescriptionId);
             }
-            UpdateListeners();
         }
 
         static void EnableGraduationBusinessOutfit(SimDescription simDescription)
@@ -539,7 +533,6 @@ namespace Destrospean
             {
                 sGraduationBusinessOutfitDisabledList.Remove(simDescription.SimDescriptionId);
             }
-            UpdateListeners();
         }
 
         static void EnableGraduationCommOutfit(SimDescription simDescription)
@@ -548,7 +541,6 @@ namespace Destrospean
             {
                 sGraduationCommOutfitDisabledList.Remove(simDescription.SimDescriptionId);
             }
-            UpdateListeners();
         }
 
         static void EnableGraduationFineArtsOutfit(SimDescription simDescription)
@@ -557,7 +549,6 @@ namespace Destrospean
             {
                 sGraduationFineArtsOutfitDisabledList.Remove(simDescription.SimDescriptionId);
             }
-            UpdateListeners();
         }
 
         static void EnableGraduationOutfit(SimDescription simDescription, AcademicDegreeNames academicDegreeName)
@@ -591,7 +582,6 @@ namespace Destrospean
             {
                 sGraduationPhysEdOutfitDisabledList.Remove(simDescription.SimDescriptionId);
             }
-            UpdateListeners();
         }
 
         static void EnableGraduationScienceMedOutfit(SimDescription simDescription)
@@ -600,7 +590,6 @@ namespace Destrospean
             {
                 sGraduationScienceMedOutfitDisabledList.Remove(simDescription.SimDescriptionId);
             }
-            UpdateListeners();
         }
 
         static void EnableGraduationTechnologyOutfit(SimDescription simDescription)
@@ -609,7 +598,6 @@ namespace Destrospean
             {
                 sGraduationTechnologyOutfitDisabledList.Remove(simDescription.SimDescriptionId);
             }
-            UpdateListeners();
         }
 
         static bool GetGraduationOutfitEnabled(SimDescription simDescription, AcademicDegreeNames academicDegreeName)
