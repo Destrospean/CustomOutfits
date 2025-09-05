@@ -41,7 +41,7 @@ namespace Destrospean
         [PersistableStatic(true)]
         static List<ulong> sGraduationTechnologyOutfitDisabledList;
 
-        static EventListener sSimDestroyedListener, sSimSelectedListener;
+        static EventListener sSimDescriptionDisposedListener, sSimSelectedListener;
 
         static CustomGraduationOutfit()
         {
@@ -52,7 +52,7 @@ namespace Destrospean
             sGraduationPhysEdOutfitDisabledList = new List<ulong>();
             sGraduationScienceMedOutfitDisabledList = new List<ulong>();
             sGraduationTechnologyOutfitDisabledList = new List<ulong>();
-            sSimDestroyedListener = null;
+            sSimDescriptionDisposedListener = null;
             sSimSelectedListener = null;
             LoadSaveManager.ObjectGroupsPreLoad += OnPreLoad;
             World.sOnObjectPlacedInLotEventHandler += OnObjectPlacedInLot;
@@ -722,7 +722,7 @@ namespace Destrospean
             Common.CopyTuning(typeof(CollegeGraduation), typeof(CollegeGraduation.GraduateInPlace.Definition), typeof(GraduateInPlace.DefinitionModified));
         }
 
-        static ListenerAction OnSimDestroyed(Event e)
+        static ListenerAction OnSimDescriptionDisposed(Event e)
         {
             try
             {
@@ -776,25 +776,25 @@ namespace Destrospean
 
         static void OnWorldQuit(object sender, EventArgs e)
         {
-            EventTracker.RemoveListener(sSimDestroyedListener);
+            EventTracker.RemoveListener(sSimDescriptionDisposedListener);
             EventTracker.RemoveListener(sSimSelectedListener);
-            sSimDestroyedListener = null;
+            sSimDescriptionDisposedListener = null;
             sSimSelectedListener = null;
         }
 
         static void UpdateListeners()
         {
-            if (sSimDestroyedListener != null)
+            if (sSimDescriptionDisposedListener != null)
             {
-                EventTracker.RemoveListener(sSimDestroyedListener);
-                sSimDestroyedListener = null;
+                EventTracker.RemoveListener(sSimDescriptionDisposedListener);
+                sSimDescriptionDisposedListener = null;
             }
             if (sSimSelectedListener != null)
             {
                 EventTracker.RemoveListener(sSimSelectedListener);
                 sSimSelectedListener = null;
             }
-            sSimDestroyedListener = EventTracker.AddListener(EventTypeId.kSimDescriptionDisposed, OnSimDestroyed);
+            sSimDescriptionDisposedListener = EventTracker.AddListener(EventTypeId.kSimDescriptionDisposed, OnSimDescriptionDisposed);
             sSimSelectedListener = EventTracker.AddListener(EventTypeId.kEventSimSelected, OnSimSelected);
         }
     }

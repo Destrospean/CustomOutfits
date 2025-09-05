@@ -34,13 +34,13 @@ namespace Destrospean
         [PersistableStatic(true)]
         static List<ulong> sChefOutfitDisabledList;
 
-        static EventListener sSimDestroyedListener, sSimSelectedListener;
+        static EventListener sSimDescriptionDisposedListener, sSimSelectedListener;
 
         static CustomTeppanyakiChefOutfit()
         {
             kInstantiator = false;
             sChefOutfitDisabledList = new List<ulong>();
-            sSimDestroyedListener = null;
+            sSimDescriptionDisposedListener = null;
             sSimSelectedListener = null;
             LoadSaveManager.ObjectGroupsPreLoad += OnPreLoad;
             World.sOnObjectPlacedInLotEventHandler += OnObjectPlacedInLot;
@@ -741,7 +741,7 @@ namespace Destrospean
             Common.CopyTuning(typeof(TeppanyakiGrill), typeof(TeppanyakiGrill.TGCook.Definition), typeof(TGCook.DefinitionModified));
         }
 
-        static ListenerAction OnSimDestroyed(Event e)
+        static ListenerAction OnSimDescriptionDisposed(Event e)
         {
             try
             {
@@ -783,25 +783,25 @@ namespace Destrospean
 
         static void OnWorldQuit(object sender, EventArgs e)
         {
-            EventTracker.RemoveListener(sSimDestroyedListener);
+            EventTracker.RemoveListener(sSimDescriptionDisposedListener);
             EventTracker.RemoveListener(sSimSelectedListener);
-            sSimDestroyedListener = null;
+            sSimDescriptionDisposedListener = null;
             sSimSelectedListener = null;
         }
 
         static void UpdateListeners()
         {
-            if (sSimDestroyedListener != null)
+            if (sSimDescriptionDisposedListener != null)
             {
-                EventTracker.RemoveListener(sSimDestroyedListener);
-                sSimDestroyedListener = null;
+                EventTracker.RemoveListener(sSimDescriptionDisposedListener);
+                sSimDescriptionDisposedListener = null;
             }
             if (sSimSelectedListener != null)
             {
                 EventTracker.RemoveListener(sSimSelectedListener);
                 sSimSelectedListener = null;
             }
-            sSimDestroyedListener = EventTracker.AddListener(EventTypeId.kSimDescriptionDisposed, OnSimDestroyed);
+            sSimDescriptionDisposedListener = EventTracker.AddListener(EventTypeId.kSimDescriptionDisposed, OnSimDescriptionDisposed);
             sSimSelectedListener = EventTracker.AddListener(EventTypeId.kEventSimSelected, OnSimSelected);
         }
     }
