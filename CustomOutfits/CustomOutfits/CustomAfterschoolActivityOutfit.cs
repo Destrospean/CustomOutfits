@@ -218,7 +218,7 @@ namespace Destrospean
                         }
                         if (mOutfit != null)
                         {
-                            Actor.SwitchToOutfitWithSpin(mOutfit.Key);
+                            actor.SwitchToOutfitWithSpin(mOutfit.Key);
                             mNeedToSwitchOutfitOnFinish = true;
                         }
                     }
