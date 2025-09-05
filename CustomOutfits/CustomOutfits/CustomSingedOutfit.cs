@@ -202,11 +202,6 @@ namespace Destrospean
             return new SimOutfit(simBuilder.CacheOutfit("Singed" + simDescription.SimDescriptionId));
         }
 
-        static void Init()
-        {
-            UpdateListeners();
-        }
-
         static void OnObjectPlacedInLot(object sender, EventArgs e)
         {
             World.OnObjectPlacedInLotEventArgs onObjectPlacedInLotEventArgs = e as World.OnObjectPlacedInLotEventArgs;
@@ -237,7 +232,7 @@ namespace Destrospean
 
         static void OnWorldLoadFinished(object sender, EventArgs e)
         {
-            Init();
+            UpdateListeners();
             new List<Dresser>(Sims3.Gameplay.Queries.GetObjects<Dresser>()).ForEach(AddInteractions);
             if (Household.ActiveHousehold != null)
             {

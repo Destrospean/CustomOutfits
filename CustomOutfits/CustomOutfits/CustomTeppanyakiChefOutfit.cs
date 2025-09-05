@@ -667,11 +667,6 @@ namespace Destrospean
             return "career_execchef_" + (actor.IsMale ? "male" : "female") + (actor.SimDescription.Elder ? "elder" : "");
         }
 
-        static void Init()
-        {
-            UpdateListeners();
-        }
-
         public static void InteractionCleanup(Sim actor, InteractionInstance interactionInstance, TeppanyakiGrill target)
         {
             if (target.mCookingSim != null && target.mCleanupAfterLoad)
@@ -773,7 +768,7 @@ namespace Destrospean
 
         static void OnWorldLoadFinished(object sender, EventArgs e)
         {
-            Init();
+            UpdateListeners();
             new List<TeppanyakiGrill>(Sims3.Gameplay.Queries.GetObjects<TeppanyakiGrill>()).ForEach(AddInteractions);
             if (Household.ActiveHousehold != null)
             {

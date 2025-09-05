@@ -479,11 +479,6 @@ namespace Destrospean
             return string.Format("{0}{1}Beekeeping", OutfitUtils.GetAgePrefix(actor.SimDescription.Age, true), actor.IsMale ? "m" : "f");
         }
 
-        static void Init()
-        {
-            UpdateListeners();
-        }
-
         static void OnObjectPlacedInLot(object sender, EventArgs e)
         {
             World.OnObjectPlacedInLotEventArgs onObjectPlacedInLotEventArgs = e as World.OnObjectPlacedInLotEventArgs;
@@ -537,7 +532,7 @@ namespace Destrospean
 
         static void OnWorldLoadFinished(object sender, EventArgs e)
         {
-            Init();
+            UpdateListeners();
             new List<BeekeepingBox>(Sims3.Gameplay.Queries.GetObjects<BeekeepingBox>()).ForEach(AddInteractions);
             if (Household.ActiveHousehold != null)
             {

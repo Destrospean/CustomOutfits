@@ -438,11 +438,6 @@ namespace Destrospean
             return SkatingRink.Skate.CreateSkateOutfitName(actor, skatingType == SkatingTypes.Ice);
         }
 
-        static void Init()
-        {
-            UpdateListeners();
-        }
-
         static void OnObjectPlacedInLot(object sender, EventArgs e)
         {
             World.OnObjectPlacedInLotEventArgs onObjectPlacedInLotEventArgs = e as World.OnObjectPlacedInLotEventArgs;
@@ -473,7 +468,7 @@ namespace Destrospean
 
         static void OnWorldLoadFinished(object sender, EventArgs e)
         {
-            Init();
+            UpdateListeners();
             new List<SkatingRink>(Sims3.Gameplay.Queries.GetObjects<SkatingRink>()).ForEach(AddInteractions);
             new List<Terrain>(Sims3.Gameplay.Queries.GetObjects<Terrain>()).ForEach(AddInteractions);
             if (Household.ActiveHousehold != null)

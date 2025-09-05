@@ -531,11 +531,6 @@ namespace Destrospean
             return OutfitUtils.GetAgePrefix(actor.SimDescription.Age, true) + (actor.IsMale ? "m" : "f") + "chemistry";
         }
 
-        static void Init()
-        {
-            UpdateListeners();
-        }
-
         static void OnObjectPlacedInLot(object sender, EventArgs e)
         {
             World.OnObjectPlacedInLotEventArgs onObjectPlacedInLotEventArgs = e as World.OnObjectPlacedInLotEventArgs;
@@ -585,7 +580,7 @@ namespace Destrospean
 
         static void OnWorldLoadFinished(object sender, EventArgs e)
         {
-            Init();
+            UpdateListeners();
             new List<ChemistryLab>(Sims3.Gameplay.Queries.GetObjects<ChemistryLab>()).ForEach(AddInteractions);
             if (Household.ActiveHousehold != null)
             {
