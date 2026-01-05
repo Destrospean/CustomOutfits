@@ -4,12 +4,12 @@
     <LangVersion>5</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
-    <ProjectGuid>{D5E41DB2-3F43-4EEB-9CC7-303D24C203C1}</ProjectGuid>
+    <ProjectGuid>{744E9A74-02F5-492E-B1F2-0CC734316407}</ProjectGuid>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <OutputType>Library</OutputType>
     <RootNamespace>Destrospean</RootNamespace>
-    <AssemblyName>CustomOutfits</AssemblyName>
+    <AssemblyName>CustomOutfitsMasterController</AssemblyName>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <NoWin32Manifest>False</NoWin32Manifest>
@@ -44,26 +44,16 @@
     <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="CustomOutfits\CustomAfterschoolActivityOutfit.cs" />
-    <Compile Include="CustomOutfits\CustomSkatingOutfit.cs" />
-    <Compile Include="CustomOutfits\CustomMassageTableOutfit.cs" />
-    <Compile Include="CustomOutfits\CustomHighSchoolGraduationOutfit.cs" />
-    <Compile Include="CustomOutfits\CustomGraduationOutfit.cs" />
-    <Compile Include="Tuning.cs" />
-    <Compile Include="CustomOutfits\CustomBachelorPartyOutfit.cs" />
-    <Compile Include="CustomOutfits\CustomMechanicalBullOutfit.cs" />
-    <Compile Include="Common.cs" />
-    <Compile Include="CustomOutfits\CustomTowelOutfit.cs" />
-    <Compile Include="CustomOutfits\CustomSingedOutfit.cs" />
-    <Compile Include="CustomOutfits\CustomBeekeeperOutfit.cs" />
-    <Compile Include="CustomOutfits\CustomChemistryLabOutfit.cs" />
-    <Compile Include="CustomOutfits\CustomTeppanyakiChefOutfit.cs" />
-    <Compile Include="Main.cs" />
+    <Compile Include="CustomOutfitsMasterController.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib">
       <HintPath>..\libs\mscorlib.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="NRaasMasterController">
+      <HintPath>..\libs\NRaasMasterController.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="ScriptCore">
@@ -103,12 +93,12 @@
       <Private>False</Private>
     </Reference>
   </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
-    <ProjectReference Include="..\..\MonoPatcher\MonoPatcher\MonoPatcher.csproj">
-      <Project>{91460F7B-9C23-4A43-AB52-95EAC8D52D93}</Project>
-      <Name>MonoPatcher</Name>
+    <ProjectReference Include="..\CustomOutfits\CustomOutfits.csproj">
+      <Project>{D5E41DB2-3F43-4EEB-9CC7-303D24C203C1}</Project>
+      <Name>CustomOutfits</Name>
       <Private>False</Private>
     </ProjectReference>
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
