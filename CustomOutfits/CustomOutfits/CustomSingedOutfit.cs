@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Destrospean.CustomOutfits;
-using MonoPatcherLib;
 using Sims3.Gameplay.Abstracts;
 using Sims3.Gameplay.Actors;
 using Sims3.Gameplay.ActorSystems;
@@ -30,7 +29,7 @@ namespace Destrospean
 
         static CustomSingedOutfit()
         {
-            kInstantiator = false;
+            Common.ReplaceMethod(typeof(BuffSinged).GetMethod("SetupSingedOutfit"), typeof(CustomSingedOutfit).GetMethod("SetupSingedOutfit"));
             sSimSelectedListener = null;
             LoadSaveManager.ObjectGroupsPreLoad += OnPreLoad;
             World.sOnObjectPlacedInLotEventHandler += OnObjectPlacedInLot;
@@ -140,14 +139,14 @@ namespace Destrospean
                 }
                 switch (e.EventId)
                 {
-                    case 201u:
+                    case 201:
                         Target.StartDragonVFX(ref Target.mInitialFXHandle, "store_babyDragon_summonR");
                         break;
-                    case 202u:
+                    case 202:
                         Target.StopVFX(ref Target.mInitialFXHandle);
                         Target.StartDragonVFX(ref Target.mCastSpellFXHandle, "store_babyDragon_fireball");
                         break;
-                    case 302u:
+                    case 302:
                         Vector3 position = TargetSim.Position;
                         if (mMissTarget)
                         {
@@ -191,14 +190,8 @@ namespace Destrospean
             SimDescription simDescription = actor.SimDescription;
             SimOutfit simOutfit = new SimOutfit(OutfitUtils.ApplyUniformToOutfit(simDescription.GetOutfit(OutfitCategories.Everyday, 0), new SimOutfit(ResourceKey.CreateOutfitKey(OutfitUtils.GetSingedOutfit(actor), 0u)), simDescription, "CreateSingedOutfit"));
             OutfitUtils.SetOutfit(simBuilder, simOutfit, simDescription);
-            foreach (CASPart part in simOutfit.Parts)
-            {
-                if (part.BodyType == BodyTypes.Blush)
-                {
-                    simBuilder.RemovePart(part);
-                }
-            }
-            simBuilder.AddPart(new CASPart(new ResourceKey(ResourceUtils.HashString64((simDescription.Child ? "cu" : "af") + "Scalp_burnt"), 55242443u, 0u)));
+            simBuilder.RemoveParts(BodyTypes.Blush);
+            simBuilder.AddPart(new CASPart(new ResourceKey(ResourceUtils.HashString64((simDescription.Child ? "cu" : "af") + "Scalp_burnt"), 55242443, 0)));
             return new SimOutfit(simBuilder.CacheOutfit("Singed" + simDescription.SimDescriptionId));
         }
 
@@ -246,7 +239,7 @@ namespace Destrospean
             sSimSelectedListener = null;
         }
 
-        [ReplaceMethod(typeof(BuffSinged), "SetupSingedOutfit")]
+        //[ReplaceMethod(typeof(BuffSinged), "SetupSingedOutfit")]
         public static void SetupSingedOutfit(Sim actor)
         {
             SimDescription simDescription = actor.SimDescription;

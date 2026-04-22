@@ -7,7 +7,6 @@ using Sims3.Gameplay.Autonomy;
 using Sims3.Gameplay.CAS;
 using Sims3.Gameplay.EventSystem;
 using Sims3.Gameplay.Interactions;
-using Sims3.Gameplay.Services;
 using Sims3.SimIFace;
 using Sims3.SimIFace.CAS;
 using Sims3.Store.Objects;
@@ -30,7 +29,6 @@ namespace Destrospean
 
         static CustomMassageTableOutfit()
         {
-            kInstantiator = false;
             sMassageTableOutfitDisabledList = new List<ulong>();
             sSimDescriptionDisposedListener = null;
             sSimSelectedListener = null;
@@ -117,7 +115,7 @@ namespace Destrospean
                 Actor.LoopIdle();
                 Actor.SynchronizationLevel = Sim.SyncLevel.Routed;
                 Actor.ClearExitReasons();
-                if (!Actor.WaitForSynchronizationLevelWithSim(mMasseuse, Sim.SyncLevel.Routed, 60f))
+                if (!Actor.WaitForSynchronizationLevelWithSim(mMasseuse, Sim.SyncLevel.Routed, 60))
                 {
                     return false;
                 }
@@ -229,7 +227,7 @@ namespace Destrospean
 
         public static void ChangeSimToTowelOutfit(Sim actor)
         {
-            if (!(actor.CurrentOutfitCategory == OutfitCategories.Singed || actor.Service is GrimReaper))
+            if (!(actor.CurrentOutfitCategory == OutfitCategories.Singed || actor.Service is Sims3.Gameplay.Services.GrimReaper))
             {
                 SimOutfit resultOutfit, simOutfit = null;
                 SimDescription simDescription = actor.SimDescription;
@@ -256,7 +254,7 @@ namespace Destrospean
 
         public static void ChangeSimToEverydayOutfit(Sim actor)
         {
-            if (!(actor.CurrentOutfitCategory == OutfitCategories.Singed || actor.Service is GrimReaper))
+            if (!(actor.CurrentOutfitCategory == OutfitCategories.Singed || actor.Service is Sims3.Gameplay.Services.GrimReaper))
             {
                 if (actor.CurrentOutfitCategory == OutfitCategories.SkinnyDippingTowel)
                 {

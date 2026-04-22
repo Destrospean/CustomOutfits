@@ -33,7 +33,6 @@ namespace Destrospean
 
         static CustomSkatingOutfit()
         {
-            kInstantiator = false;
             sSimSelectedListener = null;
             LoadSaveManager.ObjectGroupsPreLoad += OnPreLoad;
             World.sOnObjectPlacedInLotEventHandler += OnObjectPlacedInLot;

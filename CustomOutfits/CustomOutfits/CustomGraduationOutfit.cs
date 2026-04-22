@@ -45,7 +45,6 @@ namespace Destrospean
 
         static CustomGraduationOutfit()
         {
-            kInstantiator = false;
             sGraduationBusinessOutfitDisabledList = new List<ulong>();
             sGraduationCommOutfitDisabledList = new List<ulong>();
             sGraduationFineArtsOutfitDisabledList = new List<ulong>();

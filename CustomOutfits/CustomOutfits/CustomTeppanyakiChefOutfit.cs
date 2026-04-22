@@ -38,7 +38,6 @@ namespace Destrospean
 
         static CustomTeppanyakiChefOutfit()
         {
-            kInstantiator = false;
             sChefOutfitDisabledList = new List<ulong>();
             sSimDescriptionDisposedListener = null;
             sSimSelectedListener = null;
@@ -373,18 +372,18 @@ namespace Destrospean
                     uint eventId = evt.EventId;
                     switch (eventId)
                     {
-                        case 101u:
+                        case 101:
                             Target.SetGrillGeometryState("stage1");
                             return;
-                        case 102u:
+                        case 102:
                             Target.SetGrillGeometryState("stage2");
                             return;
-                        case 103u:
+                        case 103:
                             Target.SetGrillGeometryState("stage3");
                             return;
                         default:
                             {
-                                if (eventId != 200u)
+                                if (eventId != 200)
                                 {
                                     return;
                                 }
@@ -434,10 +433,10 @@ namespace Destrospean
                     foodProp.ActorsUsingMe.Add(Actor);
                 }
                 SetParameter("SkillLevel", Target.GetCookingSkillParameter(Actor));
-                AddOneShotScriptEventHandler(101u, new SacsEventHandler(OnAnimationEvent));
-                AddOneShotScriptEventHandler(102u, new SacsEventHandler(OnAnimationEvent));
-                AddOneShotScriptEventHandler(103u, new SacsEventHandler(OnAnimationEvent));
-                AddOneShotScriptEventHandler(200u, new SacsEventHandler(OnAnimationEvent));
+                AddOneShotScriptEventHandler(101, new SacsEventHandler(OnAnimationEvent));
+                AddOneShotScriptEventHandler(102, new SacsEventHandler(OnAnimationEvent));
+                AddOneShotScriptEventHandler(103, new SacsEventHandler(OnAnimationEvent));
+                AddOneShotScriptEventHandler(200, new SacsEventHandler(OnAnimationEvent));
                 mCurrentStateMachine.SetPropActor("FoodTray", foodTray.ObjectId);
                 if (Actor.CarryStateMachine == null)
                 {
@@ -473,7 +472,7 @@ namespace Destrospean
                 {
                     if (RandomUtil.RandomChance(TeppanyakiGrill.kPerformTrickWhileCookingChance))
                     {
-                        if (!((!RandomUtil.RandomChance(50f)) ? Target.DoEggTrick(this, "EggLoops", "EggSuccess") : Target.DoOnionVolcano(this, "OnionStart")))
+                        if (!((!RandomUtil.RandomChance(50)) ? Target.DoEggTrick(this, "EggLoops", "EggSuccess") : Target.DoOnionVolcano(this, "OnionStart")))
                         {
                             Target.mTrickFailed = true;
                         }

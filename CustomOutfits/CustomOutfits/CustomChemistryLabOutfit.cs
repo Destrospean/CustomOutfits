@@ -35,7 +35,6 @@ namespace Destrospean
 
         static CustomChemistryLabOutfit()
         {
-            kInstantiator = false;
             sChemistryLabOutfitDisabledList = new List<ulong>();
             sSimDescriptionDisposedListener = null;
             sSimSelectedListener = null;
@@ -101,9 +100,9 @@ namespace Destrospean
                     SetActor("childStool", mStool);
                 }
                 Target.SetGeometryState("InUse");
-                AddSynchronousOneShotScriptEventHandler(101u, StartEvent);
-                AddSynchronousOneShotScriptEventHandler(102u, FailEvent);
-                AddSynchronousOneShotScriptEventHandler(103u, FinishEvent);
+                AddSynchronousOneShotScriptEventHandler(101, StartEvent);
+                AddSynchronousOneShotScriptEventHandler(102, FailEvent);
+                AddSynchronousOneShotScriptEventHandler(103, FinishEvent);
                 BeginCommodityUpdates();
                 AnimateSim("MakePotionAtLab");
                 bool loopDone = DoLoop(ExitReason.Default, DiscoverPotionLoopCallback, mCurrentStateMachine, ChemistryLab.kMinutesPerDiceRoll);
@@ -205,7 +204,7 @@ namespace Destrospean
                     {
                         return;
                     }
-                    if (target.mPotionProgress > 0f && !target.IsActorUsingMe(actor))
+                    if (target.mPotionProgress > 0 && !target.IsActorUsingMe(actor))
                     {
                         results.Add(new InteractionObjectPair(new DefinitionModified(target.mCurrentPotionType, true), interaction.Target));
                         return;
@@ -281,7 +280,7 @@ namespace Destrospean
                 if (parameters.Autonomous)
                 {
                     ChemistryLab chemistryLab = parameters.Target as ChemistryLab;
-                    if (chemistryLab.mPotionProgress > 0f && !chemistryLab.IsActorUsingMe(parameters.Actor as Sim))
+                    if (chemistryLab.mPotionProgress > 0 && !chemistryLab.IsActorUsingMe(parameters.Actor as Sim))
                     {
                         definition.IsContinuation = true;
                     }
@@ -346,8 +345,8 @@ namespace Destrospean
                 }
                 SetActor("potionFlask", Target.mCreatedPotion);
                 Target.SetGeometryState("InUse");
-                AddSynchronousOneShotScriptEventHandler(101u, StartEvent);
-                AddSynchronousOneShotScriptEventHandler(103u, FinishEvent);
+                AddSynchronousOneShotScriptEventHandler(101, StartEvent);
+                AddSynchronousOneShotScriptEventHandler(103, FinishEvent);
                 BeginCommodityUpdates();
                 AnimateSim("MakePotionAtLab");
                 bool loopDone = DoLoop(ExitReason.Default, MakePotionLoopCallback, mCurrentStateMachine);
@@ -361,7 +360,7 @@ namespace Destrospean
                 else
                 {
                     AnimateSim("ExitCancel");
-                    if (Target.mPotionProgress > 0f)
+                    if (Target.mPotionProgress > 0)
                     {
                         Target.AddPlaceholderPotion();
                     }

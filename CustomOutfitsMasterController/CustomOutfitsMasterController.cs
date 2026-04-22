@@ -28,7 +28,6 @@ namespace Destrospean
 
         static CustomOutfitsMasterController()
         {
-            kInstantiator = false;
             LoadSaveManager.ObjectGroupsPreLoad += OnPreLoad;
         }
 
@@ -393,6 +392,35 @@ namespace Destrospean
             }
         }
 
+        public class EditSaunaOutfit : CustomSaunaOutfit.EditSaunaOutfit
+        {
+            public class DefinitionModified : ImmediateInteractionDefinition<Sim, GameObject, EditSaunaOutfit>
+            {
+                Definition mDefinitionBase = new Definition();
+
+                public override string GetInteractionName(Sim actor, GameObject target, InteractionObjectPair interaction)
+                {
+                    return mDefinitionBase.GetInteractionName(actor, target, interaction);
+                }
+
+                public override string[] GetPath(bool isFemale)
+                {
+                    return mDefinitionBase.GetPath(isFemale);
+                }
+
+                public override bool Test(Sim actor, GameObject target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
+                {
+                    return mDefinitionBase.Test(actor, target, isAutonomous, ref greyedOutTooltipCallback);
+                }
+            }
+
+            public override bool Run()
+            {
+                Actor.SimDescription.AddSpecialOutfit(new SimOutfit(Actor.SimDescription.GetOutfit(OutfitCategories.Swimwear, 0).Key), CustomSaunaOutfit.kSaunaSpecialOutfitKey);
+                return EditSpecialOutfit(Actor, sLocalizationKey, CustomSaunaOutfit.kSaunaSpecialOutfitKey);
+            }
+        }
+
         public class EditSingedOutfit : CustomSingedOutfit.EditSingedOutfit
         {
             public class DefinitionModified : ImmediateInteractionDefinition<Sim, GameObject, EditSingedOutfit>
@@ -537,15 +565,15 @@ namespace Destrospean
             simDescription.AddOutfit(simDescription.GetSpecialOutfit(specialOutfitKey), OutfitCategories.Everyday, 0);
             simDescription.RemoveSpecialOutfit(specialOutfitKey);
             actor.SwitchToOutfitWithoutSpin(OutfitCategories.Everyday, 0);
-            CASLogic cASLogic = CASLogic.GetSingleton();
+            CASLogic casLogic = CASLogic.GetSingleton();
             new Stylist().Perform(new GameHitParameters<GameObject>(actor, actor, GameObjectHit.NoHit));
-            cASLogic.ShowUI = (ShowUIDelegate)Delegate.Combine(cASLogic.ShowUI, new ShowUIDelegate(CustomOutfits.Common.OnShowUI));
-            // Common.Notify(Common.Localize(actor.IsFemale, localizationKey + "Warning", actor.Name), simDescription, StyledNotification.NotificationStyle.kSystemMessage);
+            casLogic.ShowUI += CustomOutfits.Common.OnShowUI;
+            //CustomOutfits.Common.Notify(CustomOutfits.Common.Localize(actor.IsFemale, localizationKey + "Warning", actor.Name), simDescription, StyledNotification.NotificationStyle.kSystemMessage);
             while (GameStates.NextInWorldStateId != 0)
             {
                 SpeedTrap.Sleep();
             }
-            cASLogic.ShowUI = (ShowUIDelegate)Delegate.Remove(cASLogic.ShowUI, new ShowUIDelegate(CustomOutfits.Common.OnShowUI));
+            casLogic.ShowUI += CustomOutfits.Common.OnShowUI;
             simDescription.AddSpecialOutfit(simDescription.GetOutfit(OutfitCategories.Everyday, 0), specialOutfitKey);
             simDescription.RemoveOutfit(OutfitCategories.Everyday, 0, true);
             actor.SwitchToOutfitWithoutSpin(previousOutfitCategory, previousOutfitIndex);
@@ -595,6 +623,7 @@ namespace Destrospean
             CustomHighSchoolGraduationOutfit.EditHighSchoolGraduationOutfit.Singleton = new EditHighSchoolGraduationOutfit.DefinitionModified();
             CustomMechanicalBullOutfit.EditMechanicalBullOutfit.Singleton = new EditMechanicalBullOutfit.DefinitionModified();
             CustomMassageTableOutfit.EditMassageTableOutfit.Singleton = new EditMassageTableOutfit.DefinitionModified();
+            CustomSaunaOutfit.EditSaunaOutfit.Singleton = new EditSaunaOutfit.DefinitionModified();
             CustomSingedOutfit.EditSingedOutfit.Singleton = new EditSingedOutfit.DefinitionModified();
             CustomSkatingOutfit.EditSkatingOutfit.Singleton = new EditSkatingOutfit.DefinitionModified();
             CustomTeppanyakiChefOutfit.EditChefOutfit.Singleton = new EditChefOutfit.DefinitionModified();

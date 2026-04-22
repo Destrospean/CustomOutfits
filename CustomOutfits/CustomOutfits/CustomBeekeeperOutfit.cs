@@ -32,7 +32,6 @@ namespace Destrospean
 
         static CustomBeekeeperOutfit()
         {
-            kInstantiator = false;
             sBeekeeperOutfitDisabledList = new List<ulong>();
             sSimDescriptionDisposedListener = null;
             sSimSelectedListener = null;
@@ -73,7 +72,7 @@ namespace Destrospean
                 {
                     if (Actor.HasExitReason(ExitReason.CanceledByScript))
                     {
-                        Target.mCleanlinessLevel = 100f;
+                        Target.mCleanlinessLevel = 100;
                     }
                     else if (alarmHandle != AlarmHandle.kInvalidHandle)
                     {
@@ -153,7 +152,7 @@ namespace Destrospean
                 {
                     if (Actor.HasExitReason(ExitReason.CanceledByScript))
                     {
-                        Target.mHungerLevel = 100f;
+                        Target.mHungerLevel = 100;
                     }
                     else if (alarmHandle != AlarmHandle.kInvalidHandle)
                     {
@@ -452,9 +451,9 @@ namespace Destrospean
                 instance.AnimateSim("Attack");
                 instance.mCurrentStateMachine.RemoveActor(actor);
                 actor.RequestWalkStyle(Sim.WalkStyle.OnFire);
-                actor.RouteAway(0.5f, 5f, true, new InteractionPriority(InteractionPriorityLevel.Fire), false, true, true, RouteDistancePreference.PreferFurthestFromRouteOrigin);
+                actor.RouteAway(.5f, 5, true, new InteractionPriority(InteractionPriorityLevel.Fire), false, true, true, RouteDistancePreference.PreferFurthestFromRouteOrigin);
                 target.mCurrentAttackTarget = actor;
-                target.mAttackEndingAlarm = actor.AddAlarmRepeating(3f, TimeUnit.Seconds, target.CheckForBeeAttackEnding, "BeekeepingBox.CheckForBeeAttackEnding", AlarmType.AlwaysPersisted);
+                target.mAttackEndingAlarm = actor.AddAlarmRepeating(3, TimeUnit.Seconds, target.CheckForBeeAttackEnding, "BeekeepingBox.CheckForBeeAttackEnding", AlarmType.AlwaysPersisted);
                 actor.BuffManager.AddElement(BuffNames.BeeAttack, Origin.FromBeingAttackedByBees);
                 result = false;
             }

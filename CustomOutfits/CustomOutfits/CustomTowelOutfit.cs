@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Destrospean.CustomOutfits;
-using MonoPatcherLib;
 using Sims3.Gameplay.Abstracts;
 using Sims3.Gameplay.Actors;
 using Sims3.Gameplay.ActorSystems;
@@ -31,7 +30,7 @@ namespace Destrospean
 
         static CustomTowelOutfit()
         {
-            kInstantiator = false;
+            Common.ReplaceMethod(typeof(SkinnyDipClothingPile).GetMethod("ChangeSimToTowelOutfit", (System.Reflection.BindingFlags)0x28), typeof(CustomTowelOutfit).GetMethod("ChangeSimToTowelOutfit"));
             sSimSelectedListener = null;
             World.sOnObjectPlacedInLotEventHandler += OnObjectPlacedInLot;
             World.sOnWorldLoadFinishedEventHandler += OnWorldLoadFinished;
@@ -157,7 +156,7 @@ namespace Destrospean
             }
         }
 
-        [ReplaceMethod(typeof(SkinnyDipClothingPile), "ChangeSimToTowelOutfit")]
+        //[ReplaceMethod(typeof(SkinnyDipClothingPile), "ChangeSimToTowelOutfit")]
         public static void ChangeSimToTowelOutfit(Sim actor)
         {
             SimDescription simDescription = actor.SimDescription;

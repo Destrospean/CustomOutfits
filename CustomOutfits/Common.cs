@@ -1,4 +1,5 @@
-﻿using Sims3.Gameplay;
+﻿using System;
+using Sims3.Gameplay;
 using Sims3.Gameplay.Actors;
 using Sims3.Gameplay.Autonomy;
 using Sims3.Gameplay.CAS;
@@ -7,13 +8,12 @@ using Sims3.SimIFace;
 using Sims3.SimIFace.CAS;
 using Sims3.UI;
 using Sims3.UI.CAS;
-using System;
 
 namespace Destrospean.CustomOutfits
 {
     public class Common
     {
-        internal static readonly string kLocalizationPath = "Destrospean/";
+        internal const string kLocalizationPath = "Destrospean/";
 
         public static void CopyTuning(Type baseType, Type oldType, Type newType)
         {
@@ -39,7 +39,7 @@ namespace Destrospean.CustomOutfits
             {
                 return simDescription.GetSpecialOutfit(specialOutfitKey).Key;
             }
-            ResourceKey key = OutfitUtils.ApplyUniformToOutfit(simDescription.GetOutfit(OutfitCategories.Everyday, 0), new SimOutfit(uniformKey), simDescription, "CreateAndAddTempOutfit");
+            ResourceKey key = OutfitUtils.ApplyUniformToOutfit(simDescription.GetOutfit(OutfitCategories.Everyday, 0), new SimOutfit(uniformKey), simDescription, "CreateAndAddSpecialOutfit");
             simDescription.AddSpecialOutfit(new SimOutfit(key), specialOutfitKey);
             return key;
         }
@@ -56,19 +56,19 @@ namespace Destrospean.CustomOutfits
             simDescription.AddOutfit(simDescription.GetSpecialOutfit(specialOutfitKey), OutfitCategories.Everyday, 0);
             simDescription.RemoveSpecialOutfit(specialOutfitKey);
             actor.SwitchToOutfitWithoutSpin(OutfitCategories.Everyday, 0);
-            CASLogic cASLogic = CASLogic.GetSingleton();
-            cASLogic.ShowUI = (ShowUIDelegate)Delegate.Combine(cASLogic.ShowUI, new ShowUIDelegate(OnShowUI));
-            cASLogic.UseTempSimDesc = true;
-            cASLogic.LoadSim(simDescription, actor.CurrentOutfitCategory, actor.CurrentOutfitIndex);
+            CASLogic casLogic = CASLogic.GetSingleton();
+            casLogic.ShowUI += OnShowUI;
+            casLogic.UseTempSimDesc = true;
+            casLogic.LoadSim(simDescription, actor.CurrentOutfitCategory, actor.CurrentOutfitIndex);
             CASChangeReporter.Instance.ClearChanges();
             GameStates.TransitionToCASStylistMode();
-            // Notify(Localize(actor.IsFemale, localizationKey + "Warning", actor.Name), simDescription, StyledNotification.NotificationStyle.kSystemMessage);
+            //Notify(Localize(actor.IsFemale, localizationKey + "Warning", actor.Name), simDescription, StyledNotification.NotificationStyle.kSystemMessage);
             while (GameStates.NextInWorldStateId != 0)
             {
-                Simulator.Sleep(0u);
+                Simulator.Sleep(0);
             }
             CASChangeReporter.Instance.SendChangedEvents(actor);
-            cASLogic.ShowUI = (ShowUIDelegate)Delegate.Remove(cASLogic.ShowUI, new ShowUIDelegate(OnShowUI));
+            casLogic.ShowUI -= OnShowUI;
             simDescription.AddSpecialOutfit(simDescription.GetOutfit(OutfitCategories.Everyday, 0), specialOutfitKey);
             simDescription.RemoveOutfit(OutfitCategories.Everyday, 0, true);
             actor.SwitchToOutfitWithoutSpin(previousOutfitCategory, previousOutfitIndex);
@@ -161,33 +161,47 @@ namespace Destrospean.CustomOutfits
             {
                 return;
             }
-            CASDresserSheet cASDresserSheet = CASDresserSheet.gSingleton;
-            if (cASDresserSheet == null || cASDresserSheet.mButtons == null)
+            CASDresserSheet casDresserSheet = CASDresserSheet.gSingleton;
+            if (casDresserSheet == null || casDresserSheet.mButtons == null)
             {
                 return;
             }
-            for (int i = 1; i < cASDresserSheet.mButtons.Length; i++)
+            for (int i = 1; i < casDresserSheet.mButtons.Length; i++)
             {
-                if (cASDresserSheet.mButtons[i] != null)
+                if (casDresserSheet.mButtons[i] != null)
                 {
-                    cASDresserSheet.mButtons[i].Visible = false;
+                    casDresserSheet.mButtons[i].Visible = false;
                 }
-                if (cASDresserSheet.mButtonText[i] != null)
+                if (casDresserSheet.mButtonText[i] != null)
                 {
-                    cASDresserSheet.mButtonText[i].Visible = false;
+                    casDresserSheet.mButtonText[i].Visible = false;
                 }
             }
-            CASDresserClothing cASDresserClothing = CASDresserClothing.gSingleton;
-            if (cASDresserClothing == null || cASDresserClothing.mOutfitButtons == null || cASDresserClothing.mDeleteOutfitButtons == null)
+            CASDresserClothing casDresserClothing = CASDresserClothing.gSingleton;
+            if (casDresserClothing == null || casDresserClothing.mOutfitButtons == null || casDresserClothing.mDeleteOutfitButtons == null)
             {
                 return;
             }
-            for (int i = 1; i < cASDresserClothing.mOutfitButtons.Length; i++)
+            for (int i = 1; i < casDresserClothing.mOutfitButtons.Length; i++)
             {
-                cASDresserClothing.mOutfitButtons[i].Visible = false;
-                cASDresserClothing.mDeleteOutfitButtons[i].Visible = false;
+                casDresserClothing.mOutfitButtons[i].Visible = false;
+                casDresserClothing.mDeleteOutfitButtons[i].Visible = false;
             }
-            cASDresserClothing.mAddOutfitButton.Visible = false;
+            casDresserClothing.mAddOutfitButton.Visible = false;
+        }
+
+        public static void ReplaceMethod(System.Reflection.MethodInfo oldMethod, System.Reflection.MethodInfo newMethod)
+        {
+            // This code was borrowed from Lazy Duchess' Mono Patcher
+            unsafe
+            {
+                IntPtr newMethodHandle = newMethod.MethodHandle.Value,
+                oldMethodHandle = oldMethod.MethodHandle.Value;
+                byte[] replacementByteArray = new byte[40];
+                System.Runtime.InteropServices.Marshal.Copy(newMethodHandle, replacementByteArray, 0, 40);
+                System.Runtime.InteropServices.Marshal.Copy(replacementByteArray, 0, oldMethodHandle, 24);
+                System.Runtime.InteropServices.Marshal.Copy(replacementByteArray, 28, new IntPtr(oldMethodHandle.ToInt32() + 28), 12);
+            }
         }
     }
 }

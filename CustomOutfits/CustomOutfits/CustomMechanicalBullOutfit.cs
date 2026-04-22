@@ -37,7 +37,6 @@ namespace Destrospean
 
         static CustomMechanicalBullOutfit()
         {
-            kInstantiator = false;
             sMechanicalBullOutfitDisabledList = new List<ulong>();
             sMechanicalBullSwimwearDisabledList = new List<ulong>();
             sSimDescriptionDisposedListener = null;
@@ -223,7 +222,7 @@ namespace Destrospean
                 }
                 if (GetMechanicalBullSwimwearEnabled(Actor.SimDescription) && (Actor.TraitManager.HasElement(TraitNames.Dramatic) || Actor.TraitManager.HasElement(TraitNames.Inappropriate)))
                 {
-                    float roll = RandomUtil.GetFloat(100f);
+                    float roll = RandomUtil.GetFloat(100);
                     if (roll < MechanicalBull.kSwimwearPercent)
                     {
                         changeClothesState = ChangeClothesState.Swimwear;
@@ -260,7 +259,7 @@ namespace Destrospean
                     {
                         mRideEnding = RideEndingState.EpicFail;
                     }
-                    mLengthOfRide = RandomUtil.GetFloat(MechanicalBull.kRideLength[(uint)mDifficulty]) * (1f + skillLevel / 10f);
+                    mLengthOfRide = RandomUtil.GetFloat(MechanicalBull.kRideLength[(uint)mDifficulty]) * (1 + skillLevel / 10f);
                     mLengthOfRide = Math.Min(mLengthOfRide, MechanicalBull.kRideLength[(uint)mDifficulty]);
                 }
                 else
@@ -284,13 +283,13 @@ namespace Destrospean
                 SetActor("x", Actor);
                 SetActor("Bull", Target);
                 EnterState("x", "Enter");
-                AddOneShotScriptEventHandler(1001u, StartAudioLoop);
-                AddOneShotScriptEventHandler(1002u, StopAudioLoop);
+                AddOneShotScriptEventHandler(1001, StartAudioLoop);
+                AddOneShotScriptEventHandler(1002, StopAudioLoop);
                 AnimateSim("ridebull");
                 BeginCommodityUpdates();
                 bool loopDone = DoLoop(ExitReason.Default, Loop, null);
                 ExitBull(loopDone);
-                Simulator.Sleep(1u);
+                Simulator.Sleep(1);
                 EndCommodityUpdates(loopDone);
                 if (changeClothesState != 0)
                 {

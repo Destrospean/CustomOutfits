@@ -35,7 +35,6 @@ namespace Destrospean
 
         static CustomHighSchoolGraduationOutfit()
         {
-            kInstantiator = false;
             sHighSchoolGraduationOutfitDisabledList = new List<ulong>();
             sSimDescriptionDisposedListener = null;
             sSimSelectedListener = null;

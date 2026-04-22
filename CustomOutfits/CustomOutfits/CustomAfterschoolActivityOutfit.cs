@@ -36,7 +36,6 @@ namespace Destrospean
 
         static CustomAfterschoolActivityOutfit()
         {
-            kInstantiator = false;
             sBalletOutfitDisabledList = new List<ulong>();
             sScoutsOutfitDisabledList = new List<ulong>();
             sSimDescriptionDisposedListener = null;
@@ -473,7 +472,7 @@ namespace Destrospean
                     return false;
                 }
                 Actor.SynchronizationLevel = Sim.SyncLevel.Started;
-                if (!Actor.WaitForSynchronizationLevelWithSim(Actor.SynchronizationTarget, Sim.SyncLevel.Started, 5f))
+                if (!Actor.WaitForSynchronizationLevelWithSim(Actor.SynchronizationTarget, Sim.SyncLevel.Started, 5))
                 {
                     FinishLinkedInteraction(IsMaster);
                     return false;
@@ -502,7 +501,7 @@ namespace Destrospean
                     return false;
                 }
                 Actor.SynchronizationLevel = Sim.SyncLevel.Routed;
-                if (!Actor.WaitForSynchronizationLevelWithSim(Actor.SynchronizationTarget, Sim.SyncLevel.Routed, 15f))
+                if (!Actor.WaitForSynchronizationLevelWithSim(Actor.SynchronizationTarget, Sim.SyncLevel.Routed, 15))
                 {
                     FinishLinkedInteraction(IsMaster);
                     return false;

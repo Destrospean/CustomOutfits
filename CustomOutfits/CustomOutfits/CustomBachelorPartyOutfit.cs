@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Destrospean.CustomOutfits;
-using MonoPatcherLib;
 using Sims3.Gameplay.Abstracts;
 using Sims3.Gameplay.Actors;
 using Sims3.Gameplay.ActorSystems;
@@ -46,7 +45,9 @@ namespace Destrospean
 
         static CustomBachelorPartyOutfit()
         {
-            kInstantiator = false;
+            Common.ReplaceMethod(typeof(BachelorParty).GetMethod("OnSprayedWithFizzyNectar", (System.Reflection.BindingFlags)0x18), typeof(BachelorPartyPatch).GetMethod("OnSprayedWithFizzyNectar"));
+            Common.ReplaceMethod(typeof(BachelorParty).GetMethod("PushSwitchOutfit", (System.Reflection.BindingFlags)0x24), typeof(BachelorPartyPatch).GetMethod("PushSwitchOutfit"));
+            Common.ReplaceMethod(typeof(BachelorParty).GetMethod("RemoveBachelorPartyEffects", (System.Reflection.BindingFlags)0x24), typeof(BachelorPartyPatch).GetMethod("RemoveBachelorPartyEffects"));
             sBachelorPartyGuestOutfitDisabledList = new List<ulong>();
             sBachelorPartyHostOutfitDisabledList = new List<ulong>();
             sBachelorPartyUnderwearDisabledList = new List<ulong>();
@@ -57,7 +58,7 @@ namespace Destrospean
             World.sOnWorldQuitEventHandler += OnWorldQuit;
         }
 
-        [TypePatch(typeof(BachelorParty))]
+        //[TypePatch(typeof(BachelorParty))]
         public class BachelorPartyPatch
         {
             public static void OnSprayedWithFizzyNectar(Sim actor)
@@ -75,7 +76,7 @@ namespace Destrospean
                 {
                     return;
                 }
-                BachelorParty self = (BachelorParty)(this as object);
+                BachelorParty self = (BachelorParty)(object)this;
                 if (actor == self.Host)
                 {
                     if (BachelorParty.CanSwitchIntoOutfit(actor.SimDescription) && GetBachelorPartyOutfitEnabled(actor.SimDescription, BachelorPartyOutfitTypes.Host))
@@ -103,7 +104,7 @@ namespace Destrospean
             public void RemoveBachelorPartyEffects(Sim actor)
             {
                 ActiveTopic.RemoveTopicFromSim(actor, "Bachelor Party");
-                ((BachelorParty)(this as object)).RemoveIncreasedEffectivenesses(actor);
+                ((BachelorParty)(object)this).RemoveIncreasedEffectivenesses(actor);
                 foreach (BachelorPartyOutfitTypes outfitType in Enum.GetValues(typeof(BachelorPartyOutfitTypes)))
                 {
                     if (actor.IsWearingSpecialOutfit(GetBachelorPartyOutfitName(actor, outfitType)))
@@ -466,13 +467,7 @@ namespace Destrospean
                 return null;
             }
             OutfitUtils.SetOutfit(simBuilder, resultOutfit, simDescription);
-            foreach (CASPart part in resultOutfit.Parts)
-            {
-                if (part.BodyType == BodyTypes.Freckles)
-                {
-                    simBuilder.RemovePart(part);
-                }
-            }
+            simBuilder.RemoveParts(BodyTypes.Freckles);
             foreach (CASPart part in simDescription.GetOutfit(OutfitCategories.Everyday, 0).Parts)
             {
                 if (part.BodyType == BodyTypes.Freckles)
