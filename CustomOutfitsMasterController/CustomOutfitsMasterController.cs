@@ -571,7 +571,7 @@ namespace Destrospean
             {
                 NRaas.SpeedTrap.Sleep();
             }
-            casLogic.ShowUI += Common.OnShowUI;
+            casLogic.ShowUI -= Common.OnShowUI;
             simDescription.AddSpecialOutfit(simDescription.GetOutfit(OutfitCategories.Everyday, 0), specialOutfitKey);
             simDescription.RemoveOutfit(OutfitCategories.Everyday, 0, true);
             actor.SwitchToOutfitWithoutSpin(previousOutfitCategory, previousOutfitIndex);

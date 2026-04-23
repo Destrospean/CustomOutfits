@@ -14,7 +14,7 @@ using Sims3.SimIFace;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("CustomOutfits")]
-[assembly: AssemblyCopyright("Copyright 2025")]
+[assembly: AssemblyCopyright("Copyright 2026")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: PersistableStatic]
