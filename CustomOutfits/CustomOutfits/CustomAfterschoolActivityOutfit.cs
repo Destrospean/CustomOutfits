@@ -511,7 +511,9 @@ namespace Destrospean
                 {
                     Skill skillForMoveType = GetSkillForMoveType(Actor, MoveType);
                     GetSkillLevelForActivity(Actor, skillForMoveType);
-                    string entryState = "", exitState = "", outfitName = "";
+                    string entryState = "",
+                    exitState = "",
+                    outfitName = "";
                     AfterschoolActivityType? afterschoolActivityType = null;
                     switch (skillForMoveType.Guid)
                     {
@@ -552,7 +554,7 @@ namespace Destrospean
                 else
                 {
                     float favorableReactionChance = GetFavorableReactionChance(Actor, Target);
-                    ReactionTypes reactionType = RandomUtil.RandomChance(favorableReactionChance) ? (RandomUtil.CoinFlip() ? ReactionTypes.Excited : ReactionTypes.Cheer) : (RandomUtil.CoinFlip() ? ReactionTypes.Bored : ReactionTypes.Awkward);
+                    ReactionTypes reactionType = RandomUtil.RandomChance(favorableReactionChance) ? RandomUtil.CoinFlip() ? ReactionTypes.Excited : ReactionTypes.Cheer : RandomUtil.CoinFlip() ? ReactionTypes.Bored : ReactionTypes.Awkward;
                     Actor.PlayReaction(reactionType, new InteractionPriority(InteractionPriorityLevel.High), Target, ReactionSpeed.AfterInteraction);
                 }
                 FinishLinkedInteraction(IsMaster);

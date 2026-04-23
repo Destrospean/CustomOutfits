@@ -789,7 +789,7 @@ namespace Destrospean
             {
                 bool canBeNaked = false;
                 object settings = woohooerAssembly.GetType("NRaas.Woohooer").GetProperty("Settings", BindingFlags.Public | BindingFlags.Static).GetValue(null, null);
-                if ((bool)settings.GetType().GetField("mNakedOutfitSaunaGeneral").GetValue(settings) || (forWoohoo && (bool)settings.GetType().GetField("mNakedOutfitSaunaWoohoo").GetValue(settings)))
+                if ((bool)settings.GetType().GetField("mNakedOutfitSaunaGeneral").GetValue(settings) || forWoohoo && (bool)settings.GetType().GetField("mNakedOutfitSaunaWoohoo").GetValue(settings))
                 {
                     if (sitPosture.Sim.SimDescription.Teen)
                     {

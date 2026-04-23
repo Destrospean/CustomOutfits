@@ -156,7 +156,6 @@ namespace Destrospean
             }
         }
 
-        //[ReplaceMethod(typeof(SkinnyDipClothingPile), "ChangeSimToTowelOutfit")]
         public static void ChangeSimToTowelOutfit(Sim actor)
         {
             SimDescription simDescription = actor.SimDescription;

@@ -58,7 +58,6 @@ namespace Destrospean
             World.sOnWorldQuitEventHandler += OnWorldQuit;
         }
 
-        //[TypePatch(typeof(BachelorParty))]
         public class BachelorPartyPatch
         {
             public static void OnSprayedWithFizzyNectar(Sim actor)
@@ -660,9 +659,9 @@ namespace Destrospean
         public static void PushSwitchFromBachelorPartyOutfitInteraction(Sim actor, BachelorPartyOutfitTypes outfitType, OutfitCategories destinationCategory)
         {
             SwitchToBachelorPartyOutfit switchToBachelorPartyOutfit = SwitchToBachelorPartyOutfit.Singleton.CreateInstanceWithCallbacks(actor, actor, new InteractionPriority(InteractionPriorityLevel.Zero), false, false, null, null, delegate
-            {
-                actor.SwitchToOutfitWithoutSpin(destinationCategory);
-            }) as SwitchToBachelorPartyOutfit;
+                {
+                    actor.SwitchToOutfitWithoutSpin(destinationCategory);
+                }) as SwitchToBachelorPartyOutfit;
             switchToBachelorPartyOutfit.Hidden = true;
             switchToBachelorPartyOutfit.IsRemove = true;
             switchToBachelorPartyOutfit.MustRun = true;

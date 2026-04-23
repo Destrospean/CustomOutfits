@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using NRaas;
-using NRaas.CommonSpace.Options;
-using NRaas.MasterControllerSpace.Sims;
+using Destrospean.CustomOutfits;
 using Sims3.Gameplay;
 using Sims3.Gameplay.Abstracts;
 using Sims3.Gameplay.Academics;
@@ -70,14 +68,14 @@ namespace Destrospean
 
                 public override string GetInteractionName(Sim actor, GameObject target, InteractionObjectPair interaction)
                 {
-                    return CustomOutfits.Common.Localize(actor.IsFemale, GetLocalizationKey(mAfterschoolActivityType) + "InteractionName");
+                    return Common.Localize(actor.IsFemale, GetLocalizationKey(mAfterschoolActivityType) + "InteractionName");
                 }
 
                 public override string[] GetPath(bool isFemale)
                 {
                     return new string[]
                     {
-                        CustomOutfits.Common.Localize(isFemale, GetLocalizationKey(mAfterschoolActivityType) + "Path")
+                        Common.Localize(isFemale, GetLocalizationKey(mAfterschoolActivityType) + "Path")
                     };
                 }
 
@@ -127,15 +125,15 @@ namespace Destrospean
 
                 public override string GetInteractionName(Sim actor, GameObject target, InteractionObjectPair interaction)
                 {
-                    return CustomOutfits.Common.Localize(actor.IsFemale, GetLocalizationKey(mOutfitType) + "InteractionName");
+                    return Common.Localize(actor.IsFemale, GetLocalizationKey(mOutfitType) + "InteractionName");
                 }
 
                 public override string[] GetPath(bool isFemale)
                 {
                     return new string[]
                     {
-                        CustomOutfits.Common.Localize(isFemale, GetLocalizationKey(mOutfitType) + "Path0"),
-                        CustomOutfits.Common.Localize(isFemale, GetLocalizationKey(mOutfitType) + "Path1")
+                        Common.Localize(isFemale, GetLocalizationKey(mOutfitType) + "Path0"),
+                        Common.Localize(isFemale, GetLocalizationKey(mOutfitType) + "Path1")
                     };
                 }
 
@@ -283,15 +281,15 @@ namespace Destrospean
 
                 public override string GetInteractionName(Sim actor, GameObject target, InteractionObjectPair interaction)
                 {
-                    return CustomOutfits.Common.Localize(actor.IsFemale, GetLocalizationKey(mAcademicDegreeName) + "InteractionName");
+                    return Common.Localize(actor.IsFemale, GetLocalizationKey(mAcademicDegreeName) + "InteractionName");
                 }
 
                 public override string[] GetPath(bool isFemale)
                 {
                     return new string[]
                     {
-                        CustomOutfits.Common.Localize(isFemale, GetLocalizationKey(mAcademicDegreeName) + "Path0"),
-                        CustomOutfits.Common.Localize(isFemale, GetLocalizationKey(mAcademicDegreeName) + "Path1")
+                        Common.Localize(isFemale, GetLocalizationKey(mAcademicDegreeName) + "Path0"),
+                        Common.Localize(isFemale, GetLocalizationKey(mAcademicDegreeName) + "Path1")
                     };
                 }
 
@@ -486,15 +484,15 @@ namespace Destrospean
 
                 public override string GetInteractionName(Sim actor, GameObject target, InteractionObjectPair interaction)
                 {
-                    return CustomOutfits.Common.Localize(actor.IsFemale, GetLocalizationKey(mSkatingType) + "InteractionName");
+                    return Common.Localize(actor.IsFemale, GetLocalizationKey(mSkatingType) + "InteractionName");
                 }
 
                 public override string[] GetPath(bool isFemale)
                 {
                     return new string[]
                     {
-                        CustomOutfits.Common.Localize(isFemale, GetLocalizationKey(mSkatingType) + "Path0"),
-                        CustomOutfits.Common.Localize(isFemale, GetLocalizationKey(mSkatingType) + "Path1")
+                        Common.Localize(isFemale, GetLocalizationKey(mSkatingType) + "Path0"),
+                        Common.Localize(isFemale, GetLocalizationKey(mSkatingType) + "Path1")
                     };
                 }
 
@@ -566,20 +564,20 @@ namespace Destrospean
             simDescription.RemoveSpecialOutfit(specialOutfitKey);
             actor.SwitchToOutfitWithoutSpin(OutfitCategories.Everyday, 0);
             CASLogic casLogic = CASLogic.GetSingleton();
-            new Stylist().Perform(new GameHitParameters<GameObject>(actor, actor, GameObjectHit.NoHit));
-            casLogic.ShowUI += CustomOutfits.Common.OnShowUI;
-            //CustomOutfits.Common.Notify(CustomOutfits.Common.Localize(actor.IsFemale, localizationKey + "Warning", actor.Name), simDescription, StyledNotification.NotificationStyle.kSystemMessage);
+            new NRaas.MasterControllerSpace.Sims.Stylist().Perform(new NRaas.CommonSpace.Options.GameHitParameters<GameObject>(actor, actor, GameObjectHit.NoHit));
+            casLogic.ShowUI += Common.OnShowUI;
+            //Common.Notify(Common.Localize(actor.IsFemale, localizationKey + "Warning", actor.Name), simDescription, StyledNotification.NotificationStyle.kSystemMessage);
             while (GameStates.NextInWorldStateId != 0)
             {
-                SpeedTrap.Sleep();
+                NRaas.SpeedTrap.Sleep();
             }
-            casLogic.ShowUI += CustomOutfits.Common.OnShowUI;
+            casLogic.ShowUI += Common.OnShowUI;
             simDescription.AddSpecialOutfit(simDescription.GetOutfit(OutfitCategories.Everyday, 0), specialOutfitKey);
             simDescription.RemoveOutfit(OutfitCategories.Everyday, 0, true);
             actor.SwitchToOutfitWithoutSpin(previousOutfitCategory, previousOutfitIndex);
             if (!CASChangeReporter.Instance.CasCancelled)
             {
-                CustomOutfits.Common.Notify(CustomOutfits.Common.Localize(actor.IsFemale, localizationKey + "Feedback", actor.Name), simDescription, StyledNotification.NotificationStyle.kSystemMessage);
+                Common.Notify(Common.Localize(actor.IsFemale, localizationKey + "Feedback", actor.Name), simDescription, StyledNotification.NotificationStyle.kSystemMessage);
             }
             return true;
         }
