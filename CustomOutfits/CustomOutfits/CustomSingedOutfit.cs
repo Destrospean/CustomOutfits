@@ -225,12 +225,12 @@ namespace Destrospean
 
         static void OnWorldLoadFinished(object sender, EventArgs e)
         {
-            UpdateListeners();
-            new List<Dresser>(Sims3.Gameplay.Queries.GetObjects<Dresser>()).ForEach(AddInteractions);
+            Array.ForEach(Sims3.Gameplay.Queries.GetObjects<Dresser>(), AddInteractions);
             if (Household.ActiveHousehold != null)
             {
                 Household.ActiveHousehold.Sims.ForEach(AddInteractions);
             }
+            sSimSelectedListener = EventTracker.AddListener(EventTypeId.kEventSimSelected, OnSimSelected);
         }
 
         static void OnWorldQuit(object sender, EventArgs e)
@@ -239,7 +239,6 @@ namespace Destrospean
             sSimSelectedListener = null;
         }
 
-        //[ReplaceMethod(typeof(BuffSinged), "SetupSingedOutfit")]
         public static void SetupSingedOutfit(Sim actor)
         {
             SimDescription simDescription = actor.SimDescription;
@@ -252,16 +251,6 @@ namespace Destrospean
                     simDescription.AddOutfit(simOutfit, OutfitCategories.Singed, true);
                 }
             }
-        }
-
-        static void UpdateListeners()
-        {
-            if (sSimSelectedListener != null)
-            {
-                EventTracker.RemoveListener(sSimSelectedListener);
-                sSimSelectedListener = null;
-            }
-            sSimSelectedListener = EventTracker.AddListener(EventTypeId.kEventSimSelected, OnSimSelected);
         }
     }
 }

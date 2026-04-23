@@ -239,29 +239,19 @@ namespace Destrospean
 
         static void OnWorldLoadFinished(object sender, EventArgs e)
         {
-            UpdateListeners();
-            new List<HotTubBase>(Sims3.Gameplay.Queries.GetObjects<HotTubBase>()).ForEach(AddInteractions);
-            new List<Terrain>(Sims3.Gameplay.Queries.GetObjects<Terrain>()).ForEach(AddInteractions);
+            Array.ForEach(Sims3.Gameplay.Queries.GetObjects<HotTubBase>(), AddInteractions);
+            Array.ForEach(Sims3.Gameplay.Queries.GetObjects<Terrain>(), AddInteractions);
             if (Household.ActiveHousehold != null)
             {
                 Household.ActiveHousehold.Sims.ForEach(AddInteractions);
             }
+            sSimSelectedListener = EventTracker.AddListener(EventTypeId.kEventSimSelected, OnSimSelected);
         }
 
         static void OnWorldQuit(object sender, EventArgs e)
         {
             EventTracker.RemoveListener(sSimSelectedListener);
             sSimSelectedListener = null;
-        }
-
-        static void UpdateListeners()
-        {
-            if (sSimSelectedListener != null)
-            {
-                EventTracker.RemoveListener(sSimSelectedListener);
-                sSimSelectedListener = null;
-            }
-            sSimSelectedListener = EventTracker.AddListener(EventTypeId.kEventSimSelected, OnSimSelected);
         }
     }
 }

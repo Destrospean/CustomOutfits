@@ -579,12 +579,13 @@ namespace Destrospean
 
         static void OnWorldLoadFinished(object sender, EventArgs e)
         {
-            UpdateListeners();
-            new List<ChemistryLab>(Sims3.Gameplay.Queries.GetObjects<ChemistryLab>()).ForEach(AddInteractions);
+            Array.ForEach(Sims3.Gameplay.Queries.GetObjects<ChemistryLab>(), AddInteractions);
             if (Household.ActiveHousehold != null)
             {
                 Household.ActiveHousehold.Sims.ForEach(AddInteractions);
             }
+            sSimDescriptionDisposedListener = EventTracker.AddListener(EventTypeId.kSimDescriptionDisposed, OnSimDescriptionDisposed);
+            sSimSelectedListener = EventTracker.AddListener(EventTypeId.kEventSimSelected, OnSimSelected);
         }
 
         static void OnWorldQuit(object sender, EventArgs e)
@@ -593,22 +594,6 @@ namespace Destrospean
             EventTracker.RemoveListener(sSimSelectedListener);
             sSimDescriptionDisposedListener = null;
             sSimSelectedListener = null;
-        }
-
-        static void UpdateListeners()
-        {
-            if (sSimDescriptionDisposedListener != null)
-            {
-                EventTracker.RemoveListener(sSimDescriptionDisposedListener);
-                sSimDescriptionDisposedListener = null;
-            }
-            if (sSimSelectedListener != null)
-            {
-                EventTracker.RemoveListener(sSimSelectedListener);
-                sSimSelectedListener = null;
-            }
-            sSimDescriptionDisposedListener = EventTracker.AddListener(EventTypeId.kSimDescriptionDisposed, OnSimDescriptionDisposed);
-            sSimSelectedListener = EventTracker.AddListener(EventTypeId.kEventSimSelected, OnSimSelected);
         }
     }
 }
