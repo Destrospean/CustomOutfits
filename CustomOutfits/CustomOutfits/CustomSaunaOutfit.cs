@@ -12,6 +12,7 @@ using Sims3.Gameplay.Interactions;
 using Sims3.Gameplay.InteractionsShared;
 using Sims3.Gameplay.ObjectComponents;
 using Sims3.Gameplay.Objects.Seating;
+using Sims3.Gameplay.Socializing;
 using Sims3.SimIFace;
 using Sims3.SimIFace.CAS;
 using Sims3.Store.Objects;
@@ -37,7 +38,7 @@ namespace Destrospean
             Assembly woohooerAssembly, woohooerSaunaAssembly;
             if (TryGetWoohooerSaunaAssemblies(out woohooerAssembly, out woohooerSaunaAssembly))
             {
-                Common.ReplaceMethod(woohooerSaunaAssembly.GetType("NRaas.WoohooerSpace.Helpers.SaunaClassicEx").GetMethod("StateMachineEnterAndSit", BindingFlags.Public | BindingFlags.Static), typeof(CustomSaunaOutfit).GetMethod("StateMachineEnterAndSit0", BindingFlags.Public | BindingFlags.Static));
+                Common.ReplaceMethod(woohooerSaunaAssembly.GetType("NRaas.WoohooerSpace.Helpers.SaunaClassicEx").GetMethod("StateMachineEnterAndSit", BindingFlags.Public | BindingFlags.Static), typeof(CustomSaunaOutfit).GetMethod("StateMachineEnterAndSitEx", BindingFlags.Public | BindingFlags.Static));
             }
             sSaunaOutfitDisabledList = new List<ulong>();
             sSimDescriptionDisposedListener = null;
@@ -50,15 +51,21 @@ namespace Destrospean
 
         public class BatheInWater : Interaction<Sim, SaunaClassic>
         {
+            public ObjectGuid mDuckyGuid;
+
+            public static InteractionDefinition MudSingleton = new DefinitionModified(DefinitionModified.BathType.Mud);
+
+            public static InteractionDefinition WaterSingleton = new DefinitionModified(DefinitionModified.BathType.Water);
+
             public class DefinitionModified : InteractionDefinition<Sim, SaunaClassic, BatheInWater>
             {
+                public BathType mBathType;
+
                 public enum BathType
                 {
                     Water,
                     Mud
                 }
-
-                public BathType mBathType;
 
                 public DefinitionModified()
                 {
@@ -69,29 +76,7 @@ namespace Destrospean
                     mBathType = bathType;
                 }
 
-                public override bool Test(Sim a, SaunaClassic target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
-                {
-                    if (isAutonomous && a.HasTrait(TraitNames.Hydrophobic))
-                    {
-                        return false;
-                    }
-                    if (isAutonomous && a.OccultManager.HasOccultType(Sims3.UI.Hud.OccultTypes.Frankenstein))
-                    {
-                        return false;
-                    }
-                    if (a.SimDescription.IsVisuallyPregnant)
-                    {
-                        return false;
-                    }
-                    if (target.mSimInTub != null)
-                    {
-                        greyedOutTooltipCallback = () => SaunaClassic.LocalizeString(a.IsFemale, "InUse");
-                        return false;
-                    }
-                    return true;
-                }
-
-                public override string GetInteractionName(Sim actor, SaunaClassic target, InteractionObjectPair iop)
+                public override string GetInteractionName(Sim actor, SaunaClassic target, InteractionObjectPair interaction)
                 {
                     string name = "BatheInWater";
                     if (mBathType == BathType.Mud)
@@ -100,23 +85,101 @@ namespace Destrospean
                     }
                     return SaunaClassic.LocalizeString(actor.IsFemale, name, actor);
                 }
+
+                public override bool Test(Sim actor, SaunaClassic target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
+                {
+                    if (isAutonomous && actor.HasTrait(TraitNames.Hydrophobic))
+                    {
+                        return false;
+                    }
+                    if (isAutonomous && actor.OccultManager.HasOccultType(Sims3.UI.Hud.OccultTypes.Frankenstein))
+                    {
+                        return false;
+                    }
+                    if (actor.SimDescription.IsVisuallyPregnant)
+                    {
+                        return false;
+                    }
+                    if (target.mSimInTub != null)
+                    {
+                        greyedOutTooltipCallback = () => SaunaClassic.LocalizeString(actor.IsFemale, "InUse");
+                        return false;
+                    }
+                    return true;
+                }
             }
 
-            public static InteractionDefinition MudSingleton = new DefinitionModified(DefinitionModified.BathType.Mud);
+            public override void AddExcludedDreams(ICollection<Sims3.Gameplay.DreamsAndPromises.DreamNames> excludedDreams)
+            {
+                base.AddExcludedDreams(excludedDreams);
+                AddExcludedDream(Sims3.Gameplay.DreamsAndPromises.DreamNames.bathe);
+            }
 
-            public static InteractionDefinition WaterSingleton = new DefinitionModified(DefinitionModified.BathType.Water);
-
-            public ObjectGuid mDuckyGuid;
+            public override void Cleanup()
+            {
+                GameObject gameObject = GameObject.GetObject(mDuckyGuid);
+                if (gameObject != null)
+                {
+                    gameObject.SetOpacity(0, 0);
+                    gameObject.UnParent();
+                    gameObject.Destroy();
+                }
+                Actor.BuffManager.UnpauseBuff(11132721365296021523);
+                Actor.BuffManager.UnpauseBuff(11132721365296021524);
+                base.Cleanup();
+            }
 
             public override void ConfigureInteraction()
             {
-                TimedStage timedStage = new TimedStage(GetInteractionName(), SaunaClassic.kBathLengthInMinutes, false, true, true);
-                base.Stages = new List<Stage>(new Stage[1] { timedStage });
+                base.Stages = new List<Stage>(new Stage[]
+                    {
+                        new TimedStage(GetInteractionName(), SaunaClassic.kBathLengthInMinutes, false, true, true)
+                    });
+            }
+
+            public void LoopUpdate(StateMachineClient smc, LoopData loopData)
+            {
+                EventTracker.SendEvent(EventTypeId.kEventTakeBath, Actor, Target);
+                if (Actor.SimDescription.IsRobot)
+                {
+                    Actor.AddExitReason(ExitReason.CanceledByScript);
+                    return;
+                }
+                if (Actor.HasGroupTalk && Actor.GroupTalkMembers.Count > 1 && Actor.DoGroupTalk(null, null, true))
+                {
+                    foreach (Sim item in Target.ActorsUsingMe)
+                    {
+                        if (item != Actor)
+                        {
+                            Relationship relationship = Actor.GetRelationship(item, true);
+                            relationship.LTR.UpdateLiking(SaunaClassic.kGroupChatRelationshipBump);
+                            SocialComponent.SetSocialFeedbackForActorAndTarget(CommodityTypes.Friendly, Actor, item, true, 0, Sims3.UI.Controller.LongTermRelationshipTypes.Undefined, Sims3.UI.Controller.LongTermRelationshipTypes.Undefined);
+                        }
+                        if (item.Motives.HasMotive(CommodityKind.Social))
+                        {
+                            item.Motives.ChangeValue(CommodityKind.Social, SaunaClassic.kGroupChatSocialBump);
+                        }
+                    }
+                }
+                DefinitionModified definition = base.InteractionDefinition as DefinitionModified;
+                if (definition != null && loopData.mLifeTime > SaunaClassic.kBathDurationToRemoveFatigue)
+                {
+                    Actor.BuffManager.RemoveElement(BuffNames.Fatigued);
+                    Actor.BuffManager.RemoveElement(BuffNames.Sore);
+                    if (definition.mBathType == DefinitionModified.BathType.Water)
+                    {
+                        Actor.BuffManager.AddElementPaused((BuffNames)11132721365296021523, Origin.FromBath);
+                    }
+                    if (definition.mBathType == DefinitionModified.BathType.Mud)
+                    {
+                        Actor.BuffManager.AddElementPaused((BuffNames)11132721365296021524, Origin.FromBath);
+                    }
+                }
             }
 
             public override bool Run()
             {
-                Slot[] slots = new Slot[2]
+                Slot[] slots = new Slot[]
                     {
                         Slot.RoutingSlot_4,
                         Slot.RoutingSlot_6
@@ -172,11 +235,11 @@ namespace Destrospean
                     SetParameter("IsMirrored", false);
                 }
                 mDuckyGuid = Sims3.Gameplay.GlobalFunctions.CreateProp("RubberDucky", ProductVersion.BaseGame, Vector3.OutOfWorld, 0, Vector3.UnitZ);
-                GameObject @object = GameObject.GetObject(mDuckyGuid);
-                if (@object != null)
+                GameObject gameObject = GameObject.GetObject(mDuckyGuid);
+                if (gameObject != null)
                 {
-                    @object.AddToUseList(Actor);
-                    SetActor("ducky", @object);
+                    gameObject.AddToUseList(Actor);
+                    SetActor("ducky", gameObject);
                 }
                 BeginCommodityUpdates();
                 Actor.RegisterGroupTalk();
@@ -205,8 +268,8 @@ namespace Destrospean
                 {
                     Actor.BuffManager.AddElement(BuffNames.DuckTimeFun, Origin.FromBath);
                 }
-                bool flag = true;
-                EndCommodityUpdates(flag);
+                bool succeeded = true;
+                EndCommodityUpdates(succeeded);
                 AnimateSim("SimExit");
                 Actor.SwitchToOutfitWithSpin(Sim.ClothesChangeReason.GettingOutOfBath);
                 if (Target.mSimInTub == Actor)
@@ -218,67 +281,7 @@ namespace Destrospean
                 {
                     OccultFrankenstein.PushFrankensteinShortOut(Actor);
                 }
-                return flag;
-            }
-
-            public void LoopUpdate(StateMachineClient smc, LoopData loopData)
-            {
-                EventTracker.SendEvent(EventTypeId.kEventTakeBath, Actor, Target);
-                if (Actor.SimDescription.IsRobot)
-                {
-                    Actor.AddExitReason(ExitReason.CanceledByScript);
-                    return;
-                }
-                if (Actor.HasGroupTalk && Actor.GroupTalkMembers.Count > 1 && Actor.DoGroupTalk(null, null, true))
-                {
-                    foreach (Sim item in Target.ActorsUsingMe)
-                    {
-                        if (item != Actor)
-                        {
-                            Sims3.Gameplay.Socializing.Relationship relationship = Actor.GetRelationship(item, true);
-                            relationship.LTR.UpdateLiking(SaunaClassic.kGroupChatRelationshipBump);
-                            Sims3.Gameplay.Socializing.SocialComponent.SetSocialFeedbackForActorAndTarget(Sims3.Gameplay.Socializing.CommodityTypes.Friendly, Actor, item, true, 0, Sims3.UI.Controller.LongTermRelationshipTypes.Undefined, Sims3.UI.Controller.LongTermRelationshipTypes.Undefined);
-                        }
-                        if (item.Motives.HasMotive(CommodityKind.Social))
-                        {
-                            item.Motives.ChangeValue(CommodityKind.Social, SaunaClassic.kGroupChatSocialBump);
-                        }
-                    }
-                }
-                DefinitionModified definition = base.InteractionDefinition as DefinitionModified;
-                if (definition != null && loopData.mLifeTime > SaunaClassic.kBathDurationToRemoveFatigue)
-                {
-                    Actor.BuffManager.RemoveElement(BuffNames.Fatigued);
-                    Actor.BuffManager.RemoveElement(BuffNames.Sore);
-                    if (definition.mBathType == DefinitionModified.BathType.Water)
-                    {
-                        Actor.BuffManager.AddElementPaused((BuffNames)11132721365296021523uL, Origin.FromBath);
-                    }
-                    if (definition.mBathType == DefinitionModified.BathType.Mud)
-                    {
-                        Actor.BuffManager.AddElementPaused((BuffNames)11132721365296021524uL, Origin.FromBath);
-                    }
-                }
-            }
-
-            public override void Cleanup()
-            {
-                GameObject @object = GameObject.GetObject(mDuckyGuid);
-                if (@object != null)
-                {
-                    @object.SetOpacity(0f, 0f);
-                    @object.UnParent();
-                    @object.Destroy();
-                }
-                Actor.BuffManager.UnpauseBuff(11132721365296021523uL);
-                Actor.BuffManager.UnpauseBuff(11132721365296021524uL);
-                base.Cleanup();
-            }
-
-            public override void AddExcludedDreams(ICollection<Sims3.Gameplay.DreamsAndPromises.DreamNames> excludedDreams)
-            {
-                base.AddExcludedDreams(excludedDreams);
-                AddExcludedDream(Sims3.Gameplay.DreamsAndPromises.DreamNames.bathe);
+                return succeeded;
             }
         }
 
@@ -318,26 +321,30 @@ namespace Destrospean
 
         public class MakeSteam : Interaction<Sim, SaunaClassic>
         {
+            public const int mSteamyStoneTrigger = 900;
+
+            public static InteractionDefinition Singleton = new DefinitionModified();
+
             public class DefinitionModified : InteractionDefinition<Sim, SaunaClassic, MakeSteam>
             {
-                public override bool Test(Sim actor, SaunaClassic target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
-                {
-                    if (actor.SimDescription.IsVisuallyPregnant)
-                    {
-                        return false;
-                    }
-                    return true;
-                }
-
                 public override string GetInteractionName(Sim actor, SaunaClassic target, InteractionObjectPair interaction)
                 {
                     return SaunaClassic.LocalizeString(actor.IsFemale, "MakeSteam", actor);
                 }
+
+                public override bool Test(Sim actor, SaunaClassic target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
+                {
+                    return !actor.SimDescription.IsVisuallyPregnant;
+                }
             }
 
-            public const int mSteamyStoneTrigger = 900;
-
-            public static InteractionDefinition Singleton = new DefinitionModified();
+            public void OnAnimationEvent(StateMachineClient smc, IEvent evt)
+            {
+                if (evt.EventId == mSteamyStoneTrigger)
+                {
+                    Target.StartStonesSteamFX();
+                }
+            }
 
             public override bool Run()
             {
@@ -358,11 +365,11 @@ namespace Destrospean
                 }
                 StandardEntry();
                 EnterStateMachine("Sauna_store", "SimEnter", "x", "saunaX");
-                AddOneShotScriptEventHandler(900u, OnAnimationEvent);
+                AddOneShotScriptEventHandler(mSteamyStoneTrigger, OnAnimationEvent);
                 BeginCommodityUpdates();
                 AnimateSim("PourWater");
-                bool flag = true;
-                EndCommodityUpdates(flag);
+                bool succeeded = true;
+                EndCommodityUpdates(succeeded);
                 AnimateSim("SimExit");
                 List<Sim> simsInFootprint = Target.GetSimsInFootprint();
                 foreach (Sim item in simsInFootprint)
@@ -384,17 +391,17 @@ namespace Destrospean
                     {
                         if (Actor.ShouldDoGroupTalk() && Actor.DoGroupTalk(null, null, true))
                         {
-                            foreach (Sim actorUsingMe in Target.ActorsUsingMe)
+                            foreach (Sim item in Target.ActorsUsingMe)
                             {
-                                if (actorUsingMe != Actor)
+                                if (item != Actor)
                                 {
-                                    Sims3.Gameplay.Socializing.Relationship relationship = Actor.GetRelationship(actorUsingMe, true);
+                                    Relationship relationship = Actor.GetRelationship(item, true);
                                     relationship.LTR.UpdateLiking(SaunaClassic.kGroupChatRelationshipBump);
-                                    Sims3.Gameplay.Socializing.SocialComponent.SetSocialFeedbackForActorAndTarget(Sims3.Gameplay.Socializing.CommodityTypes.Friendly, Actor, actorUsingMe, true, 0, Sims3.UI.Controller.LongTermRelationshipTypes.Undefined, Sims3.UI.Controller.LongTermRelationshipTypes.Undefined);
+                                    SocialComponent.SetSocialFeedbackForActorAndTarget(CommodityTypes.Friendly, Actor, item, true, 0, Sims3.UI.Controller.LongTermRelationshipTypes.Undefined, Sims3.UI.Controller.LongTermRelationshipTypes.Undefined);
                                 }
-                                if (actorUsingMe.Motives.HasMotive(CommodityKind.Social))
+                                if (item.Motives.HasMotive(CommodityKind.Social))
                                 {
-                                    actorUsingMe.Motives.ChangeValue(CommodityKind.Social, SaunaClassic.kGroupChatSocialBump);
+                                    item.Motives.ChangeValue(CommodityKind.Social, SaunaClassic.kGroupChatSocialBump);
                                 }
                             }
                         }
@@ -410,20 +417,7 @@ namespace Destrospean
                         Actor.InteractionQueue.Add(Singleton.CreateInstance(Target, Actor, Actor.InheritedPriority(), base.Autonomous, true));
                     }
                 }
-                return flag;
-            }
-
-            public void OnAnimationEvent(StateMachineClient smc, IEvent evt)
-            {
-                if (evt.EventId == 900)
-                {
-                    Target.StartStonesSteamFX();
-                }
-            }
-
-            public override void Cleanup()
-            {
-                base.Cleanup();
+                return succeeded;
             }
         }
 
@@ -464,6 +458,10 @@ namespace Destrospean
 
         public class SaunaSit : Sit
         {
+            public bool mCompleted, mIsMaster;
+
+            public new static InteractionDefinition Singleton = new DefinitionModified();
+
             public class DefinitionModified : Sit.Definition
             {
                 public DefinitionModified()
@@ -477,17 +475,11 @@ namespace Destrospean
                     return interactionInstance;
                 }
 
-                public override string GetInteractionName(Sim actor, GameObject target, InteractionObjectPair iop)
+                public override string GetInteractionName(Sim actor, GameObject target, InteractionObjectPair interaction)
                 {
                     return base.GetInteractionName(actor, target, new InteractionObjectPair(Sit.Singleton, target));
                 }
             }
-
-            public new static InteractionDefinition Singleton = new DefinitionModified();
-
-            public bool mIsMaster;
-
-            public bool mCompleted;
 
             public override void Cleanup()
             {
@@ -497,115 +489,107 @@ namespace Destrospean
 
             public override bool Run()
             {
-                try
+                Sims3.Gameplay.Interfaces.ISittable sittable = SittingHelpers.CastToSittable(Target);
+                if (sittable == null)
                 {
-                    Sims3.Gameplay.Interfaces.ISittable sittable = SittingHelpers.CastToSittable(Target);
-                    if (sittable == null)
+                    Actor.AddExitReason(ExitReason.FailedToStart);
+                    return false;
+                }
+                Slot containmentSlotClosestToHit = base.GetContainmentSlotClosestToHit();
+                if (Actor.Posture.Container == Target)
+                {
+                    SittingPosture tempSittingPosture = Actor.Posture as SittingPosture;
+                    if (tempSittingPosture != null)
                     {
-                        Actor.AddExitReason(ExitReason.FailedToStart);
-                        return false;
-                    }
-                    Slot containmentSlotClosestToHit = base.GetContainmentSlotClosestToHit();
-                    if (Actor.Posture.Container == Target)
-                    {
-                        SittingPosture sittingPosture = Actor.Posture as SittingPosture;
-                        if (sittingPosture != null)
+                        if (containmentSlotClosestToHit == tempSittingPosture.Part.Target.ContainmentSlot)
                         {
-                            SitData target = sittingPosture.Part.Target;
-                            if (containmentSlotClosestToHit == target.ContainmentSlot)
-                            {
-                                return true;
-                            }
-                            if (!Stand.Singleton.CreateInstance(Target, Actor, GetPriority(), base.Autonomous, base.CancellableByPlayer).RunInteraction())
-                            {
-                                return false;
-                            }
+                            return true;
+                        }
+                        if (!Stand.Singleton.CreateInstance(Target, Actor, GetPriority(), base.Autonomous, base.CancellableByPlayer).RunInteraction())
+                        {
+                            return false;
                         }
                     }
-                    SimQueue simLine = Target.SimLine;
-                    if (simLine != null && !simLine.WaitForTurn(this, SimQueue.WaitBehavior.NeverWait | SimQueue.WaitBehavior.DontPlayRouteFail, ExitReason.Default, 0f))
+                }
+                SimQueue simLine = Target.SimLine;
+                if (simLine != null && !simLine.WaitForTurn(this, SimQueue.WaitBehavior.NeverWait | SimQueue.WaitBehavior.DontPlayRouteFail, ExitReason.Default, 0f))
+                {
+                    Sim firstSim = simLine.FirstSim;
+                    if (firstSim != null && firstSim.InteractionQueue.TransitionInteraction is Stand)
                     {
-                        Sim firstSim = simLine.FirstSim;
-                        if (firstSim != null && firstSim.InteractionQueue.TransitionInteraction is Stand)
-                        {
-                            Actor.RemoveExitReason(ExitReason.ObjectInUse);
-                            simLine.WaitForTurn(this, SimQueue.WaitBehavior.OnlyWaitAtHeadOfLine | SimQueue.WaitBehavior.DontPlayRouteFail, ExitReason.Default, Sit.kTimeToWait);
-                        }
+                        Actor.RemoveExitReason(ExitReason.ObjectInUse);
+                        simLine.WaitForTurn(this, SimQueue.WaitBehavior.OnlyWaitAtHeadOfLine | SimQueue.WaitBehavior.DontPlayRouteFail, ExitReason.Default, Sit.kTimeToWait);
                     }
-                    SitData partToSitDownIn;
-                    Slot routingSlot;
-                    object sitContext;
-                    if (!sittable.RouteToForSitting(Actor, containmentSlotClosestToHit, true, out partToSitDownIn, out routingSlot, out sitContext))
+                }
+                SitData partToSitDownIn;
+                Slot routingSlot;
+                object sitContext;
+                if (!sittable.RouteToForSitting(Actor, containmentSlotClosestToHit, true, out partToSitDownIn, out routingSlot, out sitContext))
+                {
+                    return false;
+                }
+                sittable = SittingHelpers.CastToSittable(partToSitDownIn.Container);
+                if (!SittingHelpers.ReserveSittable(this, Actor, sittable, partToSitDownIn))
+                {
+                    return false;
+                }
+                StateMachineClient stateMachineClient = sittable.StateMachineAcquireAndInit(Actor);
+                if (stateMachineClient == null)
+                {
+                    Actor.AddExitReason(ExitReason.NullValueFound);
+                    SittingHelpers.UnreserveSittable(this, sittable, partToSitDownIn);
+                    return false;
+                }
+                ISittingPostureCreator sittingPostureCreator = partToSitDownIn.Container.Parent as ISittingPostureCreator;
+                SittingPosture sittingPosture = sittingPostureCreator == null ? new SittingPosture(partToSitDownIn.Container, Actor, stateMachineClient, partToSitDownIn) : sittingPostureCreator.CreatePosture(partToSitDownIn.Container, Actor, stateMachineClient, partToSitDownIn);
+                if (stateMachineClient.HasActorDefinition("surface"))
+                {
+                    stateMachineClient.SetActor("surface", partToSitDownIn.Container);
+                }
+                BeginCommodityUpdates();
+                Actor.LookAtManager.DisableLookAts();
+                bool actorIsCarryingSomething = Actor.CarryStateMachine != null && Actor.GetObjectInRightHand() is IUseCarrySitTransitions;
+                if (actorIsCarryingSomething)
+                {
+                    Actor.CarryStateMachine.RequestState(false, "x", "CarrySitting");
+                }
+                if (!StateMachineEnterAndSitEx(sittable as SaunaClassic, false, stateMachineClient, sittingPosture, routingSlot, sitContext))
+                {
+                    if (actorIsCarryingSomething)
                     {
-                        return false;
-                    }
-                    sittable = SittingHelpers.CastToSittable(partToSitDownIn.Container);
-                    if (!SittingHelpers.ReserveSittable(this, Actor, sittable, partToSitDownIn))
-                    {
-                        return false;
-                    }
-                    StateMachineClient stateMachineClient = sittable.StateMachineAcquireAndInit(Actor);
-                    if (stateMachineClient == null)
-                    {
-                        Actor.AddExitReason(ExitReason.NullValueFound);
-                        SittingHelpers.UnreserveSittable(this, sittable, partToSitDownIn);
-                        return false;
-                    }
-                    ISittingPostureCreator sittingPostureCreator = partToSitDownIn.Container.Parent as ISittingPostureCreator;
-                    SittingPosture sittingPosture2 = ((sittingPostureCreator == null) ? new SittingPosture(partToSitDownIn.Container, Actor, stateMachineClient, partToSitDownIn) : sittingPostureCreator.CreatePosture(partToSitDownIn.Container, Actor, stateMachineClient, partToSitDownIn));
-                    if (stateMachineClient.HasActorDefinition("surface"))
-                    {
-                        stateMachineClient.SetActor("surface", partToSitDownIn.Container);
-                    }
-                    BeginCommodityUpdates();
-                    Actor.LookAtManager.DisableLookAts();
-                    bool flag = Actor.CarryStateMachine != null && Actor.GetObjectInRightHand() is IUseCarrySitTransitions;
-                    if (flag)
-                    {
-                        Actor.CarryStateMachine.RequestState(false, "x", "CarrySitting");
-                    }
-                    if (!StateMachineEnterAndSit0(sittable as SaunaClassic, false, stateMachineClient, sittingPosture2, routingSlot, sitContext))
-                    {
-                        if (flag)
-                        {
-                            Actor.CarryStateMachine.RequestState(false, "x", "Carry");
-                        }
-                        Actor.LookAtManager.EnableLookAts();
-                        Actor.AddExitReason(ExitReason.NullValueFound);
-                        SittingHelpers.UnreserveSittable(this, sittable, partToSitDownIn);
-                        EndCommodityUpdates(false);
-                        return false;
+                        Actor.CarryStateMachine.RequestState(false, "x", "Carry");
                     }
                     Actor.LookAtManager.EnableLookAts();
-                    Actor.Posture = sittingPosture2;
-                    if (sittable.ComfyScore > 0)
+                    Actor.AddExitReason(ExitReason.NullValueFound);
+                    SittingHelpers.UnreserveSittable(this, sittable, partToSitDownIn);
+                    EndCommodityUpdates(false);
+                    return false;
+                }
+                Actor.LookAtManager.EnableLookAts();
+                Actor.Posture = sittingPosture;
+                if (sittable.ComfyScore > 0)
+                {
+                    Actor.BuffManager.AddElement(BuffNames.Comfy, sittable.ComfyScore, Origin.FromComfyObject);
+                }
+                EndCommodityUpdates(true);
+                StandardExit(false, false);
+                if (Actor.HasExitReason(ExitReason.UserCanceled))
+                {
+                    Actor.AddExitReason(ExitReason.CancelledByPosture);
+                }
+                if (mIsMaster)
+                {
+                    SaunaSit saunaSit = LinkedInteractionInstance as SaunaSit;
+                    if (saunaSit != null)
                     {
-                        Actor.BuffManager.AddElement(BuffNames.Comfy, sittable.ComfyScore, Origin.FromComfyObject);
-                    }
-                    EndCommodityUpdates(true);
-                    StandardExit(false, false);
-                    if (Actor.HasExitReason(ExitReason.UserCanceled))
-                    {
-                        Actor.AddExitReason(ExitReason.CancelledByPosture);
-                    }
-                    if (mIsMaster)
-                    {
-                        SaunaSit saunaSit = LinkedInteractionInstance as SaunaSit;
-                        if (saunaSit != null)
+                        Sim actor = saunaSit.Actor;
+                        while (!base.Cancelled && actor.InteractionQueue.HasInteraction(saunaSit) && !saunaSit.mCompleted)
                         {
-                            Sim actor = saunaSit.Actor;
-                            while (!base.Cancelled && actor.InteractionQueue.HasInteraction(saunaSit) && !saunaSit.mCompleted)
-                            {
-                                Simulator.Sleep(0);
-                            }
+                            Simulator.Sleep(0);
                         }
                     }
-                    return !Actor.HasExitReason();
                 }
-                catch (ResetException)
-                {
-                    throw;
-                }
+                return !Actor.HasExitReason();
             }
         }
 
@@ -759,30 +743,41 @@ namespace Destrospean
             sSimSelectedListener = null;
         }
 
-        public static bool StateMachineEnterAndSit(MultiSeatObject ths, StateMachineClient smc, SittingPosture sitPosture, Slot routingSlot, object sitContext)
+        public static bool StateMachineEnterAndSit(MultiSeatObject self, StateMachineClient smc, SittingPosture sitPosture, Slot routingSlot, object sitContext)
         {
-            if (!StateMachineEnterAndSit1(ths.Sittable, smc, sitPosture, routingSlot, sitContext))
+            if (smc == null || sitPosture == null)
             {
                 return false;
             }
-            SittableComponent.SitContext sitContext2 = sitContext as SittableComponent.SitContext;
-            if (sitContext2 != null && sitContext2.PreferredSeat != null && sitContext2.PreferredSeat.ContainedSim == null)
+            bool isBoobyTrapped = self.Sittable.Owner.BoobyTrapComponent != null && self.Sittable.Owner.BoobyTrapComponent.CanTriggerTrap(sitPosture.Sim.SimDescription);
+            smc.SetParameter("isBoobyTrapped", isBoobyTrapped);
+            smc.SetParameter("sitTemplateSuffix", sitPosture.Part.Target.IKSuffix);
+            smc.EnterState("x", self.Sittable.GetEnterStateName(routingSlot));
+            smc.RequestState("x", self.GetSitStateName());
+            if (isBoobyTrapped)
+            {
+                ((Sims3.Gameplay.Interfaces.IBoobyTrap)self.Sittable.Owner).TriggerTrap(sitPosture.Sim);
+                smc.SetParameter("isBoobyTrapped", false);
+            }
+            self.Sittable.TurnOnFootDiscouragmentArea(sitPosture.Part.Target);
+            SittableComponent.SitContext sitContextCast = sitContext as SittableComponent.SitContext;
+            if (sitContextCast != null && sitContextCast.PreferredSeat != null && sitContextCast.PreferredSeat.ContainedSim == null)
             {
                 Scoot scoot = (Scoot)Scoot.Singleton.CreateInstance(sitPosture.Container, sitPosture.Sim, sitPosture.Sim.InteractionQueue.GetHeadInteraction().GetPriority(), false, true);
-                scoot.TargetSeat = sitContext2.PreferredSeat as Seat;
+                scoot.TargetSeat = sitContextCast.PreferredSeat as Seat;
                 if (scoot.TargetSeat != null)
                 {
                     sitPosture.Sim.InteractionQueue.AddNext(scoot);
                 }
             }
-            if (ths.SculptureComponent != null && ths.SculptureComponent.Material == SculptureComponent.SculptureMaterial.Ice)
+            if (self.SculptureComponent != null && self.SculptureComponent.Material == SculptureComponent.SculptureMaterial.Ice)
             {
                 sitPosture.Sim.BuffManager.AddElementPaused(BuffNames.Chilly, Origin.FromSittingOnIce);
             }
             return true;
         }
 
-        public static bool StateMachineEnterAndSit0(SaunaClassic ths, bool forWoohoo, StateMachineClient smc, SittingPosture sitPosture, Slot routingSlot, object sitContext)
+        public static bool StateMachineEnterAndSitEx(SaunaClassic self, bool forWoohoo, StateMachineClient smc, SittingPosture sitPosture, Slot routingSlot, object sitContext)
         {
             Assembly woohooerAssembly, woohooerSaunaAssembly;
             if (!TryGetWoohooerSaunaAssemblies(out woohooerAssembly, out woohooerSaunaAssembly) || sitPosture.Sim.CarryingChildPosture != null || sitPosture.Sim.CarryingPetPosture != null)
@@ -791,7 +786,7 @@ namespace Destrospean
             }
             if (!sitPosture.Sim.HasTrait(TraitNames.NeverNude))
             {
-                bool flag = false;
+                bool canBeNaked = false;
                 object settings = woohooerAssembly.GetType("NRaas.Woohooer").GetProperty("Settings", BindingFlags.Public | BindingFlags.Static).GetValue(null, null);
                 if ((bool)settings.GetType().GetField("mNakedOutfitSaunaGeneral").GetValue(settings) || (forWoohoo && (bool)settings.GetType().GetField("mNakedOutfitSaunaWoohoo").GetValue(settings)))
                 {
@@ -799,15 +794,15 @@ namespace Destrospean
                     {
                         if ((bool)settings.GetType().GetField("mAllowTeenWoohoo").GetValue(settings))
                         {
-                            flag = true;
+                            canBeNaked = true;
                         }
                     }
                     else if (sitPosture.Sim.SimDescription.YoungAdultOrAbove)
                     {
-                        flag = true;
+                        canBeNaked = true;
                     }
                 }
-                if (flag)
+                if (canBeNaked)
                 {
                     sitPosture.Sim.SwitchToOutfitWithSpin(OutfitCategories.Naked, 0);
                     settings.GetType().GetMethod("AddChange").Invoke(settings, new object[]
@@ -827,44 +822,23 @@ namespace Destrospean
                     }
                 }
             }
-            if (!StateMachineEnterAndSit(ths, smc, sitPosture, routingSlot, sitContext))
+            if (!StateMachineEnterAndSit(self, smc, sitPosture, routingSlot, sitContext))
             {
                 return false;
             }
             sitPosture.Interactions.Remove(new InteractionObjectPair(StartSeatedCuddleA.Singleton, sitPosture.Sim));
             sitPosture.Sim.RemoveInteractionByType(StartSeatedCuddleA.Singleton);
-            List<InteractionDefinition> mSocialInteractionDefinitions = ((Posture)sitPosture).mSocialInteractionDefinitions;
-            if (mSocialInteractionDefinitions != null)
+            List<InteractionDefinition> socialInteractionDefinitions = ((Posture)sitPosture).mSocialInteractionDefinitions;
+            if (socialInteractionDefinitions != null)
             {
-                mSocialInteractionDefinitions.Remove(StartSeatedCuddleA.Singleton);
+                socialInteractionDefinitions.Remove(StartSeatedCuddleA.Singleton);
             }
             sitPosture.AddInteraction(SaunaClassic.CuddleSeatedWooHooSauna.Singleton, sitPosture.Sim);
             sitPosture.AddInteraction(SaunaClassic.CuddleSeatedWooHooSauna.TryForBoySingleton, sitPosture.Sim);
             sitPosture.AddInteraction(SaunaClassic.CuddleSeatedWooHooSauna.TryForGirlSingleton, sitPosture.Sim);
             sitPosture.AddInteraction(SaunaClassic.StartSaunaSeatedCuddleA.Singleton, sitPosture.Sim);
             sitPosture.AddSocialInteraction(SaunaClassic.StartSaunaSeatedCuddleA.Singleton);
-            sitPosture.Sim.BuffManager.AddElementPaused((BuffNames)11132721365296021528uL, Origin.None);
-            return true;
-        }
-
-        public static bool StateMachineEnterAndSit1(SittableComponent ths, StateMachineClient smc, SittingPosture sitPosture, Slot routingSlot, object sitContext)
-        {
-            if (smc == null || sitPosture == null)
-            {
-                return false;
-            }
-            SitData target = sitPosture.Part.Target;
-            bool flag = ths.Owner.BoobyTrapComponent != null && ths.Owner.BoobyTrapComponent.CanTriggerTrap(sitPosture.Sim.SimDescription);
-            smc.SetParameter("isBoobyTrapped", flag);
-            smc.SetParameter("sitTemplateSuffix", target.IKSuffix);
-            smc.EnterState("x", ths.GetEnterStateName(routingSlot));
-            smc.RequestState("x", ths.GetSitStateName());
-            if (flag)
-            {
-                (ths.Owner as Sims3.Gameplay.Interfaces.IBoobyTrap).TriggerTrap(sitPosture.Sim);
-                smc.SetParameter("isBoobyTrapped", false);
-            }
-            ths.TurnOnFootDiscouragmentArea(target);
+            sitPosture.Sim.BuffManager.AddElementPaused((BuffNames)11132721365296021528, Origin.None);
             return true;
         }
 
