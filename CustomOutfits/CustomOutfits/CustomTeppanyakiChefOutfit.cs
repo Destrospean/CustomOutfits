@@ -237,9 +237,9 @@ namespace Destrospean
                 {
                     Recipe.MealTime currentMealTime = Food.GetCurrentMealTime();
                     string[] menuPath =
-                    {
-                        TeppanyakiGrill.LocalizeString("Serve", new object[0]) + " " + Food.GetMealTimeString(currentMealTime) + Localization.Ellipsis
-                    };
+                        {
+                            TeppanyakiGrill.LocalizeString("Serve", new object[0]) + " " + Food.GetMealTimeString(currentMealTime) + Localization.Ellipsis
+                        };
                     foreach (Recipe current in Recipe.Recipes)
                     {
                         if (current.SpecificNameKey.Contains("TGCook"))
@@ -335,9 +335,9 @@ namespace Destrospean
                         if (target.CheckForMotiveFailure(actor))
                         {
                             greyedOutTooltipCallback = () => Localization.LocalizeString("Gameplay/Actors/Sim:MoodFailureString", new object[]
-                            {
-                                actor
-                            });
+                                {
+                                    actor
+                                });
                             return false;
                         }
                         if (canMakeFoodTestResult == Recipe.CanMakeFoodTestResult.Fail_NotEnoughMoney)
