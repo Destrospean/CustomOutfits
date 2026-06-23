@@ -145,14 +145,7 @@ namespace Destrospean.CustomOutfits
                     return;
                 }
             }
-            if (simDescription.CreatedSim != null)
-            {
-                StyledNotification.Show(new StyledNotification.Format(message, ObjectGuid.InvalidObjectGuid, simDescription.CreatedSim.ObjectId, style));
-            }
-            else
-            {
-                StyledNotification.Show(new StyledNotification.Format(message, style));
-            }
+            StyledNotification.Show(simDescription.CreatedSim == null ? new StyledNotification.Format(message, style) : new StyledNotification.Format(message, ObjectGuid.InvalidObjectGuid, simDescription.CreatedSim.ObjectId, style));
         }
 
         public static void OnShowUI(bool toShow)

@@ -28,10 +28,7 @@ namespace Destrospean
         public static readonly string kMechanicalBullSpecialOutfitKey = "MechanicalBull";
 
         [PersistableStatic(true)]
-        static List<ulong> sMechanicalBullOutfitDisabledList;
-
-        [PersistableStatic(true)]
-        static List<ulong> sMechanicalBullSwimwearDisabledList;
+        static List<ulong> sMechanicalBullOutfitDisabledList, sMechanicalBullSwimwearDisabledList;
 
         static EventListener sSimDescriptionDisposedListener, sSimSelectedListener;
 

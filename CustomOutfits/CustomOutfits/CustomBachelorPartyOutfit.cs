@@ -26,13 +26,7 @@ namespace Destrospean
         protected static bool kInstantiator;
 
         [PersistableStatic(true)]
-        static List<ulong> sBachelorPartyGuestOutfitDisabledList;
-
-        [PersistableStatic(true)]
-        static List<ulong> sBachelorPartyHostOutfitDisabledList;
-
-        [PersistableStatic(true)]
-        static List<ulong> sBachelorPartyUnderwearDisabledList;
+        static List<ulong> sBachelorPartyGuestOutfitDisabledList, sBachelorPartyHostOutfitDisabledList, sBachelorPartyUnderwearDisabledList;
 
         static EventListener sSimDescriptionDisposedListener, sSimSelectedListener;
 
