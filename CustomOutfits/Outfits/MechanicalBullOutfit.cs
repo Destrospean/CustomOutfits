@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Destrospean.CustomOutfits;
 using Sims3.Gameplay.Abstracts;
 using Sims3.Gameplay.Actors;
 using Sims3.Gameplay.ActorSystems;
@@ -16,11 +15,11 @@ using Sims3.SimIFace;
 using Sims3.SimIFace.CAS;
 using Sims3.SimIFace.Enums;
 using Sims3.UI;
-using Tuning = Sims3.Gameplay.Destrospean.CustomOutfits;
+using Tuning = Sims3.Gameplay.Destrospean.CustomizableUncustomizableOutfits;
 
-namespace Destrospean
+namespace Destrospean.CustomizableUncustomizableOutfits
 {
-    public class CustomMechanicalBullOutfit
+    public class MechanicalBullOutfit
     {
         [Tunable]
         protected static bool kInstantiator;
@@ -32,7 +31,7 @@ namespace Destrospean
 
         static EventListener sSimDescriptionDisposedListener, sSimSelectedListener;
 
-        static CustomMechanicalBullOutfit()
+        static MechanicalBullOutfit()
         {
             sMechanicalBullOutfitDisabledList = new List<ulong>();
             sMechanicalBullSwimwearDisabledList = new List<ulong>();

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Destrospean.CustomOutfits;
 using Sims3.Gameplay.Abstracts;
 using Sims3.Gameplay.Actors;
 using Sims3.Gameplay.ActorSystems;
@@ -15,11 +14,11 @@ using Sims3.Gameplay.Utilities;
 using Sims3.SimIFace;
 using Sims3.SimIFace.CAS;
 using Sims3.UI;
-using Tuning = Sims3.Gameplay.Destrospean.CustomOutfits;
+using Tuning = Sims3.Gameplay.Destrospean.CustomizableUncustomizableOutfits;
 
-namespace Destrospean
+namespace Destrospean.CustomizableUncustomizableOutfits
 {
-    public class CustomTowelOutfit
+    public class TowelOutfit
     {
         [Tunable]
         protected static bool kInstantiator;
@@ -28,9 +27,9 @@ namespace Destrospean
 
         static EventListener sSimSelectedListener;
 
-        static CustomTowelOutfit()
+        static TowelOutfit()
         {
-            Common.ReplaceMethod(typeof(SkinnyDipClothingPile).GetMethod("ChangeSimToTowelOutfit", (System.Reflection.BindingFlags)0x28), typeof(CustomTowelOutfit).GetMethod("ChangeSimToTowelOutfit"));
+            Common.ReplaceMethod(typeof(SkinnyDipClothingPile).GetMethod("ChangeSimToTowelOutfit", (System.Reflection.BindingFlags)0x28), typeof(TowelOutfit).GetMethod("ChangeSimToTowelOutfit"));
             sSimSelectedListener = null;
             World.sOnObjectPlacedInLotEventHandler += OnObjectPlacedInLot;
             World.sOnWorldLoadFinishedEventHandler += OnWorldLoadFinished;

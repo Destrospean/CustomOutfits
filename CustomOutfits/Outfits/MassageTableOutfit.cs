@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Destrospean.CustomOutfits;
 using Sims3.Gameplay.Abstracts;
 using Sims3.Gameplay.Actors;
 using Sims3.Gameplay.Autonomy;
@@ -11,11 +10,11 @@ using Sims3.SimIFace;
 using Sims3.SimIFace.CAS;
 using Sims3.Store.Objects;
 using Sims3.UI;
-using Tuning = Sims3.Gameplay.Destrospean.CustomOutfits;
+using Tuning = Sims3.Gameplay.Destrospean.CustomizableUncustomizableOutfits;
 
-namespace Destrospean
+namespace Destrospean.CustomizableUncustomizableOutfits
 {
-    public class CustomMassageTableOutfit
+    public class MassageTableOutfit
     {
         public static readonly string kMassageTableSpecialOutfitKey = "MassageTable";
 
@@ -27,7 +26,7 @@ namespace Destrospean
 
         static EventListener sSimDescriptionDisposedListener, sSimSelectedListener;
 
-        static CustomMassageTableOutfit()
+        static MassageTableOutfit()
         {
             sMassageTableOutfitDisabledList = new List<ulong>();
             sSimDescriptionDisposedListener = null;

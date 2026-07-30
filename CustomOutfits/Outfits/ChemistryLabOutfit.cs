@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Destrospean.CustomOutfits;
 using Sims3.Gameplay;
 using Sims3.Gameplay.Abstracts;
 using Sims3.Gameplay.Actors;
@@ -17,11 +16,13 @@ using Sims3.Gameplay.Utilities;
 using Sims3.SimIFace;
 using Sims3.SimIFace.CAS;
 using Sims3.UI;
-using Tuning = Sims3.Gameplay.Destrospean.CustomOutfits;
+using ChemistryLab = Destrospean.CustomizableUncustomizableOutfits.Replacements.ChemistryLab;
+using ChemistryLabObject = Sims3.Gameplay.Objects.HobbiesSkills.ChemistryLab;
+using Tuning = Sims3.Gameplay.Destrospean.CustomizableUncustomizableOutfits;
 
-namespace Destrospean
+namespace Destrospean.CustomizableUncustomizableOutfits
 {
-    public class CustomChemistryLabOutfit
+    public class ChemistryLabOutfit
     {
         public static readonly string kChemistryLabSpecialOutfitKey = "ChemistryLab";
 
@@ -33,7 +34,7 @@ namespace Destrospean
 
         static EventListener sSimDescriptionDisposedListener, sSimSelectedListener;
 
-        static CustomChemistryLabOutfit()
+        static ChemistryLabOutfit()
         {
             sChemistryLabOutfitDisabledList = new List<ulong>();
             sSimDescriptionDisposedListener = null;
@@ -44,18 +45,241 @@ namespace Destrospean
             World.sOnWorldQuitEventHandler += OnWorldQuit;
         }
 
-        public class DiscoverPotion : ChemistryLab.DiscoverPotion
+        public class EditChemistryLabOutfit : ImmediateInteraction<Sim, GameObject>
         {
-            public class DefinitionModified : InteractionDefinition<Sim, ChemistryLab, DiscoverPotion>
+            public static InteractionDefinition Singleton = new Definition();
+
+            public const string sLocalizationKey = "CustomChemistryLabOutfit/EditChemistryLabOutfit/";
+
+            public class Definition : ImmediateInteractionDefinition<Sim, GameObject, EditChemistryLabOutfit>
+            {
+                public override string GetInteractionName(Sim actor, GameObject target, InteractionObjectPair interaction)
+                {
+                    return Common.Localize(actor.IsFemale, sLocalizationKey + "InteractionName");
+                }
+
+                public override string[] GetPath(bool isFemale)
+                {
+                    return new string[]
+                    {
+                        Common.Localize(isFemale, sLocalizationKey + "Path")
+                    };
+                }
+
+                public override bool Test(Sim actor, GameObject target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
+                {
+                    return (actor == target && Tuning.kShowSimMenu || target as Sim == null && Tuning.kShowObjectMenu) && actor.SimDescription.ChildOrAbove && actor.SimDescription.IsHuman && !actor.SimDescription.IsRobot && !isAutonomous;
+                }
+            }
+
+            public override bool Run()
+            {
+                return Common.EditSpecialOutfit(Actor, sLocalizationKey, kChemistryLabSpecialOutfitKey, GetChemistryLabOutfitName(Actor), ProductVersion.EP4);
+            }
+        }
+
+        public class ResetChemistryLabOutfit : ImmediateInteraction<Sim, GameObject>
+        {
+            public static InteractionDefinition Singleton = new Definition();
+
+            public const string sLocalizationKey = "CustomChemistryLabOutfit/ResetChemistryLabOutfit/";
+
+            public class Definition : ImmediateInteractionDefinition<Sim, GameObject, ResetChemistryLabOutfit>
+            {
+                public override string GetInteractionName(Sim actor, GameObject target, InteractionObjectPair interaction)
+                {
+                    return Common.Localize(actor.IsFemale, sLocalizationKey + "InteractionName");
+                }
+
+                public override string[] GetPath(bool isFemale)
+                {
+                    return new string[]
+                    {
+                        Common.Localize(isFemale, sLocalizationKey + "Path")
+                    };
+                }
+
+                public override bool Test(Sim actor, GameObject target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
+                {
+                    return (actor == target && Tuning.kShowSimMenu || target as Sim == null && Tuning.kShowObjectMenu) && actor.SimDescription.ChildOrAbove && actor.SimDescription.IsHuman && !actor.SimDescription.IsRobot && !isAutonomous && actor.SimDescription.HasSpecialOutfit(kChemistryLabSpecialOutfitKey);
+                }
+            }
+
+            public override bool Run()
+            {
+                Actor.SimDescription.RemoveSpecialOutfit(kChemistryLabSpecialOutfitKey);
+                Common.Notify(Common.Localize(Actor.IsFemale, sLocalizationKey + "Feedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
+                return true;
+            }
+        }
+
+        public class ToggleChemistryLabOutfit : ImmediateInteraction<Sim, GameObject>
+        {
+            public static InteractionDefinition Singleton = new Definition();
+
+            public const string sLocalizationKey = "CustomChemistryLabOutfit/ToggleChemistryLabOutfit/";
+
+            public class Definition : ImmediateInteractionDefinition<Sim, GameObject, ToggleChemistryLabOutfit>
+            {
+                public override string GetInteractionName(Sim actor, GameObject target, InteractionObjectPair interaction)
+                {
+                    if (GetChemistryLabOutfitEnabled(actor.SimDescription))
+                    {
+                        return Common.Localize(actor.IsFemale, sLocalizationKey + "DisableInteractionName");
+                    }
+                    return Common.Localize(actor.IsFemale, sLocalizationKey + "EnableInteractionName");
+                }
+
+                public override string[] GetPath(bool isFemale)
+                {
+                    return new string[]
+                    {
+                        Common.Localize(isFemale, sLocalizationKey + "Path")
+                    };
+                }
+
+                public override bool Test(Sim actor, GameObject target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
+                {
+                    return (actor == target && Tuning.kShowSimMenu || target as Sim == null && Tuning.kShowObjectMenu) && actor.SimDescription.ChildOrAbove && actor.SimDescription.IsHuman && !actor.SimDescription.IsRobot && !isAutonomous;
+                }
+            }
+
+            public override bool Run()
+            {
+                if (GetChemistryLabOutfitEnabled(Actor.SimDescription))
+                {
+                    DisableChemistryLabOutfit(Actor.SimDescription);
+                    Common.Notify(Common.Localize(Actor.IsFemale, sLocalizationKey + "DisabledFeedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
+                }
+                else
+                {
+                    EnableChemistryLabOutfit(Actor.SimDescription);
+                    Common.Notify(Common.Localize(Actor.IsFemale, sLocalizationKey + "EnabledFeedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
+                }
+                return true;
+            }
+        }
+
+        static void AddInteractions(GameObject gameObject)
+        {
+            if (gameObject != null && !gameObject.Interactions.Exists(interaction => interaction.InteractionDefinition.GetType() == EditChemistryLabOutfit.Singleton.GetType()) && GameUtils.IsInstalled(ProductVersion.EP4))
+            {
+                gameObject.AddInteraction(EditChemistryLabOutfit.Singleton);
+                gameObject.AddInteraction(ResetChemistryLabOutfit.Singleton);
+                gameObject.AddInteraction(ToggleChemistryLabOutfit.Singleton);
+            }
+        }
+
+        public static void DisableChemistryLabOutfit(SimDescription simDescription)
+        {
+            if (GetChemistryLabOutfitEnabled(simDescription))
+            {
+                sChemistryLabOutfitDisabledList.Add(simDescription.SimDescriptionId);
+            }
+        }
+
+        public static void EnableChemistryLabOutfit(SimDescription simDescription)
+        {
+            if (!GetChemistryLabOutfitEnabled(simDescription))
+            {
+                sChemistryLabOutfitDisabledList.Remove(simDescription.SimDescriptionId);
+            }
+        }
+
+        public static bool GetChemistryLabOutfitEnabled(SimDescription simDescription)
+        {
+            return !sChemistryLabOutfitDisabledList.Contains(simDescription.SimDescriptionId);
+        }
+
+        public static string GetChemistryLabOutfitName(Sim actor)
+        {
+            return OutfitUtils.GetAgePrefix(actor.SimDescription.Age, true) + (actor.IsMale ? "m" : "f") + "chemistry";
+        }
+
+        static void OnObjectPlacedInLot(object sender, EventArgs e)
+        {
+            World.OnObjectPlacedInLotEventArgs onObjectPlacedInLotEventArgs = e as World.OnObjectPlacedInLotEventArgs;
+            if (onObjectPlacedInLotEventArgs != null)
+            {
+                AddInteractions(GameObject.GetObject(onObjectPlacedInLotEventArgs.ObjectId) as ChemistryLabObject);
+            }
+        }
+
+        static void OnPreLoad()
+        {
+            ChemistryLabObject.DiscoverPotion.Singleton = new ChemistryLab.DiscoverPotion.DefinitionModified();
+            ChemistryLabObject.MakePotion.Singleton = new ChemistryLab.MakePotion.DefinitionModified();
+            Common.CopyTuning(typeof(ChemistryLabObject), typeof(ChemistryLabObject.DiscoverPotion.Definition), typeof(ChemistryLab.DiscoverPotion.DefinitionModified));
+            Common.CopyTuning(typeof(ChemistryLabObject), typeof(ChemistryLabObject.MakePotion.Definition), typeof(ChemistryLab.MakePotion.DefinitionModified));
+        }
+
+        static ListenerAction OnSimDescriptionDisposed(Event e)
+        {
+            try
+            {
+                Sim sim = e.TargetObject as Sim;
+                if (sim != null)
+                {
+                    EnableChemistryLabOutfit(sim.SimDescription);
+                }
+            }
+            catch (Exception ex)
+            {
+                ((IScriptErrorWindow)AppDomain.CurrentDomain.GetData("ScriptErrorWindow")).DisplayScriptError(null, ex);
+            }
+            return ListenerAction.Keep;
+        }
+
+        static ListenerAction OnSimSelected(Event e)
+        {
+            try
+            {
+                AddInteractions(Sim.ActiveActor);
+            }
+            catch (Exception ex)
+            {
+                ((IScriptErrorWindow)AppDomain.CurrentDomain.GetData("ScriptErrorWindow")).DisplayScriptError(null, ex);
+            }
+            return ListenerAction.Keep;
+        }
+
+        static void OnWorldLoadFinished(object sender, EventArgs e)
+        {
+            Array.ForEach(Sims3.Gameplay.Queries.GetObjects<ChemistryLabObject>(), AddInteractions);
+            if (Household.ActiveHousehold != null)
+            {
+                Household.ActiveHousehold.Sims.ForEach(AddInteractions);
+            }
+            sSimDescriptionDisposedListener = EventTracker.AddListener(EventTypeId.kSimDescriptionDisposed, OnSimDescriptionDisposed);
+            sSimSelectedListener = EventTracker.AddListener(EventTypeId.kEventSimSelected, OnSimSelected);
+        }
+
+        static void OnWorldQuit(object sender, EventArgs e)
+        {
+            EventTracker.RemoveListener(sSimDescriptionDisposedListener);
+            EventTracker.RemoveListener(sSimSelectedListener);
+            sSimDescriptionDisposedListener = null;
+            sSimSelectedListener = null;
+        }
+    }
+}
+
+namespace Destrospean.CustomizableUncustomizableOutfits.Replacements
+{
+    public class ChemistryLab
+    {
+        public class DiscoverPotion : ChemistryLabObject.DiscoverPotion
+        {
+            public class DefinitionModified : InteractionDefinition<Sim, ChemistryLabObject, DiscoverPotion>
             {
                 Definition mDefinitionBase = new Definition();
 
-                public override string GetInteractionName(Sim actor, ChemistryLab target, InteractionObjectPair interaction)
+                public override string GetInteractionName(Sim actor, ChemistryLabObject target, InteractionObjectPair interaction)
                 {
                     return mDefinitionBase.GetInteractionName(actor, target, interaction);
                 }
 
-                public override bool Test(Sim actor, ChemistryLab target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
+                public override bool Test(Sim actor, ChemistryLabObject target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
                 {
                     return mDefinitionBase.Test(actor, target, isAutonomous, ref greyedOutTooltipCallback);
                 }
@@ -105,7 +329,7 @@ namespace Destrospean
                 AddSynchronousOneShotScriptEventHandler(103, FinishEvent);
                 BeginCommodityUpdates();
                 AnimateSim("MakePotionAtLab");
-                bool loopDone = DoLoop(ExitReason.Default, DiscoverPotionLoopCallback, mCurrentStateMachine, ChemistryLab.kMinutesPerDiceRoll);
+                bool loopDone = DoLoop(ExitReason.Default, DiscoverPotionLoopCallback, mCurrentStateMachine, ChemistryLabObject.kMinutesPerDiceRoll);
                 EndCommodityUpdates(loopDone);
                 switch (mResult)
                 {
@@ -146,42 +370,9 @@ namespace Destrospean
             }
         }
 
-        public class EditChemistryLabOutfit : ImmediateInteraction<Sim, GameObject>
+        public class MakePotion : ChemistryLabObject.MakePotion
         {
-            public static InteractionDefinition Singleton = new Definition();
-
-            public const string sLocalizationKey = "CustomChemistryLabOutfit/EditChemistryLabOutfit/";
-
-            public class Definition : ImmediateInteractionDefinition<Sim, GameObject, EditChemistryLabOutfit>
-            {
-                public override string GetInteractionName(Sim actor, GameObject target, InteractionObjectPair interaction)
-                {
-                    return Common.Localize(actor.IsFemale, sLocalizationKey + "InteractionName");
-                }
-
-                public override string[] GetPath(bool isFemale)
-                {
-                    return new string[]
-                    {
-                        Common.Localize(isFemale, sLocalizationKey + "Path")
-                    };
-                }
-
-                public override bool Test(Sim actor, GameObject target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
-                {
-                    return (actor == target && Tuning.kShowSimMenu || target as Sim == null && Tuning.kShowObjectMenu) && actor.SimDescription.ChildOrAbove && actor.SimDescription.IsHuman && !actor.SimDescription.IsRobot && !isAutonomous;
-                }
-            }
-
-            public override bool Run()
-            {
-                return Common.EditSpecialOutfit(Actor, sLocalizationKey, kChemistryLabSpecialOutfitKey, GetChemistryLabOutfitName(Actor), ProductVersion.EP4);
-            }
-        }
-
-        public class MakePotion : ChemistryLab.MakePotion
-        {
-            public class DefinitionModified : InteractionDefinition<Sim, ChemistryLab, MakePotion>
+            public class DefinitionModified : InteractionDefinition<Sim, ChemistryLabObject, MakePotion>
             {
                 public bool IsContinuation;
 
@@ -197,7 +388,7 @@ namespace Destrospean
                     CurrPotionType = potionType;
                 }
 
-                public override void AddInteractions(InteractionObjectPair interaction, Sim actor, ChemistryLab target, List<InteractionObjectPair> results)
+                public override void AddInteractions(InteractionObjectPair interaction, Sim actor, ChemistryLabObject target, List<InteractionObjectPair> results)
                 {
                     LogicSkill skill = actor.SkillManager.GetSkill<LogicSkill>(SkillNames.Logic);
                     if (skill == null)
@@ -215,13 +406,13 @@ namespace Destrospean
                     }
                 }
 
-                public override string GetInteractionName(Sim actor, ChemistryLab target, InteractionObjectPair interaction)
+                public override string GetInteractionName(Sim actor, ChemistryLabObject target, InteractionObjectPair interaction)
                 {
                     if (IsContinuation)
                     {
-                        return ChemistryLab.LocalizeString(actor.IsFemale, "Continue", Localization.LocalizeString(Potion.GetPotionLocKey(CurrPotionType)), target.GetRoundedPercentComplete());
+                        return ChemistryLabObject.LocalizeString(actor.IsFemale, "Continue", Localization.LocalizeString(Potion.GetPotionLocKey(CurrPotionType)), target.GetRoundedPercentComplete());
                     }
-                    return ChemistryLab.LocalizeString(actor.IsFemale, "MakeInteractionName", Localization.LocalizeString(Potion.GetPotionLocKey(CurrPotionType)), Potion.GetPotionTypeCost(actor, CurrPotionType));
+                    return ChemistryLabObject.LocalizeString(actor.IsFemale, "MakeInteractionName", Localization.LocalizeString(Potion.GetPotionLocKey(CurrPotionType)), Potion.GetPotionTypeCost(actor, CurrPotionType));
                 }
 
                 public override string[] GetPath(bool isFemale)
@@ -232,11 +423,11 @@ namespace Destrospean
                     }
                     return new string[]
                     {
-                        ChemistryLab.LocalizeString(isFemale, "MakePotionPath")
+                        ChemistryLabObject.LocalizeString(isFemale, "MakePotionPath")
                     };
                 }
 
-                public override bool Test(Sim actor, ChemistryLab target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
+                public override bool Test(Sim actor, ChemistryLabObject target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
                 {
                     Skill logicSkill = actor.SkillManager.GetElement(SkillNames.Logic);
                     if ((target.InUse && !target.IsActorUsingMe(actor)) || !(logicSkill is LogicSkill) || ((LogicSkill)logicSkill).DiscoveredPotionTypes.Count == 0)
@@ -247,7 +438,7 @@ namespace Destrospean
                     {
                         if (!((LogicSkill)logicSkill).DiscoveredPotionTypes.Contains(target.mCurrentPotionType))
                         {
-                            greyedOutTooltipCallback = CreateTooltipCallback(ChemistryLab.LocalizeString(actor.IsFemale, "DoNotKnowHowToMake", actor.SimDescription));
+                            greyedOutTooltipCallback = CreateTooltipCallback(ChemistryLabObject.LocalizeString(actor.IsFemale, "DoNotKnowHowToMake", actor.SimDescription));
                             return false;
                         }
                     }
@@ -255,17 +446,17 @@ namespace Destrospean
                     {
                         if (actor.FamilyFunds < Potion.GetPotionTypeCost(actor, CurrPotionType))
                         {
-                            greyedOutTooltipCallback = CreateTooltipCallback(ChemistryLab.LocalizeString(actor.IsFemale, "NotEnoughMoney"));
+                            greyedOutTooltipCallback = CreateTooltipCallback(ChemistryLabObject.LocalizeString(actor.IsFemale, "NotEnoughMoney"));
                             return false;
                         }
                         if (actor.CurrentOutfitCategory == OutfitCategories.Singed)
                         {
-                            greyedOutTooltipCallback = CreateTooltipCallback(ChemistryLab.LocalizeString(actor.IsFemale, "DisallowedSingedTooltip"));
+                            greyedOutTooltipCallback = CreateTooltipCallback(ChemistryLabObject.LocalizeString(actor.IsFemale, "DisallowedSingedTooltip"));
                             return false;
                         }
                         if (actor.CurrentOutfitCategory == OutfitCategories.SkinnyDippingTowel)
                         {
-                            greyedOutTooltipCallback = CreateTooltipCallback(ChemistryLab.LocalizeString(actor.IsFemale, "DisallowedInTowelTooltip"));
+                            greyedOutTooltipCallback = CreateTooltipCallback(ChemistryLabObject.LocalizeString(actor.IsFemale, "DisallowedInTowelTooltip"));
                             return false;
                         }
                     }
@@ -279,7 +470,7 @@ namespace Destrospean
                 mLogicSkill = parameters.Actor.SkillManager.AddElement(SkillNames.Logic) as LogicSkill;
                 if (parameters.Autonomous)
                 {
-                    ChemistryLab chemistryLab = parameters.Target as ChemistryLab;
+                    ChemistryLabObject chemistryLab = parameters.Target as ChemistryLabObject;
                     if (chemistryLab.mPotionProgress > 0 && !chemistryLab.IsActorUsingMe(parameters.Actor as Sim))
                     {
                         definition.IsContinuation = true;
@@ -384,115 +575,23 @@ namespace Destrospean
             }
         }
 
-        public class ResetChemistryLabOutfit : ImmediateInteraction<Sim, GameObject>
-        {
-            public static InteractionDefinition Singleton = new Definition();
-
-            public const string sLocalizationKey = "CustomChemistryLabOutfit/ResetChemistryLabOutfit/";
-
-            public class Definition : ImmediateInteractionDefinition<Sim, GameObject, ResetChemistryLabOutfit>
-            {
-                public override string GetInteractionName(Sim actor, GameObject target, InteractionObjectPair interaction)
-                {
-                    return Common.Localize(actor.IsFemale, sLocalizationKey + "InteractionName");
-                }
-
-                public override string[] GetPath(bool isFemale)
-                {
-                    return new string[]
-                    {
-                        Common.Localize(isFemale, sLocalizationKey + "Path")
-                    };
-                }
-
-                public override bool Test(Sim actor, GameObject target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
-                {
-                    return (actor == target && Tuning.kShowSimMenu || target as Sim == null && Tuning.kShowObjectMenu) && actor.SimDescription.ChildOrAbove && actor.SimDescription.IsHuman && !actor.SimDescription.IsRobot && !isAutonomous && actor.SimDescription.HasSpecialOutfit(kChemistryLabSpecialOutfitKey);
-                }
-            }
-
-            public override bool Run()
-            {
-                Actor.SimDescription.RemoveSpecialOutfit(kChemistryLabSpecialOutfitKey);
-                Common.Notify(Common.Localize(Actor.IsFemale, sLocalizationKey + "Feedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
-                return true;
-            }
-        }
-
-        public class ToggleChemistryLabOutfit : ImmediateInteraction<Sim, GameObject>
-        {
-            public static InteractionDefinition Singleton = new Definition();
-
-            public const string sLocalizationKey = "CustomChemistryLabOutfit/ToggleChemistryLabOutfit/";
-
-            public class Definition : ImmediateInteractionDefinition<Sim, GameObject, ToggleChemistryLabOutfit>
-            {
-                public override string GetInteractionName(Sim actor, GameObject target, InteractionObjectPair interaction)
-                {
-                    if (GetChemistryLabOutfitEnabled(actor.SimDescription))
-                    {
-                        return Common.Localize(actor.IsFemale, sLocalizationKey + "DisableInteractionName");
-                    }
-                    return Common.Localize(actor.IsFemale, sLocalizationKey + "EnableInteractionName");
-                }
-
-                public override string[] GetPath(bool isFemale)
-                {
-                    return new string[]
-                    {
-                        Common.Localize(isFemale, sLocalizationKey + "Path")
-                    };
-                }
-
-                public override bool Test(Sim actor, GameObject target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
-                {
-                    return (actor == target && Tuning.kShowSimMenu || target as Sim == null && Tuning.kShowObjectMenu) && actor.SimDescription.ChildOrAbove && actor.SimDescription.IsHuman && !actor.SimDescription.IsRobot && !isAutonomous;
-                }
-            }
-
-            public override bool Run()
-            {
-                if (GetChemistryLabOutfitEnabled(Actor.SimDescription))
-                {
-                    DisableChemistryLabOutfit(Actor.SimDescription);
-                    Common.Notify(Common.Localize(Actor.IsFemale, sLocalizationKey + "DisabledFeedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
-                }
-                else
-                {
-                    EnableChemistryLabOutfit(Actor.SimDescription);
-                    Common.Notify(Common.Localize(Actor.IsFemale, sLocalizationKey + "EnabledFeedback", Actor.Name), Actor.SimDescription, StyledNotification.NotificationStyle.kSystemMessage);
-                }
-                return true;
-            }
-        }
-
-        static void AddInteractions(GameObject gameObject)
-        {
-            if (gameObject != null && !gameObject.Interactions.Exists(interaction => interaction.InteractionDefinition.GetType() == EditChemistryLabOutfit.Singleton.GetType()) && GameUtils.IsInstalled(ProductVersion.EP4))
-            {
-                gameObject.AddInteraction(EditChemistryLabOutfit.Singleton);
-                gameObject.AddInteraction(ResetChemistryLabOutfit.Singleton);
-                gameObject.AddInteraction(ToggleChemistryLabOutfit.Singleton);
-            }
-        }
-
         public static bool ChangeSimToChemistryLabOutfit(Sim actor, out SimOutfit outfit)
         {
             SimDescription simDescription = actor.SimDescription;
-            if (simDescription.IsPregnant || !GetChemistryLabOutfitEnabled(simDescription))
+            if (simDescription.IsPregnant || !ChemistryLabOutfit.GetChemistryLabOutfitEnabled(simDescription))
             {
                 outfit = null;
                 return false;
             }
             SimOutfit simOutfit;
-            if (simDescription.HasSpecialOutfit(kChemistryLabSpecialOutfitKey))
+            if (simDescription.HasSpecialOutfit(ChemistryLabOutfit.kChemistryLabSpecialOutfitKey))
             {
-                simDescription.AddOutfit(simDescription.GetSpecialOutfit(kChemistryLabSpecialOutfitKey), OutfitCategories.Career);
+                simDescription.AddOutfit(simDescription.GetSpecialOutfit(ChemistryLabOutfit.kChemistryLabSpecialOutfitKey), OutfitCategories.Career);
                 simOutfit = simDescription.GetOutfit(OutfitCategories.Career, simDescription.GetOutfitCount(OutfitCategories.Career) - 1);
             }
             else
             {
-                simOutfit = OutfitUtils.CreateOutfitForSim(simDescription, ResourceKey.CreateOutfitKeyFromProductVersion(GetChemistryLabOutfitName(actor), ProductVersion.EP4), OutfitCategories.Career, OutfitCategories.Everyday, true);
+                simOutfit = OutfitUtils.CreateOutfitForSim(simDescription, ResourceKey.CreateOutfitKeyFromProductVersion(ChemistryLabOutfit.GetChemistryLabOutfitName(actor), ProductVersion.EP4), OutfitCategories.Career, OutfitCategories.Everyday, true);
             }
             if (simOutfit != null)
             {
@@ -502,98 +601,6 @@ namespace Destrospean
             }
             outfit = null;
             return false;
-        }
-
-        static void DisableChemistryLabOutfit(SimDescription simDescription)
-        {
-            if (GetChemistryLabOutfitEnabled(simDescription))
-            {
-                sChemistryLabOutfitDisabledList.Add(simDescription.SimDescriptionId);
-            }
-        }
-
-        static void EnableChemistryLabOutfit(SimDescription simDescription)
-        {
-            if (!GetChemistryLabOutfitEnabled(simDescription))
-            {
-                sChemistryLabOutfitDisabledList.Remove(simDescription.SimDescriptionId);
-            }
-        }
-
-        static bool GetChemistryLabOutfitEnabled(SimDescription simDescription)
-        {
-            return !sChemistryLabOutfitDisabledList.Contains(simDescription.SimDescriptionId);
-        }
-
-        public static string GetChemistryLabOutfitName(Sim actor)
-        {
-            return OutfitUtils.GetAgePrefix(actor.SimDescription.Age, true) + (actor.IsMale ? "m" : "f") + "chemistry";
-        }
-
-        static void OnObjectPlacedInLot(object sender, EventArgs e)
-        {
-            World.OnObjectPlacedInLotEventArgs onObjectPlacedInLotEventArgs = e as World.OnObjectPlacedInLotEventArgs;
-            if (onObjectPlacedInLotEventArgs != null)
-            {
-                AddInteractions(GameObject.GetObject(onObjectPlacedInLotEventArgs.ObjectId) as ChemistryLab);
-            }
-        }
-
-        static void OnPreLoad()
-        {
-            ChemistryLab.DiscoverPotion.Singleton = new DiscoverPotion.DefinitionModified();
-            ChemistryLab.MakePotion.Singleton = new MakePotion.DefinitionModified();
-            Common.CopyTuning(typeof(ChemistryLab), typeof(ChemistryLab.DiscoverPotion.Definition), typeof(DiscoverPotion.DefinitionModified));
-            Common.CopyTuning(typeof(ChemistryLab), typeof(ChemistryLab.MakePotion.Definition), typeof(MakePotion.DefinitionModified));
-        }
-
-        static ListenerAction OnSimDescriptionDisposed(Event e)
-        {
-            try
-            {
-                Sim sim = e.TargetObject as Sim;
-                if (sim != null)
-                {
-                    EnableChemistryLabOutfit(sim.SimDescription);
-                }
-            }
-            catch (Exception ex)
-            {
-                ((IScriptErrorWindow)AppDomain.CurrentDomain.GetData("ScriptErrorWindow")).DisplayScriptError(null, ex);
-            }
-            return ListenerAction.Keep;
-        }
-
-        static ListenerAction OnSimSelected(Event e)
-        {
-            try
-            {
-                AddInteractions(Sim.ActiveActor);
-            }
-            catch (Exception ex)
-            {
-                ((IScriptErrorWindow)AppDomain.CurrentDomain.GetData("ScriptErrorWindow")).DisplayScriptError(null, ex);
-            }
-            return ListenerAction.Keep;
-        }
-
-        static void OnWorldLoadFinished(object sender, EventArgs e)
-        {
-            Array.ForEach(Sims3.Gameplay.Queries.GetObjects<ChemistryLab>(), AddInteractions);
-            if (Household.ActiveHousehold != null)
-            {
-                Household.ActiveHousehold.Sims.ForEach(AddInteractions);
-            }
-            sSimDescriptionDisposedListener = EventTracker.AddListener(EventTypeId.kSimDescriptionDisposed, OnSimDescriptionDisposed);
-            sSimSelectedListener = EventTracker.AddListener(EventTypeId.kEventSimSelected, OnSimSelected);
-        }
-
-        static void OnWorldQuit(object sender, EventArgs e)
-        {
-            EventTracker.RemoveListener(sSimDescriptionDisposedListener);
-            EventTracker.RemoveListener(sSimSelectedListener);
-            sSimDescriptionDisposedListener = null;
-            sSimSelectedListener = null;
         }
     }
 }

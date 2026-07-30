@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Destrospean.CustomOutfits;
 using Sims3.Gameplay.Abstracts;
 using Sims3.Gameplay.Actors;
 using Sims3.Gameplay.ActorSystems;
@@ -17,11 +16,11 @@ using Sims3.SimIFace;
 using Sims3.SimIFace.CAS;
 using Sims3.Store.Objects;
 using Sims3.UI;
-using Tuning = Sims3.Gameplay.Destrospean.CustomOutfits;
+using Tuning = Sims3.Gameplay.Destrospean.CustomizableUncustomizableOutfits;
 
-namespace Destrospean
+namespace Destrospean.CustomizableUncustomizableOutfits
 {
-    public class CustomSaunaOutfit
+    public class SaunaOutfit
     {
         public static readonly string kSaunaSpecialOutfitKey = "Sauna";
 
@@ -33,12 +32,12 @@ namespace Destrospean
 
         static EventListener sSimDescriptionDisposedListener, sSimSelectedListener;
 
-        static CustomSaunaOutfit()
+        static SaunaOutfit()
         {
             Assembly woohooerAssembly, woohooerSaunaAssembly;
             if (TryGetWoohooerSaunaAssemblies(out woohooerAssembly, out woohooerSaunaAssembly))
             {
-                Common.ReplaceMethod(woohooerSaunaAssembly.GetType("NRaas.WoohooerSpace.Helpers.SaunaClassicEx").GetMethod("StateMachineEnterAndSit", BindingFlags.Public | BindingFlags.Static), typeof(CustomSaunaOutfit).GetMethod("StateMachineEnterAndSitEx", BindingFlags.Public | BindingFlags.Static));
+                Common.ReplaceMethod(woohooerSaunaAssembly.GetType("NRaas.WoohooerSpace.Helpers.SaunaClassicEx").GetMethod("StateMachineEnterAndSit", BindingFlags.Public | BindingFlags.Static), typeof(SaunaOutfit).GetMethod("StateMachineEnterAndSitEx", BindingFlags.Public | BindingFlags.Static));
             }
             sSaunaOutfitDisabledList = new List<ulong>();
             sSimDescriptionDisposedListener = null;

@@ -8,8 +8,8 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <OutputType>Library</OutputType>
-    <RootNamespace>Destrospean</RootNamespace>
-    <AssemblyName>CustomOutfitsMasterController</AssemblyName>
+    <RootNamespace>Destrospean.CustomizableUncustomizableOutfits.MasterController</RootNamespace>
+    <AssemblyName>Destrospean.CustomizableUncustomizableOutfits.MasterController</AssemblyName>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <NoWin32Manifest>False</NoWin32Manifest>
@@ -44,8 +44,8 @@
     <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="CustomOutfitsMasterController.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Main.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib">
@@ -95,9 +95,9 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
-    <ProjectReference Include="..\CustomOutfits\CustomOutfits.csproj">
+    <ProjectReference Include="..\CustomOutfits\Destrospean.CustomizableUncustomizableOutfits.csproj">
       <Project>{D5E41DB2-3F43-4EEB-9CC7-303D24C203C1}</Project>
-      <Name>CustomOutfits</Name>
+      <Name>Destrospean.CustomizableUncustomizableOutfits</Name>
       <Private>False</Private>
     </ProjectReference>
   </ItemGroup>

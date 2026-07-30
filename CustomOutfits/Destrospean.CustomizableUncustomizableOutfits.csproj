@@ -8,8 +8,8 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <OutputType>Library</OutputType>
-    <RootNamespace>Destrospean</RootNamespace>
-    <AssemblyName>CustomOutfits</AssemblyName>
+    <RootNamespace>Destrospean.CustomizableUncustomizableOutfits</RootNamespace>
+    <AssemblyName>Destrospean.CustomizableUncustomizableOutfits</AssemblyName>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <NoWin32Manifest>False</NoWin32Manifest>
@@ -50,22 +50,22 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="CustomOutfits\CustomAfterschoolActivityOutfit.cs" />
-    <Compile Include="CustomOutfits\CustomSkatingOutfit.cs" />
-    <Compile Include="CustomOutfits\CustomMassageTableOutfit.cs" />
-    <Compile Include="CustomOutfits\CustomHighSchoolGraduationOutfit.cs" />
-    <Compile Include="CustomOutfits\CustomGraduationOutfit.cs" />
     <Compile Include="Tuning.cs" />
-    <Compile Include="CustomOutfits\CustomBachelorPartyOutfit.cs" />
-    <Compile Include="CustomOutfits\CustomMechanicalBullOutfit.cs" />
     <Compile Include="Common.cs" />
-    <Compile Include="CustomOutfits\CustomTowelOutfit.cs" />
-    <Compile Include="CustomOutfits\CustomSingedOutfit.cs" />
-    <Compile Include="CustomOutfits\CustomBeekeeperOutfit.cs" />
-    <Compile Include="CustomOutfits\CustomChemistryLabOutfit.cs" />
-    <Compile Include="CustomOutfits\CustomTeppanyakiChefOutfit.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="CustomOutfits\CustomSaunaOutfit.cs" />
+    <Compile Include="Outfits\BeekeeperOutfit.cs" />
+    <Compile Include="Outfits\BachelorPartyOutfit.cs" />
+    <Compile Include="Outfits\AfterschoolActivityOutfit.cs" />
+    <Compile Include="Outfits\ChemistryLabOutfit.cs" />
+    <Compile Include="Outfits\GraduationOutfit.cs" />
+    <Compile Include="Outfits\HighSchoolGraduationOutfit.cs" />
+    <Compile Include="Outfits\MassageTableOutfit.cs" />
+    <Compile Include="Outfits\MechanicalBullOutfit.cs" />
+    <Compile Include="Outfits\SaunaOutfit.cs" />
+    <Compile Include="Outfits\SingedOutfit.cs" />
+    <Compile Include="Outfits\SkatingOutfit.cs" />
+    <Compile Include="Outfits\TeppanyakiChefOutfit.cs" />
+    <Compile Include="Outfits\TowelOutfit.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib">

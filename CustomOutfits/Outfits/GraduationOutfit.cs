@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Destrospean.CustomOutfits;
 using Sims3.Gameplay.Abstracts;
 using Sims3.Gameplay.Academics;
 using Sims3.Gameplay.Actors;
@@ -14,11 +13,11 @@ using Sims3.Gameplay.Objects.ShelvesStorage;
 using Sims3.SimIFace;
 using Sims3.UI;
 using Sims3.UI.Hud;
-using Tuning = Sims3.Gameplay.Destrospean.CustomOutfits;
+using Tuning = Sims3.Gameplay.Destrospean.CustomizableUncustomizableOutfits;
 
-namespace Destrospean
+namespace Destrospean.CustomizableUncustomizableOutfits
 {
-    public class CustomGraduationOutfit
+    public class GraduationOutfit
     {
         [Tunable]
         protected static bool kInstantiator;
@@ -28,7 +27,7 @@ namespace Destrospean
 
         static EventListener sSimDescriptionDisposedListener, sSimSelectedListener;
 
-        static CustomGraduationOutfit()
+        static GraduationOutfit()
         {
             sGraduationBusinessOutfitDisabledList = new List<ulong>();
             sGraduationCommOutfitDisabledList = new List<ulong>();

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Destrospean.CustomOutfits;
+using Destrospean.CustomizableUncustomizableOutfits.Replacements;
 using Sims3.Gameplay.Abstracts;
 using Sims3.Gameplay.Actors;
 using Sims3.Gameplay.ActorSystems;
@@ -11,16 +11,23 @@ using Sims3.Gameplay.EventSystem;
 using Sims3.Gameplay.Interactions;
 using Sims3.Gameplay.Interfaces;
 using Sims3.Gameplay.Objects.ShelvesStorage;
-using Sims3.Gameplay.Situations;
 using Sims3.Gameplay.Socializing;
 using Sims3.SimIFace;
 using Sims3.SimIFace.CAS;
 using Sims3.UI;
-using Tuning = Sims3.Gameplay.Destrospean.CustomOutfits;
+using BachelorPartySituation = Sims3.Gameplay.Situations.BachelorParty;
+using Tuning = Sims3.Gameplay.Destrospean.CustomizableUncustomizableOutfits;
 
-namespace Destrospean
+namespace Destrospean.CustomizableUncustomizableOutfits
 {
-    public class CustomBachelorPartyOutfit
+    public enum BachelorPartyOutfitTypes
+    {
+        Guest,
+        Host,
+        Underwear
+    }
+
+    public class BachelorPartyOutfit
     {
         [Tunable]
         protected static bool kInstantiator;
@@ -30,18 +37,11 @@ namespace Destrospean
 
         static EventListener sSimDescriptionDisposedListener, sSimSelectedListener;
 
-        public enum BachelorPartyOutfitTypes
+        static BachelorPartyOutfit()
         {
-            Guest,
-            Host,
-            Underwear
-        }
-
-        static CustomBachelorPartyOutfit()
-        {
-            Common.ReplaceMethod(typeof(BachelorParty).GetMethod("OnSprayedWithFizzyNectar", (System.Reflection.BindingFlags)0x18), typeof(BachelorPartyPatch).GetMethod("OnSprayedWithFizzyNectar"));
-            Common.ReplaceMethod(typeof(BachelorParty).GetMethod("PushSwitchOutfit", (System.Reflection.BindingFlags)0x24), typeof(BachelorPartyPatch).GetMethod("PushSwitchOutfit"));
-            Common.ReplaceMethod(typeof(BachelorParty).GetMethod("RemoveBachelorPartyEffects", (System.Reflection.BindingFlags)0x24), typeof(BachelorPartyPatch).GetMethod("RemoveBachelorPartyEffects"));
+            Common.ReplaceMethod(typeof(BachelorPartySituation).GetMethod("OnSprayedWithFizzyNectar", (System.Reflection.BindingFlags)0x18), typeof(BachelorParty).GetMethod("OnSprayedWithFizzyNectar"));
+            Common.ReplaceMethod(typeof(BachelorPartySituation).GetMethod("PushSwitchOutfit", (System.Reflection.BindingFlags)0x24), typeof(BachelorParty).GetMethod("PushSwitchOutfit"));
+            Common.ReplaceMethod(typeof(BachelorPartySituation).GetMethod("RemoveBachelorPartyEffects", (System.Reflection.BindingFlags)0x24), typeof(BachelorParty).GetMethod("RemoveBachelorPartyEffects"));
             sBachelorPartyGuestOutfitDisabledList = new List<ulong>();
             sBachelorPartyHostOutfitDisabledList = new List<ulong>();
             sBachelorPartyUnderwearDisabledList = new List<ulong>();
@@ -50,63 +50,6 @@ namespace Destrospean
             World.sOnObjectPlacedInLotEventHandler += OnObjectPlacedInLot;
             World.sOnWorldLoadFinishedEventHandler += OnWorldLoadFinished;
             World.sOnWorldQuitEventHandler += OnWorldQuit;
-        }
-
-        public class BachelorPartyPatch
-        {
-            public static void OnSprayedWithFizzyNectar(Sim actor)
-            {
-                float chance = MathHelpers.LinearInterpolate(MoodManager.kMoodMinValue, MoodManager.kMoodSuperBarEnd, BachelorParty.kChanceOfSpinningIntoUnderwearMin, BachelorParty.kChanceOfSpinningIntoUnderwearMax, actor.MoodManager.MoodValue);
-                if (RandomUtil.RandomChance01(chance) && !actor.SimDescription.HasSpecialOutfit(GetBachelorPartyOutfitName(actor, BachelorPartyOutfitTypes.Underwear)) && BachelorParty.CanSwitchIntoOutfit(actor.SimDescription) && GetBachelorPartyOutfitEnabled(actor.SimDescription, BachelorPartyOutfitTypes.Underwear))
-                {
-                    PushSwitchToBachelorPartyOutfitInteraction(actor, BachelorPartyOutfitTypes.Underwear);
-                }
-            }
-
-            public void PushSwitchOutfit(Sim actor)
-            {
-                if (actor.SimDescription.TeenOrBelow)
-                {
-                    return;
-                }
-                BachelorParty self = (BachelorParty)(object)this;
-                if (actor == self.Host)
-                {
-                    if (BachelorParty.CanSwitchIntoOutfit(actor.SimDescription) && GetBachelorPartyOutfitEnabled(actor.SimDescription, BachelorPartyOutfitTypes.Host))
-                    {
-                        PushSwitchToBachelorPartyOutfitInteraction(actor, BachelorPartyOutfitTypes.Host);
-                    }
-                }
-                else if (self.ShouldSwitchIntoOutfit(actor) && GetBachelorPartyOutfitEnabled(actor.SimDescription, BachelorPartyOutfitTypes.Guest))
-                {
-                    if (BachelorParty.kSpecialOutfitCount > 0)
-                    {
-                        PushSwitchToBachelorPartyOutfitInteraction(actor, BachelorPartyOutfitTypes.Guest);
-                    }
-                    else
-                    {
-                        actor.PushSwitchToOutfitInteraction(Sim.ClothesChangeReason.GoingToSituation, self.GetClothingStyle());
-                    }
-                }
-                else
-                {
-                    actor.PushSwitchToOutfitInteraction(Sim.ClothesChangeReason.GoingToSituation, self.GetClothingStyle());
-                }
-            }
-
-            public void RemoveBachelorPartyEffects(Sim actor)
-            {
-                ActiveTopic.RemoveTopicFromSim(actor, "Bachelor Party");
-                ((BachelorParty)(object)this).RemoveIncreasedEffectivenesses(actor);
-                foreach (BachelorPartyOutfitTypes outfitType in Enum.GetValues(typeof(BachelorPartyOutfitTypes)))
-                {
-                    if (actor.IsWearingSpecialOutfit(GetBachelorPartyOutfitName(actor, outfitType)))
-                    {
-                        PushSwitchFromBachelorPartyOutfitInteraction(actor, outfitType, OutfitCategories.Everyday);
-                        break;
-                    }
-                }
-            }
         }
 
         public class EditBachelorPartyOutfit : ImmediateInteraction<Sim, GameObject>
@@ -188,7 +131,7 @@ namespace Destrospean
                 string outfitName = GetBachelorPartyOutfitName(Actor, mOutfitType);
                 if (!Actor.SimDescription.HasSpecialOutfit(outfitName))
                 {
-                    Actor.SimDescription.AddSpecialOutfit(CreateBachelorPartyOutfit(Actor, mOutfitType), outfitName);
+                    Actor.SimDescription.AddSpecialOutfit(BachelorParty.CreateBachelorPartyOutfit(Actor, mOutfitType), outfitName);
                 }
                 return Common.EditSpecialOutfit(Actor, GetLocalizationKey(mOutfitType), outfitName);
             }
@@ -283,58 +226,6 @@ namespace Destrospean
             public void SetOutfitType(BachelorPartyOutfitTypes outfitType)
             {
                 mOutfitType = outfitType;
-            }
-        }
-
-        public class SwitchToBachelorPartyOutfit : Interaction<Sim, IGameObject>
-        {
-            [DoesntRequireTuning]
-            public class Definition : InteractionDefinition<Sim, IGameObject, SwitchToBachelorPartyOutfit>
-            {
-                public override string GetInteractionName(Sim actor, IGameObject target, InteractionObjectPair interaction)
-                {
-                    return "";
-                }
-
-                public override bool Test(Sim actor, IGameObject target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
-                {
-                    return true;
-                }
-            }
-
-            public static InteractionDefinition Singleton = new Definition();
-
-            public bool IsRemove;
-
-            public OutfitCategories OutfitCategory;
-
-            public BachelorPartyOutfitTypes OutfitType;
-
-            public override bool Run()
-            {
-                SimDescription simDescription = Actor.SimDescription;
-                string specialOutfitKey = GetBachelorPartyOutfitName(Actor, OutfitType);
-                if (IsRemove)
-                {
-                    if (simDescription.HasSpecialOutfit(specialOutfitKey))
-                    {
-                        Actor.SwitchToOutfitWithSpin(Sim.ClothesChangeReason.Force, OutfitCategory);
-                    }
-                    return true;
-                }
-                if (simDescription.HasSpecialOutfit(specialOutfitKey))
-                {
-                    Actor.SwitchToOutfitWithSpin(simDescription.GetSpecialOutfit(specialOutfitKey).Key);
-                    return true;
-                }
-                SimOutfit simOutfit = CreateBachelorPartyOutfit(Actor, OutfitType);
-                if (simOutfit == null)
-                {
-                    return false;
-                }
-                simDescription.AddSpecialOutfit(simOutfit, specialOutfitKey);
-                Actor.SwitchToOutfitWithSpin(simOutfit.Key);
-                return true;
             }
         }
 
@@ -447,31 +338,7 @@ namespace Destrospean
             }
         }
 
-        public static SimOutfit CreateBachelorPartyOutfit(Sim actor, BachelorPartyOutfitTypes outfitType)
-        {
-            SimBuilder simBuilder = new SimBuilder
-            {
-                UseCompression = true
-            };
-            SimDescription simDescription = actor.SimDescription;
-            SimOutfit resultOutfit;
-            if (!OutfitUtils.TryApplyUniformToOutfit(simDescription.GetOutfit(outfitType == BachelorPartyOutfitTypes.Underwear ? OutfitCategories.Naked : OutfitCategories.Formalwear, 0), new SimOutfit(ResourceKey.CreateOutfitKeyFromProductVersion(GetBachelorPartyOutfitName(actor, outfitType), ProductVersion.EP4)), simDescription, "CreateBachelorPartyOutfit", out resultOutfit))
-            {
-                return null;
-            }
-            OutfitUtils.SetOutfit(simBuilder, resultOutfit, simDescription);
-            simBuilder.RemoveParts(BodyTypes.Freckles);
-            foreach (CASPart part in simDescription.GetOutfit(OutfitCategories.Everyday, 0).Parts)
-            {
-                if (part.BodyType == BodyTypes.Freckles)
-                {
-                    simBuilder.AddPart(part);
-                }
-            }
-            return new SimOutfit(simBuilder.CacheOutfit("BachelorParty" + simDescription.SimDescriptionId));
-        }
-
-        static void DisableBachelorPartyGuestOutfit(SimDescription simDescription)
+        public static void DisableBachelorPartyGuestOutfit(SimDescription simDescription)
         {
             if (GetBachelorPartyOutfitEnabled(simDescription, BachelorPartyOutfitTypes.Guest))
             {
@@ -479,7 +346,7 @@ namespace Destrospean
             }
         }
 
-        static void DisableBachelorPartyHostOutfit(SimDescription simDescription)
+        public static void DisableBachelorPartyHostOutfit(SimDescription simDescription)
         {
             if (GetBachelorPartyOutfitEnabled(simDescription, BachelorPartyOutfitTypes.Host))
             {
@@ -487,7 +354,7 @@ namespace Destrospean
             }
         }
 
-        static void DisableBachelorPartyOutfit(SimDescription simDescription, BachelorPartyOutfitTypes outfitType)
+        public static void DisableBachelorPartyOutfit(SimDescription simDescription, BachelorPartyOutfitTypes outfitType)
         {
             switch (outfitType)
             {
@@ -503,7 +370,7 @@ namespace Destrospean
             }
         }
 
-        static void DisableBachelorPartyUnderwear(SimDescription simDescription)
+        public static void DisableBachelorPartyUnderwear(SimDescription simDescription)
         {
             if (GetBachelorPartyOutfitEnabled(simDescription, BachelorPartyOutfitTypes.Underwear))
             {
@@ -511,7 +378,7 @@ namespace Destrospean
             }
         }
 
-        static void EnableBachelorPartyGuestOutfit(SimDescription simDescription)
+        public static void EnableBachelorPartyGuestOutfit(SimDescription simDescription)
         {
             if (!GetBachelorPartyOutfitEnabled(simDescription, BachelorPartyOutfitTypes.Guest))
             {
@@ -519,7 +386,7 @@ namespace Destrospean
             }
         }
 
-        static void EnableBachelorPartyHostOutfit(SimDescription simDescription)
+        public static void EnableBachelorPartyHostOutfit(SimDescription simDescription)
         {
             if (!GetBachelorPartyOutfitEnabled(simDescription, BachelorPartyOutfitTypes.Host))
             {
@@ -527,7 +394,7 @@ namespace Destrospean
             }
         }
 
-        static void EnableBachelorPartyOutfit(SimDescription simDescription, BachelorPartyOutfitTypes outfitType)
+        public static void EnableBachelorPartyOutfit(SimDescription simDescription, BachelorPartyOutfitTypes outfitType)
         {
             switch (outfitType)
             {
@@ -543,7 +410,7 @@ namespace Destrospean
             }
         }
 
-        static void EnableBachelorPartyUnderwear(SimDescription simDescription)
+        public static void EnableBachelorPartyUnderwear(SimDescription simDescription)
         {
             if (!GetBachelorPartyOutfitEnabled(simDescription, BachelorPartyOutfitTypes.Underwear))
             {
@@ -551,7 +418,7 @@ namespace Destrospean
             }
         }
 
-        static bool GetBachelorPartyOutfitEnabled(SimDescription simDescription, BachelorPartyOutfitTypes outfitType)
+        public static bool GetBachelorPartyOutfitEnabled(SimDescription simDescription, BachelorPartyOutfitTypes outfitType)
         {
             return !new Dictionary<BachelorPartyOutfitTypes, bool>
             {
@@ -649,6 +516,128 @@ namespace Destrospean
             sSimDescriptionDisposedListener = null;
             sSimSelectedListener = null;
         }
+    }
+}
+
+namespace Destrospean.CustomizableUncustomizableOutfits.Replacements
+{
+    public class BachelorParty
+    {
+        public class SwitchToBachelorPartyOutfit : Interaction<Sim, IGameObject>
+        {
+            [DoesntRequireTuning]
+            public class Definition : InteractionDefinition<Sim, IGameObject, SwitchToBachelorPartyOutfit>
+            {
+                public override string GetInteractionName(Sim actor, IGameObject target, InteractionObjectPair interaction)
+                {
+                    return "";
+                }
+
+                public override bool Test(Sim actor, IGameObject target, bool isAutonomous, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
+                {
+                    return true;
+                }
+            }
+
+            public static InteractionDefinition Singleton = new Definition();
+
+            public bool IsRemove;
+
+            public OutfitCategories OutfitCategory;
+
+            public BachelorPartyOutfitTypes OutfitType;
+
+            public override bool Run()
+            {
+                SimDescription simDescription = Actor.SimDescription;
+                string specialOutfitKey = BachelorPartyOutfit.GetBachelorPartyOutfitName(Actor, OutfitType);
+                if (IsRemove)
+                {
+                    if (simDescription.HasSpecialOutfit(specialOutfitKey))
+                    {
+                        Actor.SwitchToOutfitWithSpin(Sim.ClothesChangeReason.Force, OutfitCategory);
+                    }
+                    return true;
+                }
+                if (simDescription.HasSpecialOutfit(specialOutfitKey))
+                {
+                    Actor.SwitchToOutfitWithSpin(simDescription.GetSpecialOutfit(specialOutfitKey).Key);
+                    return true;
+                }
+                SimOutfit simOutfit = CreateBachelorPartyOutfit(Actor, OutfitType);
+                if (simOutfit == null)
+                {
+                    return false;
+                }
+                simDescription.AddSpecialOutfit(simOutfit, specialOutfitKey);
+                Actor.SwitchToOutfitWithSpin(simOutfit.Key);
+                return true;
+            }
+        }
+
+        public static SimOutfit CreateBachelorPartyOutfit(Sim actor, BachelorPartyOutfitTypes outfitType)
+        {
+            SimBuilder simBuilder = new SimBuilder
+                {
+                    UseCompression = true
+                };
+            SimDescription simDescription = actor.SimDescription;
+            SimOutfit resultOutfit;
+            if (!OutfitUtils.TryApplyUniformToOutfit(simDescription.GetOutfit(outfitType == BachelorPartyOutfitTypes.Underwear ? OutfitCategories.Naked : OutfitCategories.Formalwear, 0), new SimOutfit(ResourceKey.CreateOutfitKeyFromProductVersion(BachelorPartyOutfit.GetBachelorPartyOutfitName(actor, outfitType), ProductVersion.EP4)), simDescription, "CreateBachelorPartyOutfit", out resultOutfit))
+            {
+                return null;
+            }
+            OutfitUtils.SetOutfit(simBuilder, resultOutfit, simDescription);
+            simBuilder.RemoveParts(BodyTypes.Freckles);
+            foreach (CASPart part in simDescription.GetOutfit(OutfitCategories.Everyday, 0).Parts)
+            {
+                if (part.BodyType == BodyTypes.Freckles)
+                {
+                    simBuilder.AddPart(part);
+                }
+            }
+            return new SimOutfit(simBuilder.CacheOutfit("BachelorParty" + simDescription.SimDescriptionId));
+        }
+
+        public static void OnSprayedWithFizzyNectar(Sim actor)
+        {
+            float chance = MathHelpers.LinearInterpolate(MoodManager.kMoodMinValue, MoodManager.kMoodSuperBarEnd, BachelorPartySituation.kChanceOfSpinningIntoUnderwearMin, BachelorPartySituation.kChanceOfSpinningIntoUnderwearMax, actor.MoodManager.MoodValue);
+            if (RandomUtil.RandomChance01(chance) && !actor.SimDescription.HasSpecialOutfit(BachelorPartyOutfit.GetBachelorPartyOutfitName(actor, BachelorPartyOutfitTypes.Underwear)) && BachelorPartySituation.CanSwitchIntoOutfit(actor.SimDescription) && BachelorPartyOutfit.GetBachelorPartyOutfitEnabled(actor.SimDescription, BachelorPartyOutfitTypes.Underwear))
+            {
+                PushSwitchToBachelorPartyOutfitInteraction(actor, BachelorPartyOutfitTypes.Underwear);
+            }
+        }
+
+        public void PushSwitchOutfit(Sim actor)
+        {
+            if (actor.SimDescription.TeenOrBelow)
+            {
+                return;
+            }
+            BachelorPartySituation self = (BachelorPartySituation)(object)this;
+            if (actor == self.Host)
+            {
+                if (BachelorPartySituation.CanSwitchIntoOutfit(actor.SimDescription) && BachelorPartyOutfit.GetBachelorPartyOutfitEnabled(actor.SimDescription, BachelorPartyOutfitTypes.Host))
+                {
+                    PushSwitchToBachelorPartyOutfitInteraction(actor, BachelorPartyOutfitTypes.Host);
+                }
+            }
+            else if (self.ShouldSwitchIntoOutfit(actor) && BachelorPartyOutfit.GetBachelorPartyOutfitEnabled(actor.SimDescription, BachelorPartyOutfitTypes.Guest))
+            {
+                if (BachelorPartySituation.kSpecialOutfitCount > 0)
+                {
+                    PushSwitchToBachelorPartyOutfitInteraction(actor, BachelorPartyOutfitTypes.Guest);
+                }
+                else
+                {
+                    actor.PushSwitchToOutfitInteraction(Sim.ClothesChangeReason.GoingToSituation, self.GetClothingStyle());
+                }
+            }
+            else
+            {
+                actor.PushSwitchToOutfitInteraction(Sim.ClothesChangeReason.GoingToSituation, self.GetClothingStyle());
+            }
+        }
 
         public static void PushSwitchFromBachelorPartyOutfitInteraction(Sim actor, BachelorPartyOutfitTypes outfitType, OutfitCategories destinationCategory)
         {
@@ -671,6 +660,20 @@ namespace Destrospean
             switchToBachelorPartyOutfit.MustRun = true;
             switchToBachelorPartyOutfit.OutfitType = outfitType;
             actor.InteractionQueue.AddNext(switchToBachelorPartyOutfit);
+        }
+
+        public void RemoveBachelorPartyEffects(Sim actor)
+        {
+            ActiveTopic.RemoveTopicFromSim(actor, "Bachelor Party");
+            ((BachelorPartySituation)(object)this).RemoveIncreasedEffectivenesses(actor);
+            foreach (BachelorPartyOutfitTypes outfitType in Enum.GetValues(typeof(BachelorPartyOutfitTypes)))
+            {
+                if (actor.IsWearingSpecialOutfit(BachelorPartyOutfit.GetBachelorPartyOutfitName(actor, outfitType)))
+                {
+                    PushSwitchFromBachelorPartyOutfitInteraction(actor, outfitType, OutfitCategories.Everyday);
+                    break;
+                }
+            }
         }
     }
 }

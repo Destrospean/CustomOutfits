@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Destrospean.CustomOutfits;
 using Sims3.Gameplay.Abstracts;
 using Sims3.Gameplay.Actors;
 using Sims3.Gameplay.ActorSystems;
@@ -17,11 +16,11 @@ using Sims3.Gameplay.Objects.ShelvesStorage;
 using Sims3.SimIFace;
 using Sims3.SimIFace.CAS;
 using Sims3.UI;
-using Tuning = Sims3.Gameplay.Destrospean.CustomOutfits;
+using Tuning = Sims3.Gameplay.Destrospean.CustomizableUncustomizableOutfits;
 
-namespace Destrospean
+namespace Destrospean.CustomizableUncustomizableOutfits
 {
-    public class CustomHighSchoolGraduationOutfit
+    public class HighSchoolGraduationOutfit
     {
         public static readonly string kHighSchoolGraduationSpecialOutfitKey = "HighSchoolGraduation";
 
@@ -33,7 +32,7 @@ namespace Destrospean
 
         static EventListener sSimDescriptionDisposedListener, sSimSelectedListener;
 
-        static CustomHighSchoolGraduationOutfit()
+        static HighSchoolGraduationOutfit()
         {
             sHighSchoolGraduationOutfitDisabledList = new List<ulong>();
             sSimDescriptionDisposedListener = null;

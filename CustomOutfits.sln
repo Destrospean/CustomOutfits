@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomOutfits", "CustomOutfits\CustomOutfits.csproj", "{D5E41DB2-3F43-4EEB-9CC7-303D24C203C1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Destrospean.CustomizableUncustomizableOutfits", "CustomOutfits\Destrospean.CustomizableUncustomizableOutfits.csproj", "{D5E41DB2-3F43-4EEB-9CC7-303D24C203C1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomOutfitsMasterController", "CustomOutfitsMasterController\CustomOutfitsMasterController.csproj", "{744E9A74-02F5-492E-B1F2-0CC734316407}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Destrospean.CustomizableUncustomizableOutfits.MasterController", "CustomOutfitsMasterController\Destrospean.CustomizableUncustomizableOutfits.MasterController.csproj", "{744E9A74-02F5-492E-B1F2-0CC734316407}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

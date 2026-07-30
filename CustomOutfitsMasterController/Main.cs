@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Destrospean.CustomOutfits;
 using Sims3.Gameplay;
 using Sims3.Gameplay.Abstracts;
 using Sims3.Gameplay.Academics;
@@ -15,21 +14,21 @@ using Sims3.SimIFace;
 using Sims3.SimIFace.CAS;
 using Sims3.UI;
 using Sims3.UI.CAS;
-using Tuning = Sims3.Gameplay.Destrospean.CustomOutfits;
+using Tuning = Sims3.Gameplay.Destrospean.CustomizableUncustomizableOutfits;
 
-namespace Destrospean
+namespace Destrospean.CustomizableUncustomizableOutfits.MasterController
 {
-    public class CustomOutfitsMasterController
+    public class Main
     {
         [Tunable]
         protected static bool kInstantiator;
 
-        static CustomOutfitsMasterController()
+        static Main()
         {
             LoadSaveManager.ObjectGroupsPreLoad += OnPreLoad;
         }
 
-        public class EditAfterschoolActivityOutfit : CustomAfterschoolActivityOutfit.EditAfterschoolActivityOutfit
+        public class EditAfterschoolActivityOutfit : AfterschoolActivityOutfit.EditAfterschoolActivityOutfit
         {
             public class DefinitionModified : ImmediateInteractionDefinition<Sim, GameObject, EditAfterschoolActivityOutfit>
             {
@@ -87,29 +86,29 @@ namespace Destrospean
 
             public override bool Run()
             {
-                string outfitName = CustomAfterschoolActivityOutfit.GetAfterschoolActivityOutfitName(Actor, mAfterschoolActivityType);
+                string outfitName = AfterschoolActivityOutfit.GetAfterschoolActivityOutfitName(Actor, mAfterschoolActivityType);
                 return EditSpecialOutfit(Actor, GetLocalizationKey(mAfterschoolActivityType), outfitName, outfitName, ProductVersion.EP4);
             }
         }
 
-        public class EditBachelorPartyOutfit : CustomBachelorPartyOutfit.EditBachelorPartyOutfit
+        public class EditBachelorPartyOutfit : BachelorPartyOutfit.EditBachelorPartyOutfit
         {
             public class DefinitionModified : ImmediateInteractionDefinition<Sim, GameObject, EditBachelorPartyOutfit>
             {
-                public CustomBachelorPartyOutfit.BachelorPartyOutfitTypes mOutfitType;
+                public BachelorPartyOutfitTypes mOutfitType;
 
                 public DefinitionModified()
                 {
                 }
 
-                public DefinitionModified(CustomBachelorPartyOutfit.BachelorPartyOutfitTypes outfitType)
+                public DefinitionModified(BachelorPartyOutfitTypes outfitType)
                 {
                     mOutfitType = outfitType;
                 }
 
                 public override void AddInteractions(InteractionObjectPair interaction, Sim actor, GameObject target, List<InteractionObjectPair> results)
                 {
-                    foreach (CustomBachelorPartyOutfit.BachelorPartyOutfitTypes outfitType in Enum.GetValues(typeof(CustomBachelorPartyOutfit.BachelorPartyOutfitTypes)))
+                    foreach (BachelorPartyOutfitTypes outfitType in Enum.GetValues(typeof(BachelorPartyOutfitTypes)))
                     {
                         results.Add(new InteractionObjectPair(new DefinitionModified(outfitType), target));
                     }
@@ -145,16 +144,16 @@ namespace Destrospean
 
             public override bool Run()
             {
-                string outfitName = CustomBachelorPartyOutfit.GetBachelorPartyOutfitName(Actor, mOutfitType);
+                string outfitName = BachelorPartyOutfit.GetBachelorPartyOutfitName(Actor, mOutfitType);
                 if (!Actor.SimDescription.HasSpecialOutfit(outfitName))
                 {
-                    Actor.SimDescription.AddSpecialOutfit(CustomBachelorPartyOutfit.CreateBachelorPartyOutfit(Actor, mOutfitType), outfitName);
+                    Actor.SimDescription.AddSpecialOutfit(Replacements.BachelorParty.CreateBachelorPartyOutfit(Actor, mOutfitType), outfitName);
                 }
                 return EditSpecialOutfit(Actor, GetLocalizationKey(mOutfitType), outfitName);
             }
         }
 
-        public class EditBeekeeperOutfit : CustomBeekeeperOutfit.EditBeekeeperOutfit
+        public class EditBeekeeperOutfit : BeekeeperOutfit.EditBeekeeperOutfit
         {
             public class DefinitionModified : ImmediateInteractionDefinition<Sim, GameObject, EditBeekeeperOutfit>
             {
@@ -178,12 +177,12 @@ namespace Destrospean
 
             public override bool Run()
             {
-                string outfitName = CustomBeekeeperOutfit.GetBeekeeperOutfitName(Actor);
+                string outfitName = BeekeeperOutfit.GetBeekeeperOutfitName(Actor);
                 return EditSpecialOutfit(Actor, sLocalizationKey, outfitName, outfitName, ProductVersion.EP7);
             }
         }
 
-        public class EditChefOutfit : CustomTeppanyakiChefOutfit.EditChefOutfit
+        public class EditChefOutfit : TeppanyakiChefOutfit.EditChefOutfit
         {
             public class DefinitionModified : ImmediateInteractionDefinition<Sim, GameObject, EditChefOutfit>
             {
@@ -207,11 +206,11 @@ namespace Destrospean
 
             public override bool Run()
             {
-                return EditSpecialOutfit(Actor, sLocalizationKey, CustomTeppanyakiChefOutfit.kChefSpecialOutfitKey, CustomTeppanyakiChefOutfit.GetChefOutfitName(Actor), ProductVersion.BaseGame);
+                return EditSpecialOutfit(Actor, sLocalizationKey, TeppanyakiChefOutfit.kChefSpecialOutfitKey, TeppanyakiChefOutfit.GetChefOutfitName(Actor), ProductVersion.BaseGame);
             }
         }
 
-        public class EditChemistryLabOutfit : CustomChemistryLabOutfit.EditChemistryLabOutfit
+        public class EditChemistryLabOutfit : ChemistryLabOutfit.EditChemistryLabOutfit
         {
             public class DefinitionModified : ImmediateInteractionDefinition<Sim, GameObject, EditChemistryLabOutfit>
             {
@@ -235,11 +234,11 @@ namespace Destrospean
 
             public override bool Run()
             {
-                return EditSpecialOutfit(Actor, sLocalizationKey, CustomChemistryLabOutfit.kChemistryLabSpecialOutfitKey, CustomChemistryLabOutfit.GetChemistryLabOutfitName(Actor), ProductVersion.EP4);
+                return EditSpecialOutfit(Actor, sLocalizationKey, ChemistryLabOutfit.kChemistryLabSpecialOutfitKey, ChemistryLabOutfit.GetChemistryLabOutfitName(Actor), ProductVersion.EP4);
             }
         }
 
-        public class EditGraduationOutfit : CustomGraduationOutfit.EditGraduationOutfit
+        public class EditGraduationOutfit : GraduationOutfit.EditGraduationOutfit
         {
             public class DefinitionModified : ImmediateInteractionDefinition<Sim, GameObject, EditGraduationOutfit>
             {
@@ -301,12 +300,12 @@ namespace Destrospean
 
             public override bool Run()
             {
-                string outfitName = CustomGraduationOutfit.GetGraduationOutfitName(Actor, mAcademicDegreeName);
+                string outfitName = GraduationOutfit.GetGraduationOutfitName(Actor, mAcademicDegreeName);
                 return EditSpecialOutfit(Actor, GetLocalizationKey(mAcademicDegreeName), outfitName, outfitName, ProductVersion.EP9);
             }
         }
 
-        public class EditHighSchoolGraduationOutfit : CustomHighSchoolGraduationOutfit.EditHighSchoolGraduationOutfit
+        public class EditHighSchoolGraduationOutfit : HighSchoolGraduationOutfit.EditHighSchoolGraduationOutfit
         {
             public class DefinitionModified : ImmediateInteractionDefinition<Sim, GameObject, EditHighSchoolGraduationOutfit>
             {
@@ -330,11 +329,11 @@ namespace Destrospean
 
             public override bool Run()
             {
-                return EditSpecialOutfit(Actor, sLocalizationKey, CustomHighSchoolGraduationOutfit.kHighSchoolGraduationSpecialOutfitKey, CustomHighSchoolGraduationOutfit.GetHighSchoolGraduationOutfitName(Actor), ProductVersion.EP4);
+                return EditSpecialOutfit(Actor, sLocalizationKey, HighSchoolGraduationOutfit.kHighSchoolGraduationSpecialOutfitKey, HighSchoolGraduationOutfit.GetHighSchoolGraduationOutfitName(Actor), ProductVersion.EP4);
             }
         }
 
-        public class EditMassageTableOutfit : CustomMassageTableOutfit.EditMassageTableOutfit
+        public class EditMassageTableOutfit : MassageTableOutfit.EditMassageTableOutfit
         {
             public class DefinitionModified : ImmediateInteractionDefinition<Sim, GameObject, EditMassageTableOutfit>
             {
@@ -358,11 +357,11 @@ namespace Destrospean
 
             public override bool Run()
             {
-                return EditSpecialOutfit(Actor, sLocalizationKey, CustomMassageTableOutfit.kMassageTableSpecialOutfitKey, CustomMassageTableOutfit.GetMassageTableOutfitName(Actor), ProductVersion.EP3, Actor.SimDescription.GetOutfit(OutfitCategories.Swimwear, 0));
+                return EditSpecialOutfit(Actor, sLocalizationKey, MassageTableOutfit.kMassageTableSpecialOutfitKey, MassageTableOutfit.GetMassageTableOutfitName(Actor), ProductVersion.EP3, Actor.SimDescription.GetOutfit(OutfitCategories.Swimwear, 0));
             }
         }
 
-        public class EditMechanicalBullOutfit : CustomMechanicalBullOutfit.EditMechanicalBullOutfit
+        public class EditMechanicalBullOutfit : MechanicalBullOutfit.EditMechanicalBullOutfit
         {
             public class DefinitionModified : ImmediateInteractionDefinition<Sim, GameObject, EditMechanicalBullOutfit>
             {
@@ -386,11 +385,11 @@ namespace Destrospean
 
             public override bool Run()
             {
-                return EditSpecialOutfit(Actor, sLocalizationKey, CustomMechanicalBullOutfit.kMechanicalBullSpecialOutfitKey, CustomMechanicalBullOutfit.GetMechanicalBullOutfitName(Actor), ProductVersion.EP6);
+                return EditSpecialOutfit(Actor, sLocalizationKey, MechanicalBullOutfit.kMechanicalBullSpecialOutfitKey, MechanicalBullOutfit.GetMechanicalBullOutfitName(Actor), ProductVersion.EP6);
             }
         }
 
-        public class EditSaunaOutfit : CustomSaunaOutfit.EditSaunaOutfit
+        public class EditSaunaOutfit : SaunaOutfit.EditSaunaOutfit
         {
             public class DefinitionModified : ImmediateInteractionDefinition<Sim, GameObject, EditSaunaOutfit>
             {
@@ -414,12 +413,12 @@ namespace Destrospean
 
             public override bool Run()
             {
-                Actor.SimDescription.AddSpecialOutfit(new SimOutfit(Actor.SimDescription.GetOutfit(OutfitCategories.Swimwear, 0).Key), CustomSaunaOutfit.kSaunaSpecialOutfitKey);
-                return EditSpecialOutfit(Actor, sLocalizationKey, CustomSaunaOutfit.kSaunaSpecialOutfitKey);
+                Actor.SimDescription.AddSpecialOutfit(new SimOutfit(Actor.SimDescription.GetOutfit(OutfitCategories.Swimwear, 0).Key), SaunaOutfit.kSaunaSpecialOutfitKey);
+                return EditSpecialOutfit(Actor, sLocalizationKey, SaunaOutfit.kSaunaSpecialOutfitKey);
             }
         }
 
-        public class EditSingedOutfit : CustomSingedOutfit.EditSingedOutfit
+        public class EditSingedOutfit : SingedOutfit.EditSingedOutfit
         {
             public class DefinitionModified : ImmediateInteractionDefinition<Sim, GameObject, EditSingedOutfit>
             {
@@ -443,32 +442,32 @@ namespace Destrospean
 
             public override bool Run()
             {
-                if (!Actor.SimDescription.HasSpecialOutfit(CustomSingedOutfit.kSingedSpecialOutfitKey) && !string.IsNullOrEmpty(OutfitUtils.GetSingedOutfit(Actor)))
+                if (!Actor.SimDescription.HasSpecialOutfit(SingedOutfit.kSingedSpecialOutfitKey) && !string.IsNullOrEmpty(OutfitUtils.GetSingedOutfit(Actor)))
                 {
-                    Actor.SimDescription.AddSpecialOutfit(CustomSingedOutfit.CreateSingedOutfit(Actor), CustomSingedOutfit.kSingedSpecialOutfitKey);
+                    Actor.SimDescription.AddSpecialOutfit(SingedOutfit.CreateSingedOutfit(Actor), SingedOutfit.kSingedSpecialOutfitKey);
                 }
-                return EditSpecialOutfit(Actor, sLocalizationKey, CustomSingedOutfit.kSingedSpecialOutfitKey);
+                return EditSpecialOutfit(Actor, sLocalizationKey, SingedOutfit.kSingedSpecialOutfitKey);
             }
         }
 
-        public class EditSkatingOutfit : CustomSkatingOutfit.EditSkatingOutfit
+        public class EditSkatingOutfit : SkatingOutfit.EditSkatingOutfit
         {
             public class DefinitionModified : ImmediateInteractionDefinition<Sim, GameObject, EditSkatingOutfit>
             {
-                public CustomSkatingOutfit.SkatingTypes mSkatingType;
+                public SkatingOutfit.SkatingTypes mSkatingType;
 
                 public DefinitionModified()
                 {
                 }
 
-                public DefinitionModified(CustomSkatingOutfit.SkatingTypes skatingType)
+                public DefinitionModified(SkatingOutfit.SkatingTypes skatingType)
                 {
                     mSkatingType = skatingType;
                 }
 
                 public override void AddInteractions(InteractionObjectPair interaction, Sim actor, GameObject target, List<InteractionObjectPair> results)
                 {
-                    foreach (CustomSkatingOutfit.SkatingTypes skatingType in Enum.GetValues(typeof(CustomSkatingOutfit.SkatingTypes)))
+                    foreach (SkatingOutfit.SkatingTypes skatingType in Enum.GetValues(typeof(SkatingOutfit.SkatingTypes)))
                     {
                         results.Add(new InteractionObjectPair(new DefinitionModified(skatingType), target));
                     }
@@ -503,22 +502,22 @@ namespace Destrospean
 
                 public override InteractionTestResult Test(ref InteractionInstanceParameters parameters, ref GreyedOutTooltipCallback greyedOutTooltipCallback)
                 {
-                    return InteractionDefinitionUtilities.FromBool((Tuning.kShowObjectMenu && SkatableTerrain.GetPondSkatingAreaAtPoint(parameters.Hit.mPoint) != null && mSkatingType == CustomSkatingOutfit.SkatingTypes.Ice && PondManager.ArePondsFrozen() || parameters.Target is ISkatableObject && mSkatingType == (((ISkatableObject)parameters.Target).IsIceRink ? CustomSkatingOutfit.SkatingTypes.Ice : CustomSkatingOutfit.SkatingTypes.Roller) || Tuning.kShowSimMenu && parameters.Actor == parameters.Target) && parameters.Actor.SimDescription.ChildOrAbove && parameters.Actor.SimDescription.IsHuman && !parameters.Actor.SimDescription.IsRobot && !parameters.Autonomous);
+                    return InteractionDefinitionUtilities.FromBool((Tuning.kShowObjectMenu && SkatableTerrain.GetPondSkatingAreaAtPoint(parameters.Hit.mPoint) != null && mSkatingType == SkatingOutfit.SkatingTypes.Ice && PondManager.ArePondsFrozen() || parameters.Target is ISkatableObject && mSkatingType == (((ISkatableObject)parameters.Target).IsIceRink ? SkatingOutfit.SkatingTypes.Ice : SkatingOutfit.SkatingTypes.Roller) || Tuning.kShowSimMenu && parameters.Actor == parameters.Target) && parameters.Actor.SimDescription.ChildOrAbove && parameters.Actor.SimDescription.IsHuman && !parameters.Actor.SimDescription.IsRobot && !parameters.Autonomous);
                 }
             }
 
             public override bool Run()
             {
-                string outfitName = CustomSkatingOutfit.GetSkatingOutfitName(Actor, mSkatingType);
+                string outfitName = SkatingOutfit.GetSkatingOutfitName(Actor, mSkatingType);
                 if (!Actor.SimDescription.HasSpecialOutfit(outfitName))
                 {
-                    Actor.SimDescription.AddSpecialOutfit(CustomSkatingOutfit.CreateSkatingOutfit(Actor, mSkatingType), outfitName);
+                    Actor.SimDescription.AddSpecialOutfit(SkatingOutfit.CreateSkatingOutfit(Actor, mSkatingType), outfitName);
                 }
                 return EditSpecialOutfit(Actor, GetLocalizationKey(mSkatingType), outfitName);
             }
         }
 
-        public class EditTowelOutfit : CustomTowelOutfit.EditTowelOutfit
+        public class EditTowelOutfit : TowelOutfit.EditTowelOutfit
         {
             public class DefinitionModified : ImmediateInteractionDefinition<Sim, GameObject, EditTowelOutfit>
             {
@@ -547,7 +546,7 @@ namespace Destrospean
 
             public override bool Run()
             {
-                return EditSpecialOutfit(Actor, sLocalizationKey, CustomTowelOutfit.kTowelSpecialOutfitKey, CustomTowelOutfit.GetTowelOutfitName(Actor), ProductVersion.EP3, Actor.SimDescription.GetOutfit(OutfitCategories.Swimwear, 0));
+                return EditSpecialOutfit(Actor, sLocalizationKey, TowelOutfit.kTowelSpecialOutfitKey, TowelOutfit.GetTowelOutfitName(Actor), ProductVersion.EP3, Actor.SimDescription.GetOutfit(OutfitCategories.Swimwear, 0));
             }
         }
 
@@ -613,19 +612,19 @@ namespace Destrospean
 
         static void OnPreLoad()
         {
-            CustomAfterschoolActivityOutfit.EditAfterschoolActivityOutfit.Singleton = new EditAfterschoolActivityOutfit.DefinitionModified();
-            CustomBachelorPartyOutfit.EditBachelorPartyOutfit.Singleton = new EditBachelorPartyOutfit.DefinitionModified();
-            CustomBeekeeperOutfit.EditBeekeeperOutfit.Singleton = new EditBeekeeperOutfit.DefinitionModified();
-            CustomChemistryLabOutfit.EditChemistryLabOutfit.Singleton = new EditChemistryLabOutfit.DefinitionModified();
-            CustomGraduationOutfit.EditGraduationOutfit.Singleton = new EditGraduationOutfit.DefinitionModified();
-            CustomHighSchoolGraduationOutfit.EditHighSchoolGraduationOutfit.Singleton = new EditHighSchoolGraduationOutfit.DefinitionModified();
-            CustomMechanicalBullOutfit.EditMechanicalBullOutfit.Singleton = new EditMechanicalBullOutfit.DefinitionModified();
-            CustomMassageTableOutfit.EditMassageTableOutfit.Singleton = new EditMassageTableOutfit.DefinitionModified();
-            CustomSaunaOutfit.EditSaunaOutfit.Singleton = new EditSaunaOutfit.DefinitionModified();
-            CustomSingedOutfit.EditSingedOutfit.Singleton = new EditSingedOutfit.DefinitionModified();
-            CustomSkatingOutfit.EditSkatingOutfit.Singleton = new EditSkatingOutfit.DefinitionModified();
-            CustomTeppanyakiChefOutfit.EditChefOutfit.Singleton = new EditChefOutfit.DefinitionModified();
-            CustomTowelOutfit.EditTowelOutfit.Singleton = new EditTowelOutfit.DefinitionModified();
+            AfterschoolActivityOutfit.EditAfterschoolActivityOutfit.Singleton = new EditAfterschoolActivityOutfit.DefinitionModified();
+            BachelorPartyOutfit.EditBachelorPartyOutfit.Singleton = new EditBachelorPartyOutfit.DefinitionModified();
+            BeekeeperOutfit.EditBeekeeperOutfit.Singleton = new EditBeekeeperOutfit.DefinitionModified();
+            ChemistryLabOutfit.EditChemistryLabOutfit.Singleton = new EditChemistryLabOutfit.DefinitionModified();
+            GraduationOutfit.EditGraduationOutfit.Singleton = new EditGraduationOutfit.DefinitionModified();
+            HighSchoolGraduationOutfit.EditHighSchoolGraduationOutfit.Singleton = new EditHighSchoolGraduationOutfit.DefinitionModified();
+            MechanicalBullOutfit.EditMechanicalBullOutfit.Singleton = new EditMechanicalBullOutfit.DefinitionModified();
+            MassageTableOutfit.EditMassageTableOutfit.Singleton = new EditMassageTableOutfit.DefinitionModified();
+            SaunaOutfit.EditSaunaOutfit.Singleton = new EditSaunaOutfit.DefinitionModified();
+            SingedOutfit.EditSingedOutfit.Singleton = new EditSingedOutfit.DefinitionModified();
+            SkatingOutfit.EditSkatingOutfit.Singleton = new EditSkatingOutfit.DefinitionModified();
+            TeppanyakiChefOutfit.EditChefOutfit.Singleton = new EditChefOutfit.DefinitionModified();
+            TowelOutfit.EditTowelOutfit.Singleton = new EditTowelOutfit.DefinitionModified();
         }
     }
 }

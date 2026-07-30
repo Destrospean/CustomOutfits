@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Destrospean.CustomOutfits;
 using Sims3.Gameplay.Abstracts;
 using Sims3.Gameplay.Actors;
 using Sims3.Gameplay.ActorSystems;
@@ -14,11 +13,11 @@ using Sims3.SimIFace;
 using Sims3.SimIFace.CAS;
 using Sims3.Store.Objects;
 using Sims3.UI;
-using Tuning = Sims3.Gameplay.Destrospean.CustomOutfits;
+using Tuning = Sims3.Gameplay.Destrospean.CustomizableUncustomizableOutfits;
 
-namespace Destrospean
+namespace Destrospean.CustomizableUncustomizableOutfits
 {
-    public class CustomSingedOutfit
+    public class SingedOutfit
     {
         [Tunable]
         protected static bool kInstantiator;
@@ -27,9 +26,9 @@ namespace Destrospean
 
         static EventListener sSimSelectedListener;
 
-        static CustomSingedOutfit()
+        static SingedOutfit()
         {
-            Common.ReplaceMethod(typeof(BuffSinged).GetMethod("SetupSingedOutfit"), typeof(CustomSingedOutfit).GetMethod("SetupSingedOutfit"));
+            Common.ReplaceMethod(typeof(BuffSinged).GetMethod("SetupSingedOutfit"), typeof(SingedOutfit).GetMethod("SetupSingedOutfit"));
             sSimSelectedListener = null;
             LoadSaveManager.ObjectGroupsPreLoad += OnPreLoad;
             World.sOnObjectPlacedInLotEventHandler += OnObjectPlacedInLot;
