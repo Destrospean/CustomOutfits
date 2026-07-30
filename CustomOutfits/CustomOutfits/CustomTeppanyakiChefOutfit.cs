@@ -613,7 +613,7 @@ namespace Destrospean
             {
                 simOutfit = OutfitUtils.CreateOutfitForSim(simDescription, ResourceKey.CreateOutfitKeyFromProductVersion(GetChefOutfitName(actor), ProductVersion.BaseGame), OutfitCategories.Career, true);
             }
-            if (!(simOutfit == null || actor.CurrentOutfit.Key == simOutfit.Key))
+            if (simOutfit != null && actor.CurrentOutfit.Key != simOutfit.Key)
             {
                 target.mBackupSO = actor.CurrentOutfit;
                 target.mBackupOC = actor.CurrentOutfitCategory;
@@ -637,6 +637,7 @@ namespace Destrospean
                 if (actor.SimDescription.HasOutfit(target.mBackupOC, target.mBackupSO.Key) > -1)
                 {
                     actor.SwitchToOutfitWithSpin(target.mBackupSO.Key);
+                    target.mBackupSO = null;
                     return;
                 }
             }
