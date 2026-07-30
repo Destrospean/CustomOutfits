@@ -367,6 +367,7 @@ namespace Destrospean
                 return false;
             }
             bool result = false;
+            string specialOutfitKey = GetBeekeeperOutfitName(actor);
             actor.RefreshCurrentOutfit(false);
             if (actor.TraitManager.HasAnyElement(TraitNames.Daredevil, TraitNames.Insane))
             {
@@ -378,7 +379,6 @@ namespace Destrospean
             else
             {
                 SimDescription simDescription = actor.SimDescription;
-                string specialOutfitKey = GetBeekeeperOutfitName(actor);
                 bool hasBeekeeperOutfit = simDescription.HasSpecialOutfit(specialOutfitKey);
                 SimOutfit uniform = null;
                 if (hasBeekeeperOutfit || OutfitUtils.TryGenerateSimOutfit(specialOutfitKey, ProductVersion.EP7, out uniform))
@@ -401,7 +401,7 @@ namespace Destrospean
                 }
                 swimsuitUsed = false;
             }
-            return result;
+            return result && actor.CurrentOutfitCategory == OutfitCategories.Special && actor.CurrentOutfitIndex == actor.SimDescription.GetSpecialOutfitIndexFromKey(ResourceUtils.HashString32(specialOutfitKey));
         }
 
         static void DisableBeekeeperOutfit(SimDescription simDescription)

@@ -619,6 +619,10 @@ namespace Destrospean
                 target.mBackupOC = actor.CurrentOutfitCategory;
                 actor.SwitchToOutfitWithSpin(simOutfit.Key);
             }
+            if (actor.CurrentOutfit.Key != simOutfit.Key)
+            {
+                target.mBackupSO = null;
+            }
         }
 
         public static void ChangeSimToPreviousOutfit(Sim actor, TeppanyakiGrill target)

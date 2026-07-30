@@ -494,7 +494,7 @@ namespace Destrospean
             {
                 simOutfit = OutfitUtils.CreateOutfitForSim(simDescription, ResourceKey.CreateOutfitKeyFromProductVersion(GetChemistryLabOutfitName(actor), ProductVersion.EP4), OutfitCategories.Career, OutfitCategories.Everyday, true);
             }
-            if (simOutfit != null)
+            if (simOutfit != null && actor.CurrentOutfit.Key == simOutfit.Key)
             {
                 actor.SwitchToOutfitWithSpin(simOutfit.Key);
                 outfit = simOutfit;
