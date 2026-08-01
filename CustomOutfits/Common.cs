@@ -183,18 +183,13 @@ namespace Destrospean.CustomOutfits
             casDresserClothing.mAddOutfitButton.Visible = false;
         }
 
+        /// <summary>This method was borrowed from Lazy Duchess' Mono Patcher</summary>
         public static void ReplaceMethod(System.Reflection.MethodInfo oldMethod, System.Reflection.MethodInfo newMethod)
         {
-            // This code was borrowed from Lazy Duchess' Mono Patcher
-            unsafe
-            {
-                IntPtr newMethodHandle = newMethod.MethodHandle.Value,
-                oldMethodHandle = oldMethod.MethodHandle.Value;
-                byte[] replacementByteArray = new byte[40];
-                System.Runtime.InteropServices.Marshal.Copy(newMethodHandle, replacementByteArray, 0, 40);
-                System.Runtime.InteropServices.Marshal.Copy(replacementByteArray, 0, oldMethodHandle, 24);
-                System.Runtime.InteropServices.Marshal.Copy(replacementByteArray, 28, new IntPtr(oldMethodHandle.ToInt32() + 28), 12);
-            }
+            byte[] replacementByteArray = new byte[40];
+            System.Runtime.InteropServices.Marshal.Copy(newMethod.MethodHandle.Value, replacementByteArray, 0, 40);
+            System.Runtime.InteropServices.Marshal.Copy(replacementByteArray, 0, oldMethod.MethodHandle.Value, 24);
+            System.Runtime.InteropServices.Marshal.Copy(replacementByteArray, 28, new IntPtr(oldMethod.MethodHandle.Value.ToInt32() + 28), 12);
         }
     }
 }
