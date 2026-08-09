@@ -553,7 +553,8 @@ namespace Destrospean
                 {
                     Actor.CarryStateMachine.RequestState(false, "x", "CarrySitting");
                 }
-                if (!StateMachineEnterAndSitEx(sittable as SaunaClassic, false, stateMachineClient, sittingPosture, routingSlot, sitContext))
+                Assembly woohooerAssembly, woohooerSaunaAssembly;
+                if (TryGetWoohooerSaunaAssemblies(out woohooerAssembly, out woohooerSaunaAssembly) ? !StateMachineEnterAndSitEx(sittable as SaunaClassic, false, stateMachineClient, sittingPosture, routingSlot, sitContext) : !StateMachineEnterAndSit(sittable as SaunaClassic, stateMachineClient, sittingPosture, routingSlot, sitContext))
                 {
                     if (actorIsCarryingSomething)
                     {
